@@ -42,7 +42,7 @@ set updatecount=0
 
 " ===> Interface
 " Show line number
-set number
+"set number
 
 " Show status line
 set laststatus=2
@@ -71,8 +71,20 @@ syntax on
 
 " Colorscheme
 set t_Co=256
-"colorscheme molokai
-colorscheme colorful
+
+"colorscheme colorful
+
+"-- Solarized colorschema
+set background=dark
+let g:solarized_termcolors=256      " 16 | 256 
+let g:solarized_termtrans=1         " 0 | 1 
+let g:solarized_degrade=1           " 0 | 1 
+let g:solarized_bold=1              " 1 | 0 
+let g:solarized_underline=1         " 1 | 0 
+let g:solarized_italic=1            " 1 | 0 
+let g:solarized_contrast="normal"   "normal | high or low
+let g:solarized_visibility="normal" "normal | high or low
+colorscheme solarized
 
 " ===> Search
 " Ignorecase when search
