@@ -119,6 +119,10 @@ set ambiwidth=double
 " Wrap lines setting
 "set wrap
 
+" Paste settings
+"set paste
+set pastetoggle=<F4>
+
 " ===> Folding
 "set foldmarker={,}
 "set foldmethod=indent
