@@ -107,8 +107,8 @@ set magic
 
 " ===> Indent
 " Indentation and tab settings
-set autoindent
-set smartindent
+"set autoindent
+"set smartindent
 set expandtab
 set shiftwidth=4
 set tabstop=4
