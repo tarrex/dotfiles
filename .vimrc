@@ -50,6 +50,9 @@ set laststatus=2
 " Show command on status bar
 set showcmd
 
+" Hide mode status in status line
+set noshowmode
+
 " Always show current position
 set ruler
 
