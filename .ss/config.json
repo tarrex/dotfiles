@@ -1,0 +1,8 @@
+{
+    "server":"000.000.000.000",
+    "server_port":0000,
+    "local_address": "127.0.0.1",
+    "local_port":0000,
+    "password":"xxxxxx",
+    "timeout":300
+}
