@@ -8,6 +8,7 @@ alias mv='mv -i'
 alias ll='ls -al'
 alias l='ls -al'
 alias vi='vim'
+alias tmux='tmux -2'
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
