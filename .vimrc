@@ -58,6 +58,13 @@ set ruler
 
 " Add underline for the cursor's line
 "set cursorline
+"set cursorcolumn
+
+" Visual autocomplete for command menu
+set wildmenu
+
+" Redraw only when we need to
+"set lazyredraw
 
 if has("gui_running")
     set lines=25
@@ -99,7 +106,11 @@ set incsearch
 " Highlight search
 set hlsearch
 
-" Paren-matching settings
+" Turn off search highlight
+let mapleader=","
+nnoremap <leader><space> :nohlsearch<cr>
+
+" Highlight matching [{()}]
 set showmatch
 
 set smartcase
@@ -109,10 +120,10 @@ set magic
 " Indentation and tab settings
 "set autoindent
 "set smartindent
-set expandtab
+set expandtab                       " tabs are spaces
 set shiftwidth=4
-set tabstop=4
-set softtabstop=4
+set tabstop=4                       " number of visual spaces per TAB
+set softtabstop=4                   " number of spaces in tab when editing
 
 set ambiwidth=double
 
@@ -122,6 +133,22 @@ set ambiwidth=double
 " Paste settings
 "set paste
 set pastetoggle=<F4>
+
+" ===> Movement
+" move vertically by visual line
+nnoremap j gj
+nnoremap k gk
+
+" move to beginning/end of line
+nnoremap B ^
+nnoremap E $
+
+" $/^ doesn't do anything
+nnoremap $ <nop>
+nnoremap ^ <nop>
+
+" highlight last inserted text
+nnoremap gV `[v`]
 
 " ===> Folding
 "set foldmarker={,}
