@@ -201,8 +201,10 @@ Plugin 'tpope/vim-markdown'
 Plugin 'scrooloose/syntastic'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'jiangmiao/auto-pairs'
-Plugin 'shougo/neocomplete.vim'
 Plugin 'kien/ctrlp.vim'
+Plugin 'sirver/ultisnips'
+Plugin 'godlygeek/tabular'
+Plugin 'nathanaelkane/vim-indent-guides'
 
 if has('mac') || has('macunix')
     Plugin 'rizzatti/dash.vim'
@@ -396,3 +398,21 @@ let g:ctrlp_custom_ignore = {
 " ----> tpope/vim-markdown
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+
+" ----> sirver/ultisnips setting
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
+" ----> nathanaelkane/vim-indent-guides setting
+" let g:indent_guides_enable_on_vim_startup=1
+" let g:indent_guides_auto_colors=0
+let g:indent_guides_start_level=1
+let g:indent_guides_guide_size=0
+let g:indent_guides_color_change_percent=30
+" hi IndentGuidesOdd  ctermbg=245
+" hi IndentGuidesEven ctermbg=249
