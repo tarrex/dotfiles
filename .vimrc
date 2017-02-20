@@ -49,8 +49,9 @@ set fileencodings=UTF-8,GBK,BIG5,latin1
 set fileformat=unix             " filetypes setting
 
 set autoread                    " auto load the file when changed outside vim
+set autowrite                   " auto write file when building"
 
-set mouse=a                     " automatically enable mouse usage
+" set mouse=a                     " automatically enable mouse usage
 set mousehide                   " hide mouse cursor while typing"
 
 set report=0                    " show change count
@@ -135,24 +136,31 @@ nmap <C-Tab> :tabnext<cr>
 function AddPythonHeader()
     call setline(1, "#!/usr/bin/env python")
     call append(1, "# -*- coding: utf-8 -*-")
-    call append(2, "# TC created at " . strftime("%Y-%m-%d", localtime()))
+    call append(2, "# Author: T.C")
     call append(3, "# Version: 1.0")
+    call append(4, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(5, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
     normal G
     normal o
 endf
 
 function AddBashHeader()
     call setline(1, "#!/bin/bash")
-    call append(1, "# TC created at " . strftime("%Y-%m-%d", localtime()))
+    call append(1, "# Author: T.C")
     call append(2, "# Version: 1.0")
+    call append(3, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(4, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
     normal G
     normal o
 endf
 
 " function AddGolangHeader()
 "     call setline(1, "/*")
-"     call append(1,  "* TC created at " . strftime("%Y-%m-%d", localtime()))
+"     call append(1, "* Author: T.C")
 "     call append(2, "* Version: 1.0")
+"     call append(3, "* Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+"     call append(4, "* Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+"     call append(5, "*/")
 "     call append(3, "package " . dirname())
 "     normal G
 "     normal o
@@ -161,6 +169,21 @@ endf
 autocmd bufnewfile *.py call AddPythonHeader()
 autocmd bufnewfile *.sh call AddBashHeader()
 " autocmd bufnewfile *.go call AddGolangHeader()
+
+" reference: http://vim.wikia.com/wiki/Insert_current_date_or_time
+function! AutoInsertModifiedTime()
+	let s:original_pos = getpos(".")
+	let s:regexp = "^\s*\([#\"\*]\|\/\/\)\s\?[lL]ast [mM]odified:"
+	let s:lu = search(s:regexp)
+	if s:lu != 0
+		let s:update_str = matchstr(getline(s:lu), s:regexp)
+		call setline(s:lu, s:update_str . strftime(" %Y-%m-%d %H:%M:%S %Z"))
+		call setpos(".", s:original_pos)
+	endif
+endfunction
+autocmd InsertLeave *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+" autocmd BufWritePre *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+" autocmd BufWritePost *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
 
 " highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -194,6 +217,9 @@ Plugin 'majutsushi/tagbar'
 " Golang
 Plugin 'fatih/vim-go'
 
+" Python
+Plugin 'python-mode/python-mode'
+
 " Markdown
 Plugin 'tpope/vim-markdown'
 
@@ -202,8 +228,11 @@ Plugin 'scrooloose/syntastic'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'kien/ctrlp.vim'
+Plugin 'sirver/ultisnips'
 Plugin 'godlygeek/tabular'
 Plugin 'nathanaelkane/vim-indent-guides'
+Plugin 'Valloric/YouCompleteMe'
+" Plugin 'bling/vim-bufferline'
 
 if has('mac') || has('macunix')
     Plugin 'rizzatti/dash.vim'
@@ -226,6 +255,8 @@ filetype plugin indent on    " required
 
 " ----> majutsushi/tagbar setting
 nmap <F8> :TagbarToggle<CR>
+let g:tagbar_ctags_bin="/usr/local/Cellar/ctags/5.8_1/bin/ctags"
+let g:tagbar_width=30
 
 " ----> fatih/vim-go setting
 let g:go_highlight_functions = 1
@@ -250,14 +281,26 @@ au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
 au FileType go nmap <leader>co <Plug>(go-coverage)
 au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
 
+" ----> python-mode/python-mode setting
+" Override go-to.definition key shortcut to Ctrl-]
+let g:pymode_rope_goto_definition_bind = "<C-]>"
+" Override run current python file key shortcut to Ctrl-Shift-e
+let g:pymode_run_bind = "<C-S-e>"
+" Override view python doc key shortcut to Ctrl-Shift-d
+let g:pymode_doc_bind = "<C-S-d>"
+
 " ----> scrooloose/nerdtree setting
-nmap <leader>ne :NERDTreeToggle<CR>
+" nmap <leader>ne :NERDTreeToggle<CR>
+" nmap <leader>ne :NERDTreeToggle<CR>
+nmap <F6> :NERDTreeToggle<CR>
 
 " ----> rizzatti/dash.vim setting
-let g:dash_map = {
-    \ 'python': ['py', 'python2', 'py3', 'python3']
-    \ }
-nmap <silent> <leader>da <Plug>DashSearch
+if has('mac') || has('macunix')
+    let g:dash_map = {
+        \ 'python': ['py', 'python2', 'py3', 'python3']
+        \ }
+    nmap <silent> <leader>da <Plug>DashSearch
+endif
 
 " ----> vim-airline/vim-airline
 if !exists('g:airline_symbols')
@@ -398,6 +441,15 @@ let g:ctrlp_custom_ignore = {
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 
+" ----> sirver/ultisnips setting
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" If you want :UltiSnipsEdit to split your window.
+let g:UltiSnipsEditSplit="vertical"
+
 " ----> nathanaelkane/vim-indent-guides setting
 " let g:indent_guides_enable_on_vim_startup=1
 " let g:indent_guides_auto_colors=0
@@ -406,3 +458,26 @@ let g:indent_guides_guide_size=0
 let g:indent_guides_color_change_percent=30
 " hi IndentGuidesOdd  ctermbg=245
 " hi IndentGuidesEven ctermbg=249
+
+" ----> Valloric/YouCompleteMe setting
+nmap <leader>gd :YcmDiags<CR>
+nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
+nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
+nnoremap <leader>gg :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:ycm_path_to_python_interpreter="/usr/bin/python"
+" let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
+let g:ycm_error_symbol = '>>'
+let g:ycm_warning_symbol = '>*'
+let g:ycm_confirm_extra_conf = 0 "no annoying tips on vim starting
+" let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_min_num_of_chars_for_completion = 1
+" let g:ycm_cache_omnifunc = 0
+" let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_complete_in_comments = 1
+let g:ycm_complete_in_strings = 1
+" let g:ycm_collect_identifiers_from_comments_and_strings = 0
+" let g:ycm_filetype_blacklist = {'tex' : 1, 'markdown' : 1, 'text' : 1, 'html' : 1}
+" let g:syntastic_ignore_files = [".*\.py$"] "python has its own check engine
+" let g:ycm_semantic_triggers = {}
+" let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&']
+" autocmd InsertLeave * if pumvisible() == 0|pclose|endif
