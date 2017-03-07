@@ -1,9 +1,9 @@
 [user]
-	name = tarrex
-	email = tarrexchen@gmail.com
+    name = tarrex
+    email = tarrexchen@gmail.com
 [core]
-	editor = vim
-	pager = less -FRX
+    editor = vim
+    pager = less -FRX
     excludesfile = ~/.gitignore
 [diff]
     tool = vimdiff
@@ -12,31 +12,29 @@
 [push]
     default = matching
 [gist]
-	private = yes
+    private = yes
 [github]
-	user = tarrex
+    user = tarrex
 [alias]
 [color]
-	diff = auto
-	status = auto
-	branch = auto
+    diff = auto
+    status = auto
+    branch = auto
     interactive = auto
-
 [color "branch"]
-	current = yellow bold
-	local = green bold
-	remote = cyan bold
+    current = yellow bold
+    local = green bold
+    remote = cyan bold
 [color "diff"]
-	meta = yellow bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
-	whitespace = red reverse
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
 [color "status"]
-	added = green bold
-	changed = yellow bold
-	untracked = red bold
-
+    added = green bold
+    changed = yellow bold
+    untracked = red bold
 [rerere]
     enabled = 1
     autoupdate = 1
