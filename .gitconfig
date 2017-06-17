@@ -4,37 +4,55 @@
 [core]
     editor = vim
     pager = less -FRX
-    excludesfile = ~/.gitignore
+    excludesFile = ~/.gitignore
 [diff]
     tool = vimdiff
 [difftool]
     prompt = false
+[merge]
+    ff = only
+    # conflictstyle = diff3
+[commit]
+    gpgSign = false
 [push]
-    default = matching
+    default = simple
+    followTags = true
+[status]
+    showUntrackedFiles = all
+[transfer]
+    fsckobjects = true
 [gist]
     private = yes
 [github]
     user = tarrex
 [alias]
+    prune = fetch --prune
+    undo = reset --soft HEAD^
+    stash-all = stash save --include-untracked
+    glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
 [color]
     diff = auto
     status = auto
     branch = auto
     interactive = auto
 [color "branch"]
-    current = yellow bold
-    local = green bold
-    remote = cyan bold
+    current = yellow
+    local = green
+    remote = cyan
+    upstream = magenta
+    plain = red
 [color "diff"]
-    meta = yellow bold
-    frag = magenta bold
-    old = red bold
-    new = green bold
+    context = cyan
+    meta = yellow
+    frag = magenta
+    old = red
+    new = green
+    commit = white
     whitespace = red reverse
 [color "status"]
-    added = green bold
-    changed = yellow bold
-    untracked = red bold
+    added = green
+    changed = yellow
+    untracked = red
 [rerere]
     enabled = 1
     autoupdate = 1

@@ -1,11 +1,17 @@
-" ----> general setting
+" Tarrex's vimrc
+"       ------ Especially for a golang/python programmer.
+"       ------ Enjoy vim, enjoy life.
+
+
+" ============> General Setting <============
+
+syntax on                       " syntax highlighting
+
 set nocompatible                " be iMproved, required
 
 filetype off                    " close filetype detection
 filetype plugin on              " plugin for specific filetypes on 
 filetype indent on              " indent for specific filetypes on
-
-syntax on                       " syntax highlighting
 
 set showmatch                   " highlight match \{\}\[\]\(\)
 
@@ -37,7 +43,7 @@ set tw=500
 " set paste
 set pastetoggle=<F4>            " set paste toggle
 
-set history=1000                " set how many lines of command history vim has to remember
+set history=10000               " set how many lines of command history vim has to remember
 
 set noerrorbells                " bell settings
 set visualbell
@@ -89,107 +95,8 @@ set noswapfile
 " set foldopen-=search
 " set foldopen-=undo
 
-" --> GUI settings
 
-if has("gui_running")
-    set lines=25
-    set columns=80
-    set lazyredraw
-    set guioptions-=m             " hide menu bar
-    set guioptions-=T             " hode tool bar
-    set guifont=consolas\ 10
-    set gcr=a:blinkon0            " disable cursor blink
-endif
-
-" --> colorscheme settings
-
-set t_Co=256
-set background=dark 
-colorscheme desert
-
-" --> keyboard settings
-
-let mapleader=","               " set vim map leader
-let g:mapleader=","
-
-nnoremap <leader><space> :nohlsearch<cr>    " turn off search highlight
-
-nnoremap j gj                   " treat long lines as break lines
-nnoremap k gk
-
-nnoremap B ^                    " move to beginning/end of line
-nnoremap E $
-
-nnoremap $ <nop>                " $/^ doesn't do anything
-nnoremap ^ <nop>
-
-nnoremap gV `[v`]               " highlight last inserted text
-
-nmap <C-t>   :tabnew<cr>        " tab operation shortcut
-nmap <C-p>   :tabprevious<cr>
-nmap <C-n>   :tabnext<cr>
-nmap <C-k>   :tabclose<cr>
-nmap <C-Tab> :tabnext<cr>
-
-" --> custom function
-
-function AddPythonHeader()
-    call setline(1, "#!/usr/bin/env python")
-    call append(1, "# -*- coding: utf-8 -*-")
-    call append(2, "# Author: T.C")
-    call append(3, "# Version: 1.0")
-    call append(4, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(5, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    normal G
-    normal o
-endf
-
-function AddBashHeader()
-    call setline(1, "#!/bin/bash")
-    call append(1, "# Author: T.C")
-    call append(2, "# Version: 1.0")
-    call append(3, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(4, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    normal G
-    normal o
-endf
-
-" function AddGolangHeader()
-"     call setline(1, "/*")
-"     call append(1, "* Author: T.C")
-"     call append(2, "* Version: 1.0")
-"     call append(3, "* Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-"     call append(4, "* Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-"     call append(5, "*/")
-"     call append(3, "package " . dirname())
-"     normal G
-"     normal o
-" endf
-
-autocmd bufnewfile *.py call AddPythonHeader()
-autocmd bufnewfile *.sh call AddBashHeader()
-" autocmd bufnewfile *.go call AddGolangHeader()
-
-" reference: http://vim.wikia.com/wiki/Insert_current_date_or_time
-function! AutoInsertModifiedTime()
-	let s:original_pos = getpos(".")
-	let s:regexp = "^\s*\([#\"\*]\|\/\/\)\s\?[lL]ast [mM]odified:"
-	let s:lu = search(s:regexp)
-	if s:lu != 0
-		let s:update_str = matchstr(getline(s:lu), s:regexp)
-		call setline(s:lu, s:update_str . strftime(" %Y-%m-%d %H:%M:%S %Z"))
-		call setpos(".", s:original_pos)
-	endif
-endfunction
-autocmd InsertLeave *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
-" autocmd BufWritePre *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
-" autocmd BufWritePost *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
-
-" highlight some special strings
-highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
-match hs /\(TODO\)/
-
-" --> plugin settings
+" ============> Plugin Setting <============
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -211,7 +118,7 @@ Plugin 'vim-airline/vim-airline-themes'
 Plugin 'flazz/vim-colorschemes'
 Plugin 'scrooloose/nerdtree'
 
-" tag plugin
+" Tag plugin
 Plugin 'majutsushi/tagbar'
 
 " Golang
@@ -223,8 +130,7 @@ Plugin 'python-mode/python-mode'
 " Markdown
 Plugin 'tpope/vim-markdown'
 
-" utils
-Plugin 'scrooloose/syntastic'
+" Utils
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'kien/ctrlp.vim'
@@ -232,11 +138,7 @@ Plugin 'sirver/ultisnips'
 Plugin 'godlygeek/tabular'
 Plugin 'nathanaelkane/vim-indent-guides'
 Plugin 'Valloric/YouCompleteMe'
-" Plugin 'bling/vim-bufferline'
-
-if has('mac') || has('macunix')
-    Plugin 'rizzatti/dash.vim'
-endif
+Plugin 'w0rp/ale'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -255,8 +157,8 @@ filetype plugin indent on    " required
 
 " ----> majutsushi/tagbar setting
 nmap <F8> :TagbarToggle<CR>
-let g:tagbar_ctags_bin="/usr/local/Cellar/ctags/5.8_1/bin/ctags"
-let g:tagbar_width=30
+let g:tagbar_ctags_bin="/usr/bin/ctags"
+let g:tagbar_width=50
 
 " ----> fatih/vim-go setting
 let g:go_highlight_functions = 1
@@ -294,14 +196,6 @@ let g:pymode_doc_bind = "<C-S-d>"
 " nmap <leader>ne :NERDTreeToggle<CR>
 nmap <F6> :NERDTreeToggle<CR>
 
-" ----> rizzatti/dash.vim setting
-if has('mac') || has('macunix')
-    let g:dash_map = {
-        \ 'python': ['py', 'python2', 'py3', 'python3']
-        \ }
-    nmap <silent> <leader>da <Plug>DashSearch
-endif
-
 " ----> vim-airline/vim-airline
 if !exists('g:airline_symbols')
     let g:airline_symbols = {}
@@ -318,17 +212,8 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline_section_a=airline#section#create(['mode', 'branch'])
-let g:airline_section_b='%{strftime("%c")}'
+" let g:airline_section_b='%{strftime("%c")}'
 let g:airline_section_y='BN: %{bufnr("%")}'
-
-" ----> scrooloose/syntastic setting
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 " ----> scrooloose/nerdcommenter setting
 " Add spaces after comment delimiters by default
@@ -481,3 +366,146 @@ let g:ycm_complete_in_strings = 1
 " let g:ycm_semantic_triggers = {}
 " let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&']
 " autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+
+" ----> w0rp/ale setting
+" Write this in your vimrc file
+let g:ale_lint_on_text_changed = 'never'
+" You can disable this option too
+" if you don't want linters to run on opening a file
+" let g:ale_lint_on_enter = 0
+
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\   'go': ['gofmt -e', 'go vet', 'golint'],
+\}
+" let g:ale_linter_aliases = {'jsx': 'css'}
+let g:ale_sign_column_always = 1
+let g:ale_sign_error = '>>'
+let g:ale_sign_warning = '--'
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+function! LinterStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+
+    return l:counts.total == 0 ? 'OK' : printf(
+    \   '%dW %dE',
+    \   all_non_errors,
+    \   all_errors
+    \)
+endfunction
+
+set statusline=%{LinterStatus()}
+set statusline+=%*
+
+let g:ale_open_list = 1
+" Set this if you want to.
+" This can be useful if you are combining ALE with
+" some other plugin which sets quickfix errors, etc.
+" let g:ale_keep_list_window_open = 1
+
+" ============> Custom Setting <============
+
+" ----> GUI settings
+if has("gui_running")
+    set lines=25
+    set columns=80
+    set lazyredraw
+    set guioptions-=m             " hide menu bar
+    set guioptions-=T             " hode tool bar
+    set guifont=consolas\ 10
+    set gcr=a:blinkon0            " disable cursor blink
+endif
+
+" ----> colorscheme settings
+set t_Co=256
+set background=dark 
+colorscheme desert
+
+" ----> keyboard settings
+let mapleader=","               " set vim map leader
+let g:mapleader=","
+
+nnoremap <leader><space> :nohlsearch<cr>    " turn off search highlight
+nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
+
+nnoremap j gj                   " treat long lines as break lines
+nnoremap k gk
+
+nnoremap B ^                    " move to beginning/end of line
+nnoremap E $
+
+nnoremap $ <nop>                " $/^ doesn't do anything
+nnoremap ^ <nop>
+
+nnoremap gV `[v`]               " highlight last inserted text
+
+nmap <C-t>   :tabnew<cr>        " tab operation shortcut
+nmap <C-p>   :tabprevious<cr>
+nmap <C-n>   :tabnext<cr>
+nmap <C-k>   :tabclose<cr>
+nmap <C-Tab> :tabnext<cr>
+
+" ----> custom function
+function! AddPythonHeader()
+    call setline(1, "#!/usr/bin/env python")
+    call append(1, "# -*- coding: utf-8 -*-")
+    call append(2, "# Author: T.C")
+    call append(3, "# Version: 1.0")
+    call append(4, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(5, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    normal G
+    normal o
+endf
+
+function! AddBashHeader()
+    call setline(1, "#!/bin/bash")
+    call append(1, "# Author: T.C")
+    call append(2, "# Version: 1.0")
+    call append(3, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(4, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    normal G
+    normal o
+endf
+
+" function! AddGolangHeader()
+"     call setline(1, "/*")
+"     call append(1, "* Author: T.C")
+"     call append(2, "* Version: 1.0")
+"     call append(3, "* Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+"     call append(4, "* Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+"     call append(5, "*/")
+"     call append(3, "package " . dirname())
+"     normal G
+"     normal o
+" endf
+
+autocmd bufnewfile *.py call AddPythonHeader()
+autocmd bufnewfile *.sh call AddBashHeader()
+" autocmd bufnewfile *.go call AddGolangHeader()
+
+" reference: http://vim.wikia.com/wiki/Insert_current_date_or_time
+function! AutoInsertModifiedTime()
+	let s:original_pos = getpos(".")
+	let s:regexp = "^\s*\([#\"\*]\|\/\/\)\s\?[lL]ast [mM]odified:"
+	let s:lu = search(s:regexp)
+	if s:lu != 0
+		let s:update_str = matchstr(getline(s:lu), s:regexp)
+		call setline(s:lu, s:update_str . strftime(" %Y-%m-%d %H:%M:%S %Z"))
+		call setpos(".", s:original_pos)
+	endif
+endfunction
+autocmd InsertLeave *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+" autocmd BufWritePre *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+" autocmd BufWritePost *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+
+" highlight some special strings
+highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
+match hs /\(TODO\)/
+
+autocmd bufwritepost .vimrc source $MYVIMRC
