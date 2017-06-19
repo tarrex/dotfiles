@@ -372,14 +372,14 @@ let g:ycm_complete_in_strings = 1
 let g:ale_lint_on_text_changed = 'never'
 " You can disable this option too
 " if you don't want linters to run on opening a file
-" let g:ale_lint_on_enter = 0
+let g:ale_lint_on_enter = 0
 
 let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'go': ['gofmt -e', 'go vet', 'golint'],
 \}
 " let g:ale_linter_aliases = {'jsx': 'css'}
-let g:ale_sign_column_always = 1
+let g:ale_sign_column_always = 0
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '--'
 let g:ale_echo_msg_error_str = 'E'
@@ -425,7 +425,7 @@ endif
 " ----> colorscheme settings
 set t_Co=256
 set background=dark 
-colorscheme desert
+colorscheme candy
 
 " ----> keyboard settings
 let mapleader=","               " set vim map leader
