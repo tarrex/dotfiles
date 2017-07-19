@@ -1,1 +1,0 @@
-nohup ssserver > log &
