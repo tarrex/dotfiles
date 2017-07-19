@@ -425,7 +425,7 @@ endif
 " ----> colorscheme settings
 set t_Co=256
 set background=dark 
-colorscheme candy
+colorscheme cobalt2
 
 " ----> keyboard settings
 let mapleader=","               " set vim map leader
@@ -458,7 +458,7 @@ function! AddPythonHeader()
     call append(2, "# Author: T.C")
     call append(3, "# Version: 1.0")
     call append(4, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(5, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(5, "# Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
     normal G
     normal o
 endf
@@ -468,7 +468,7 @@ function! AddBashHeader()
     call append(1, "# Author: T.C")
     call append(2, "# Version: 1.0")
     call append(3, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(4, "# Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+    call append(4, "# Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
     normal G
     normal o
 endf
@@ -478,7 +478,7 @@ endf
 "     call append(1, "* Author: T.C")
 "     call append(2, "* Version: 1.0")
 "     call append(3, "* Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-"     call append(4, "* Last Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
+"     call append(4, "* Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
 "     call append(5, "*/")
 "     call append(3, "package " . dirname())
 "     normal G
