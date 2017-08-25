@@ -161,11 +161,23 @@ let g:tagbar_ctags_bin="/usr/bin/ctags"
 let g:tagbar_width=50
 
 " ----> fatih/vim-go setting
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_fields = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
 let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_types = 1
+let g:go_highlight_generate_tags = 1
+
+" Enable highlighting of variables that are the same
+" let g:go_auto_sameids = 1
+" Show type information in status line
+" let g:go_auto_type_info = 1
+" Run :GoAddTags. usually want snakecase properties, but it also supports camelcase.
+let g:go_decls_includes = "func,type"
+let g:go_addtags_transform = "snakecase"
 let g:go_fmt_command = "goimports"
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
@@ -183,13 +195,26 @@ au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
 au FileType go nmap <leader>co <Plug>(go-coverage)
 au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
 
+au FileType go nmap <leader>gt :GoDeclsDir<cr>
+au Filetype go nmap <leader>ga <Plug>(go-alternate-edit)
+au Filetype go nmap <leader>gah <Plug>(go-alternate-split)
+au Filetype go nmap <leader>gav <Plug>(go-alternate-vertical)
+au FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
+
+au FileType go nmap <F12> <Plug>(go-def)
+
 " ----> python-mode/python-mode setting
 " Override go-to.definition key shortcut to Ctrl-]
 let g:pymode_rope_goto_definition_bind = "<C-]>"
 " Override run current python file key shortcut to Ctrl-Shift-e
+let g:pymode_run = 1
 let g:pymode_run_bind = "<C-S-e>"
 " Override view python doc key shortcut to Ctrl-Shift-d
+let g:pymode_doc = 1
 let g:pymode_doc_bind = "<C-S-d>"
+
+let g:pymode_indent = 1
+let g:pymode_folding = 0
 
 " ----> scrooloose/nerdtree setting
 " nmap <leader>ne :NERDTreeToggle<CR>
@@ -206,8 +231,9 @@ if !exists('g:airline_powerline_fonts')
 endif
 let g:airline_symbols.space = "\ua0"
 " let g:airline_theme='solarized'
-let g:airline#extensions#hunks#enabled=0
+let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#branch#enabled=1
+let g:airline#extensions#hunks#enabled=0
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
