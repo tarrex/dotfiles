@@ -1,0 +1,39 @@
+
+# ---------- Header --------
+# <type>(<scope>): <subject>
+# # Allowed <type> values:
+# * feat     (new feature for the user, not a new feature for build script)
+# * fix      (bug fix for the user, not a fix to a build script)
+# * docs     (changes to the documentation)
+# * style    (formatting, missing semi colons, etc; no production code change)
+# * refactor (refactoring production code, eg. renaming a variable)
+# * test     (adding missing tests, refactoring tests; no production code change)
+# * chore    (updating grunt tasks etc; no production code change)
+# # Example <scope> values:
+#   init runner watcher config web-server proxy etc. 
+# # 50-character subject line
+#
+# ---------- Body ----------
+# 72-character wrapped longer description. This should answer:
+# * Why is this change necessary?
+# * How does it address the issue?
+# * What side effects does this change have?
+#
+# ---------- Footer --------
+# # Referencing issues:
+# Example:
+#   Closes #123, #245
+# # Breaking changes:
+# must start with 'BREAKING CHANGE:'
+# Example:
+#   BREAKING CHANGE: this is a big change.
+#   Before:
+#   ...
+#   After:
+#   ...
+#   HowToMigrate:
+#   ...
+# # Revert:
+# revert: <commit header>
+# Example:
+#   revert: test(test): add function test

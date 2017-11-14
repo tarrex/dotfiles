@@ -1,6 +1,10 @@
 [user]
     name = tarrex
     email = tarrexchen@gmail.com
+[gist]
+    private = yes
+[github]
+    user = tarrex
 [core]
     editor = vim
     pager = less -FRX
@@ -14,6 +18,7 @@
     # conflictstyle = diff3
 [commit]
     gpgSign = false
+    template = ~/.gitmessage
 [push]
     default = simple
     followTags = true
@@ -21,10 +26,6 @@
     showUntrackedFiles = all
 [transfer]
     fsckobjects = true
-[gist]
-    private = yes
-[github]
-    user = tarrex
 [alias]
     prune = fetch --prune
     undo = reset --soft HEAD^
