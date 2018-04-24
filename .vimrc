@@ -1,5 +1,4 @@
 " Tarrex's vimrc
-"       ------ Especially for a golang/python programmer.
 "       ------ Enjoy vim, enjoy life.
 
 
@@ -115,13 +114,9 @@ Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle']}
 
 " Tag plugin
 Plug 'majutsushi/tagbar'
-" Plug 'ludovicchabant/vim-gutentags'
 
 " Golang
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go']}
-
-" Python
-"Plug 'python-mode/python-mode'
 
 " Markdown
 Plug 'tpope/vim-markdown', {'for': ['markdown', 'md']}
@@ -140,6 +135,7 @@ Plug 'tpope/vim-unimpaired'
 
 " Initialize plugin system
 call plug#end()
+
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
@@ -187,22 +183,7 @@ au FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
 
 au FileType go nmap <F12> <Plug>(go-def)
 
-" ----> python-mode/python-mode setting
-" Override go-to.definition key shortcut to Ctrl-]
-let g:pymode_rope_goto_definition_bind = "<C-]>"
-" Override run current python file key shortcut to Ctrl-Shift-e
-let g:pymode_run = 1
-let g:pymode_run_bind = "<C-S-e>"
-" Override view python doc key shortcut to Ctrl-Shift-d
-let g:pymode_doc = 1
-let g:pymode_doc_bind = "<C-S-d>"
-
-let g:pymode_indent = 1
-let g:pymode_folding = 0
-
 " ----> scrooloose/nerdtree setting
-" nmap <leader>ne :NERDTreeToggle<CR>
-" nmap <leader>ne :NERDTreeToggle<CR>
 nmap <F8> :NERDTreeToggle<CR>
 
 " ----> mhinz/vim-signify setting
@@ -263,14 +244,14 @@ let g:Lf_HideHelp = 1
 let g:Lf_StlColorscheme = 'powerline'
 
 let g:Lf_NormalMap = {
-   \ "File":   [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
-   \            ["<F6>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
-   \ "Buffer": [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
-   \            ["<F6>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
-   \ "Mru":    [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
-   \ "Tag":    [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
+   \ "File":        [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
+   \                [ "<F6>",  ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
+   \ "Buffer":      [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
+   \                [ "<F6>",  ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
+   \ "Mru":         [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
+   \ "Tag":         [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
    \ "Function":    [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
-   \ "Colorscheme":    [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
+   \ "Colorscheme": [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
    \ }
 
 " ----> tpope/vim-markdown
@@ -290,27 +271,12 @@ nmap <F9> :TagbarToggle<CR>
 let g:tagbar_ctags_bin="/usr/bin/ctags"
 let g:tagbar_width=50
 
-" ----> ludovicchabant/vim-gutentags setting
-" let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
-" let g:gutentags_ctags_tagfile = '.tags'
-" let s:vim_tags = expand('~/.cache/tags')
-" let g:gutentags_cache_dir = s:vim_tags
-" 
-" let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
-" let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
-" let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
-" 
-" if !isdirectory(s:vim_tags)
-"     silent! call mkdir(s:vim_tags, 'p')
-" endif
-
-
 " ----> valloric/youcompleteme setting
 nmap <leader>gd :YcmDiags<CR>
 nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
 nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
 nnoremap <leader>gg :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_path_to_python_interpreter="/usr/bin/python"
+let g:ycm_python_binary_path='python'
 " let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
 let g:ycm_error_symbol = '>>'
 let g:ycm_warning_symbol = '>*'
@@ -323,60 +289,52 @@ let g:ycm_min_num_identifier_candidate_chars = 2
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_key_invoke_completion = '<c-z>'
+let g:ycm_key_invoke_completion = '<c-/>'
 set completeopt=menu,menuone
-noremap <c-z> <NOP>
+noremap <c-/> <NOP>
 " let g:ycm_collect_identifiers_from_tags_files = 1
 " let g:ycm_seed_identifiers_with_syntax = 1
 " let g:ycm_cache_omnifunc = 0
-" let g:ycm_filetype_blacklist = {'tex' : 1, 'markdown' : 1, 'text' : 1, 'html' : 1}
+let g:ycm_filetype_blacklist = {'tex' : 1, 'markdown' : 1, 'text' : 1, 'html' : 1}
 " let g:syntastic_ignore_files = [".*\.py$"] "python has its own check engine
 let g:ycm_semantic_triggers = {
             \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
             \ 'cs,lua,javascript': ['re!\w{2}'],
             \ }
-let g:ycm_filetype_whitelist = { 
-            \ "c":1,
-            \ "cpp":1, 
-            \ "go":1,
-            \ "sh":1,
-            \ "py":1,
-            \ "java":1,
-            \ }
-" let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&']
-" autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+let g:ycm_filetype_whitelist = {"c":1, "cpp":1, "go":1, "sh":1, "java":1, "python":1}
 
 " ----> w0rp/ale setting
 " Write this in your vimrc file
-let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_text_changed = 'normal'
 " You can disable this option too
 " if you don't want linters to run on opening a file
 let g:ale_lint_on_enter = 0
-
 let g:ale_linters = {
-\   'javascript': ['eslint'],
-\   'go': ['gofmt -e', 'go vet', 'golint'],
-\}
+            \   'javascript': ['eslint'],
+            \   'go': ['gofmt -e', 'go vet', 'golint'],
+            \}
 " let g:ale_linter_aliases = {'jsx': 'css'}
 let g:ale_sign_column_always = 0
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '--'
+let g:ale_linters_explicit = 1
+let g:ale_completion_delay = 500
+let g:ale_echo_delay = 20
+let g:ale_lint_delay = 500
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_lint_on_insert_leave = 1
 highlight clear ALEErrorSign
 highlight clear ALEWarningSign
 function! LinterStatus() abort
     let l:counts = ale#statusline#Count(bufnr(''))
-
     let l:all_errors = l:counts.error + l:counts.style_error
     let l:all_non_errors = l:counts.total - l:all_errors
-
-    return l:counts.total == 0 ? 'OK' : printf(
-    \   '%dW %dE',
-    \   all_non_errors,
-    \   all_errors
-    \)
+                    \   '%dW %dE',
+                    \   all_non_errors,
+                    \   all_errors
+                    \)
 endfunction
 
 set statusline=%{LinterStatus()}
@@ -433,5 +391,3 @@ nmap <m-tab> :tabnext<cr>
 " highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
 match hs /\(TODO\)/
-
-autocmd bufwritepost .vimrc source $MYVIMRC
