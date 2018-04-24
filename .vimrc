@@ -98,67 +98,51 @@ set noswapfile
 
 " ============> Plugin Setting <============
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-
-" Keep Plugin commands between vundle#begin/end.
+" Specify a directory for plugins
+" " - For Neovim: ~/.local/share/nvim/plugged
+" " - Avoid using standard Vim directory names like 'plugin'
+call plug#begin('~/.vim/plugged')
 
 " git plugin
-Plugin 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive'
+Plug 'mhinz/vim-signify'
 
 " interface plugin
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
-Plugin 'flazz/vim-colorschemes'
-Plugin 'scrooloose/nerdtree'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'flazz/vim-colorschemes'
+Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle']}
 
 " Tag plugin
-Plugin 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar'
+" Plug 'ludovicchabant/vim-gutentags'
 
 " Golang
-Plugin 'fatih/vim-go'
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go']}
 
 " Python
-Plugin 'python-mode/python-mode'
+"Plug 'python-mode/python-mode'
 
 " Markdown
-Plugin 'tpope/vim-markdown'
+Plug 'tpope/vim-markdown', {'for': ['markdown', 'md']}
 
 " Utils
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'jiangmiao/auto-pairs'
-Plugin 'kien/ctrlp.vim'
-Plugin 'sirver/ultisnips'
-Plugin 'godlygeek/tabular'
-Plugin 'nathanaelkane/vim-indent-guides'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'w0rp/ale'
+Plug 'scrooloose/nerdcommenter'
+Plug 'jiangmiao/auto-pairs'
+Plug 'yggdroot/leaderf'
+Plug 'sirver/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'godlygeek/tabular'
+Plug 'valloric/youcompleteme', {'for': ['go', 'c', 'cpp']}
+Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
+Plug 'w0rp/ale'
+Plug 'tpope/vim-unimpaired'
 
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
+" Initialize plugin system
+call plug#end()
 filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
-
-" ----> majutsushi/tagbar setting
-nmap <F8> :TagbarToggle<CR>
-let g:tagbar_ctags_bin="/usr/bin/ctags"
-let g:tagbar_width=50
 
 " ----> fatih/vim-go setting
 let g:go_highlight_build_constraints = 1
@@ -219,7 +203,11 @@ let g:pymode_folding = 0
 " ----> scrooloose/nerdtree setting
 " nmap <leader>ne :NERDTreeToggle<CR>
 " nmap <leader>ne :NERDTreeToggle<CR>
-nmap <F6> :NERDTreeToggle<CR>
+nmap <F8> :NERDTreeToggle<CR>
+
+" ----> mhinz/vim-signify setting
+let g:signify_disable_by_default = 1
+nmap <F7> :SignifyToggle<CR>
 
 " ----> vim-airline/vim-airline
 if !exists('g:airline_symbols')
@@ -244,109 +232,46 @@ let g:airline_section_y='BN: %{bufnr("%")}'
 " ----> scrooloose/nerdcommenter setting
 " Add spaces after comment delimiters by default
 let g:NERDSpaceDelims = 1
-
 " Use compact syntax for prettified multi-line comments
 let g:NERDCompactSexyComs = 1
-
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'left'
-
 " Set a language to use its alternate delimiters by default
 let g:NERDAltDelims_java = 1
-
 " Add your own custom formats or override the defaults
 let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
-
 " Allow commenting and inverting empty lines (useful when commenting a region)
 let g:NERDCommentEmptyLines = 1
-
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
 
-" ----> shougo/neocomplete.vim setting
-"Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
-" Disable AutoComplPop.
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+" ----> yggdroot/leaderf setting
+let g:Lf_ShortcutF = '<c-p>'
+let g:Lf_ShortcutB = '<c-n>'
+noremap <c-m> :LeaderfMru<cr>
+noremap <c-f> :LeaderfFunction<cr>
+noremap <c-u> :LeaderfBuffer<cr>
+noremap <c-g> :LeaderfTag<cr>
+let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
-" Define dictionary.
-" let g:neocomplete#sources#dictionary#dictionaries = {
-"     \ 'default' : '',
-"     \ 'vimshell' : $HOME.'/.vimshell_hist',
-"     \ 'scheme' : $HOME.'/.gosh_completions'
-"     \ }
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_CacheDirectory = expand('~/.vim/cache')
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+let g:Lf_StlColorscheme = 'powerline'
 
-" Define keyword.
-" if !exists('g:neocomplete#keyword_patterns')
-"     let g:neocomplete#keyword_patterns = {}
-" endif
-" let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-" Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
-
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-function! s:my_cr_function()
-  return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-  " For no inserting <CR> key.
-  "return pumvisible() ? "\<C-y>" : "\<CR>"
-endfunction
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-" Close popup by <Space>.
-"inoremap <expr><Space> pumvisible() ? "\<C-y>" : "\<Space>"
-
-" AutoComplPop like behavior.
-"let g:neocomplete#enable_auto_select = 1
-
-" Shell like behavior(not recommended).
-"set completeopt+=longest
-"let g:neocomplete#enable_auto_select = 1
-"let g:neocomplete#disable_auto_complete = 1
-"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
-
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-
-" Enable heavy omni completion.
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-"let g:neocomplete#sources#omni#input_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
-"let g:neocomplete#sources#omni#input_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
-"let g:neocomplete#sources#omni#input_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
-
-" For perlomni.vim setting.
-" https://github.com/c9s/perlomni.vim
-let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
-
-" ----> kien/ctrlp.vim setting
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_working_path_mode = 'ra'
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
-set wildignore+=*\\tmp\\*,*.swp,*.zip,*.exe  " Windows
-
-let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-  \ 'file': '\v\.(exe|so|dll|o|pyc)$',
-  \ }
+let g:Lf_NormalMap = {
+   \ "File":   [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
+   \            ["<F6>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
+   \ "Buffer": [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
+   \            ["<F6>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
+   \ "Mru":    [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
+   \ "Tag":    [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
+   \ "Function":    [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
+   \ "Colorscheme":    [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
+   \ }
 
 " ----> tpope/vim-markdown
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
@@ -354,23 +279,33 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 
 " ----> sirver/ultisnips setting
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-
 " If you want :UltiSnipsEdit to split your window.
 let g:UltiSnipsEditSplit="vertical"
 
-" ----> nathanaelkane/vim-indent-guides setting
-" let g:indent_guides_enable_on_vim_startup=1
-" let g:indent_guides_auto_colors=0
-let g:indent_guides_start_level=1
-let g:indent_guides_guide_size=0
-let g:indent_guides_color_change_percent=30
-" hi IndentGuidesOdd  ctermbg=245
-" hi IndentGuidesEven ctermbg=249
+" ----> majutsushi/tagbar setting
+nmap <F9> :TagbarToggle<CR>
+let g:tagbar_ctags_bin="/usr/bin/ctags"
+let g:tagbar_width=50
 
-" ----> Valloric/YouCompleteMe setting
+" ----> ludovicchabant/vim-gutentags setting
+" let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+" let g:gutentags_ctags_tagfile = '.tags'
+" let s:vim_tags = expand('~/.cache/tags')
+" let g:gutentags_cache_dir = s:vim_tags
+" 
+" let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+" let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+" let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+" 
+" if !isdirectory(s:vim_tags)
+"     silent! call mkdir(s:vim_tags, 'p')
+" endif
+
+
+" ----> valloric/youcompleteme setting
 nmap <leader>gd :YcmDiags<CR>
 nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
 nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
@@ -380,16 +315,34 @@ let g:ycm_path_to_python_interpreter="/usr/bin/python"
 let g:ycm_error_symbol = '>>'
 let g:ycm_warning_symbol = '>*'
 let g:ycm_confirm_extra_conf = 0 "no annoying tips on vim starting
-" let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_show_diagnostics_ui = 0
+let g:ycm_server_log_level = 'info'
 let g:ycm_min_num_of_chars_for_completion = 1
-" let g:ycm_cache_omnifunc = 0
-" let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_min_num_identifier_candidate_chars = 2
+let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-" let g:ycm_collect_identifiers_from_comments_and_strings = 0
+let g:ycm_key_invoke_completion = '<c-z>'
+set completeopt=menu,menuone
+noremap <c-z> <NOP>
+" let g:ycm_collect_identifiers_from_tags_files = 1
+" let g:ycm_seed_identifiers_with_syntax = 1
+" let g:ycm_cache_omnifunc = 0
 " let g:ycm_filetype_blacklist = {'tex' : 1, 'markdown' : 1, 'text' : 1, 'html' : 1}
 " let g:syntastic_ignore_files = [".*\.py$"] "python has its own check engine
-" let g:ycm_semantic_triggers = {}
+let g:ycm_semantic_triggers = {
+            \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+            \ 'cs,lua,javascript': ['re!\w{2}'],
+            \ }
+let g:ycm_filetype_whitelist = { 
+            \ "c":1,
+            \ "cpp":1, 
+            \ "go":1,
+            \ "sh":1,
+            \ "py":1,
+            \ "java":1,
+            \ }
 " let g:ycm_semantic_triggers.c = ['->', '.', ' ', '(', '[', '&']
 " autocmd InsertLeave * if pumvisible() == 0|pclose|endif
 
@@ -471,64 +424,11 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]               " highlight last inserted text
 
-nmap <C-t>   :tabnew<cr>        " tab operation shortcut
-nmap <C-p>   :tabprevious<cr>
-nmap <C-n>   :tabnext<cr>
-nmap <C-k>   :tabclose<cr>
-nmap <C-Tab> :tabnext<cr>
-
-" ----> custom function
-function! AddPythonHeader()
-    call setline(1, "#!/usr/bin/env python")
-    call append(1, "# -*- coding: utf-8 -*-")
-    call append(2, "# Author: T.C")
-    call append(3, "# Version: 1.0")
-    call append(4, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(5, "# Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    normal G
-    normal o
-endf
-
-function! AddBashHeader()
-    call setline(1, "#!/bin/bash")
-    call append(1, "# Author: T.C")
-    call append(2, "# Version: 1.0")
-    call append(3, "# Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    call append(4, "# Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-    normal G
-    normal o
-endf
-
-" function! AddGolangHeader()
-"     call setline(1, "/*")
-"     call append(1, "* Author: T.C")
-"     call append(2, "* Version: 1.0")
-"     call append(3, "* Created: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-"     call append(4, "* Modified: " . strftime("%Y-%m-%d %H:%M:%S %Z", localtime()))
-"     call append(5, "*/")
-"     call append(3, "package " . dirname())
-"     normal G
-"     normal o
-" endf
-
-autocmd bufnewfile *.py call AddPythonHeader()
-autocmd bufnewfile *.sh call AddBashHeader()
-" autocmd bufnewfile *.go call AddGolangHeader()
-
-" reference: http://vim.wikia.com/wiki/Insert_current_date_or_time
-function! AutoInsertModifiedTime()
-	let s:original_pos = getpos(".")
-	let s:regexp = "^\s*\([#\"\*]\|\/\/\)\s\?[lL]ast [mM]odified:"
-	let s:lu = search(s:regexp)
-	if s:lu != 0
-		let s:update_str = matchstr(getline(s:lu), s:regexp)
-		call setline(s:lu, s:update_str . strftime(" %Y-%m-%d %H:%M:%S %Z"))
-		call setpos(".", s:original_pos)
-	endif
-endfunction
-autocmd InsertLeave *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
-" autocmd BufWritePre *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
-" autocmd BufWritePost *.{py,go,c,cpp,js,css},*vimrc call AutoInsertModifiedTime()
+nmap <m-t>   :tabnew<cr>        " tab operation shortcut
+nmap <m-p>   :tabprevious<cr>
+nmap <m-n>   :tabnext<cr>
+nmap <m-k>   :tabclose<cr>
+nmap <m-tab> :tabnext<cr>
 
 " highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
