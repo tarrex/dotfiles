@@ -94,6 +94,7 @@ set noswapfile
 " set foldopen-=search
 " set foldopen-=undo
 
+set cm=blowfish2
 
 " ============> Plugin Setting <============
 
@@ -111,6 +112,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle']}
+Plug 'yggdroot/indentline'
 
 " Tag plugin
 Plug 'majutsushi/tagbar'
@@ -156,9 +158,9 @@ let g:go_highlight_generate_tags = 1
 " Show type information in status line
 " let g:go_auto_type_info = 1
 " Run :GoAddTags. usually want snakecase properties, but it also supports camelcase.
-let g:go_decls_includes = "func,type"
-let g:go_addtags_transform = "snakecase"
-let g:go_fmt_command = "goimports"
+let g:go_decls_includes = 'func,type'
+let g:go_addtags_transform = 'snakecase'
+let g:go_fmt_command = 'goimports'
 let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
 au FileType go nmap <Leader>s <Plug>(go-implements)
@@ -185,6 +187,17 @@ au FileType go nmap <F12> <Plug>(go-def)
 
 " ----> scrooloose/nerdtree setting
 nmap <F8> :NERDTreeToggle<CR>
+
+" ----> yggdroot/indentline setting
+let g:indentLine_enabled = 0
+let g:indentLine_char = 'c'    " c, ¦, ┆, │, or ▏
+" let g:indentLine_setColors = 0
+let g:indentLine_color_term = 232
+let g:indentLine_bgcolor_term = 240
+"let g:indentLine_concealcursor = 'inc'
+"let g:indentLine_conceallevel = 2
+let g:indentLine_setConceal = 0
+nmap <F10> :IndentLinesToggle<CR>
 
 " ----> mhinz/vim-signify setting
 let g:signify_disable_by_default = 1
@@ -244,14 +257,14 @@ let g:Lf_HideHelp = 1
 let g:Lf_StlColorscheme = 'powerline'
 
 let g:Lf_NormalMap = {
-   \ "File":        [["<ESC>", ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
-   \                [ "<F6>",  ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
-   \ "Buffer":      [["<ESC>", ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
-   \                [ "<F6>",  ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
-   \ "Mru":         [["<ESC>", ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
-   \ "Tag":         [["<ESC>", ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
-   \ "Function":    [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
-   \ "Colorscheme": [["<ESC>", ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
+   \ 'File':        [['<ESC>', ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
+   \                [ '<F6>',  ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
+   \ 'Buffer':      [['<ESC>', ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
+   \                [ '<F6>',  ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
+   \ 'Mru':         [['<ESC>', ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
+   \ 'Tag':         [['<ESC>', ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
+   \ 'Function':    [['<ESC>', ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
+   \ 'Colorscheme': [['<ESC>', ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
    \ }
 
 " ----> tpope/vim-markdown
@@ -260,15 +273,15 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 
 " ----> sirver/ultisnips setting
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsExpandTrigger='<c-j>'
+let g:UltiSnipsJumpForwardTrigger='<c-b>'
+let g:UltiSnipsJumpBackwardTrigger='<c-z>'
 " If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
+let g:UltiSnipsEditSplit='vertical'
 
 " ----> majutsushi/tagbar setting
 nmap <F9> :TagbarToggle<CR>
-let g:tagbar_ctags_bin="/usr/bin/ctags"
+let g:tagbar_ctags_bin='/usr/bin/ctags'
 let g:tagbar_width=50
 
 " ----> valloric/youcompleteme setting
@@ -284,28 +297,49 @@ let g:ycm_confirm_extra_conf = 0 "no annoying tips on vim starting
 let g:ycm_add_preview_to_completeopt = 0
 let g:ycm_show_diagnostics_ui = 0
 let g:ycm_server_log_level = 'info'
-let g:ycm_min_num_of_chars_for_completion = 1
+let g:ycm_min_num_of_chars_for_completion = 2
 let g:ycm_min_num_identifier_candidate_chars = 2
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
 let g:ycm_key_invoke_completion = '<c-/>'
 set completeopt=menu,menuone
 noremap <c-/> <NOP>
-" let g:ycm_collect_identifiers_from_tags_files = 1
-" let g:ycm_seed_identifiers_with_syntax = 1
-" let g:ycm_cache_omnifunc = 0
-let g:ycm_filetype_blacklist = {'tex' : 1, 'markdown' : 1, 'text' : 1, 'html' : 1}
+let g:ycm_use_ultisnips_completer = 1
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_cache_omnifunc = 0
+let g:ycm_filetype_blacklist = {
+            \ 'tex'     : 1,
+            \ 'markdown': 1,
+            \ 'text'    : 1,
+            \ 'html'    : 1,
+            \ 'tagbar'  : 1,
+            \ 'qf'      : 1,
+            \ 'notes'   : 1,
+            \ 'unite'   : 1,
+            \ 'vimwiki' : 1,
+            \ 'pandoc'  : 1,
+            \ 'infolog' : 1,
+            \ 'mail'    : 1
+            \ }
 " let g:syntastic_ignore_files = [".*\.py$"] "python has its own check engine
 let g:ycm_semantic_triggers = {
             \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
             \ 'cs,lua,javascript': ['re!\w{2}'],
             \ }
-let g:ycm_filetype_whitelist = {"c":1, "cpp":1, "go":1, "sh":1, "java":1, "python":1}
+let g:ycm_filetype_whitelist = {
+            \ 'c'       : 1,
+            \ 'cpp'     : 1,
+            \ 'go'      : 1,
+            \ 'sh'      : 1,
+            \ 'java'    : 1,
+            \ 'python'  : 1
+            \ }
 
 " ----> w0rp/ale setting
 " Write this in your vimrc file
-let g:ale_lint_on_text_changed = 'normal'
+let g:ale_lint_on_text_changed = 'never'
 " You can disable this option too
 " if you don't want linters to run on opening a file
 let g:ale_lint_on_enter = 0
@@ -349,7 +383,7 @@ let g:ale_open_list = 1
 " ============> Custom Setting <============
 
 " ----> GUI settings
-if has("gui_running")
+if has('gui_running')
     set lines=25
     set columns=80
     set lazyredraw
@@ -365,8 +399,8 @@ set background=dark
 colorscheme cobalt2
 
 " ----> keyboard settings
-let mapleader=","               " set vim map leader
-let g:mapleader=","
+let mapleader=','               " set vim map leader
+let g:mapleader=','
 
 nnoremap <leader><space> :nohlsearch<cr>    " turn off search highlight
 nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
