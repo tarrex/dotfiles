@@ -45,7 +45,7 @@ set pastetoggle=<F4>            " set paste toggle
 set history=10000               " set how many lines of command history vim has to remember
 
 set noerrorbells                " bell settings
-set visualbell
+set novisualbell
 
 set encoding=utf-8
 set fileencoding=UTF-8          " file encoding setting
