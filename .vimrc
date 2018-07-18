@@ -31,9 +31,9 @@ set smarttab                    " be smart when use tabs
 
 set ambiwidth=double
 
-" set autoindent
+set autoindent
 " set smartindent
-" set cindent
+set cindent
 
 " set wrap                      " wrap line
 set lbr
@@ -85,8 +85,9 @@ set lazyredraw                  " don't redraw while executing macros
 
 " set backupcopy=yes              " backup setting
 set nobackup
-set nowb
+set nowritebackup
 set noswapfile
+set noundofile
 
 " set foldmarker={,}
 " set foldmethod=indent
@@ -95,6 +96,26 @@ set noswapfile
 " set foldopen-=undo
 
 set cm=blowfish2
+
+" Ignore the following extensions on file search and completion
+set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
+set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib                               "stuff to ignore when tab completing
+set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
+set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz             " MacOSX/Linux
+set wildignore+=*DS_Store*,*.ipch
+set wildignore+=*.gem
+set wildignore+=*.png,*.jpg,*.gif,*.bmp,*.tga,*.pcx,*.ppm,*.img,*.iso
+set wildignore+=*.so,*.swp,*.zip,*/.Trash/**,*.pdf,*.dmg,*/.rbenv/**
+set wildignore+=*/.nx/**,*.app,*.git,.git
+set wildignore+=*.wav,*.mp3,*.ogg,*.pcm
+set wildignore+=*.mht,*.suo,*.sdf,*.jnlp
+set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf
+set wildignore+=*.mp4,*.avi,*.flv,*.mov,*.mkv,*.swf,*.swc
+set wildignore+=*.ppt,*.pptx,*.docx,*.xlt,*.xls,*.xlsx,*.odt,*.wps
+set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
+set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
+set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
+
 
 " ============> Plugin Setting <============
 
@@ -111,7 +132,7 @@ Plug 'mhinz/vim-signify'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
-Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle']}
+Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind']}
 Plug 'yggdroot/indentline'
 
 " Tag plugin
@@ -126,11 +147,11 @@ Plug 'tpope/vim-markdown', {'for': ['markdown', 'md']}
 " Utils
 Plug 'scrooloose/nerdcommenter'
 Plug 'jiangmiao/auto-pairs'
-Plug 'yggdroot/leaderf'
+Plug 'kien/ctrlp.vim'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
-Plug 'godlygeek/tabular'
-Plug 'valloric/youcompleteme', {'for': ['go', 'c', 'cpp']}
+Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
+Plug 'valloric/youcompleteme', {'for': ['go', 'c', 'cpp', 'python', 'javascript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
 Plug 'w0rp/ale'
 Plug 'tpope/vim-unimpaired'
@@ -208,20 +229,23 @@ if !exists('g:airline_symbols')
     let g:airline_symbols = {}
 endif
 if !exists('g:airline_powerline_fonts')
-	let g:airline_left_step='>'
-	let g:airline_right_strp='<'
+	let g:airline_left_sep=''
+	let g:airline_right_sep=''
 endif
 let g:airline_symbols.space = "\ua0"
+let g:airline_symbols.branch = 'ᚠ'
 " let g:airline_theme='solarized'
 let g:airline#extensions#ale#enabled = 1
+let g:airline#extensions#fugitiveline#enabled = 1
+let g:airline#extensions#ycm#enabled = 1
 let g:airline#extensions#branch#enabled=1
 let g:airline#extensions#hunks#enabled=0
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#formatter = 'unique_tail'
 let g:airline_section_a=airline#section#create(['mode', 'branch'])
-" let g:airline_section_b='%{strftime("%c")}'
-let g:airline_section_y='BN: %{bufnr("%")}'
+" let g:airline_section_y='BN: %{bufnr("%")}'
 
 " ----> scrooloose/nerdcommenter setting
 " Add spaces after comment delimiters by default
@@ -239,33 +263,16 @@ let g:NERDCommentEmptyLines = 1
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
 
-" ----> yggdroot/leaderf setting
-let g:Lf_ShortcutF = '<c-p>'
-let g:Lf_ShortcutB = '<c-n>'
-noremap <c-m> :LeaderfMru<cr>
-noremap <c-f> :LeaderfFunction<cr>
-noremap <c-u> :LeaderfBuffer<cr>
-noremap <c-g> :LeaderfTag<cr>
-let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
-
-let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
-let g:Lf_WorkingDirectoryMode = 'Ac'
-let g:Lf_WindowHeight = 0.30
-let g:Lf_CacheDirectory = expand('~/.vim/cache')
-let g:Lf_ShowRelativePath = 0
-let g:Lf_HideHelp = 1
-let g:Lf_StlColorscheme = 'powerline'
-
-let g:Lf_NormalMap = {
-   \ 'File':        [['<ESC>', ':exec g:Lf_py "fileExplManager.quit()"<CR>'],
-   \                [ '<F6>',  ':exec g:Lf_py "fileExplManager.quit()"<CR>'] ],
-   \ 'Buffer':      [['<ESC>', ':exec g:Lf_py "bufExplManager.quit()"<CR>'],
-   \                [ '<F6>',  ':exec g:Lf_py "bufExplManager.quit()"<CR>'] ],
-   \ 'Mru':         [['<ESC>', ':exec g:Lf_py "mruExplManager.quit()"<CR>']],
-   \ 'Tag':         [['<ESC>', ':exec g:Lf_py "tagExplManager.quit()"<CR>']],
-   \ 'Function':    [['<ESC>', ':exec g:Lf_py "functionExplManager.quit()"<CR>']],
-   \ 'Colorscheme': [['<ESC>', ':exec g:Lf_py "colorschemeExplManager.quit()"<CR>']],
-   \ }
+" ----> kien/ctrlp.vim setting
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+  \ 'file': '\v\.(exe|so|dll)$',
+  \ 'link': 'some_bad_symbolic_links',
+  \ }
 
 " ----> tpope/vim-markdown
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
@@ -422,6 +429,17 @@ nmap <m-n>   :tabnext<cr>
 nmap <m-k>   :tabclose<cr>
 nmap <m-tab> :tabnext<cr>
 
-" highlight some special strings
+" Highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
 match hs /\(TODO\)/
+
+" Terminal setting
+if has('terminal') && exists(':terminal') == 2
+	if exists('##TerminalOpen')
+		augroup VimUnixTerminalGroup
+			au!
+			au TerminalOpen * setlocal nonumber signcolumn=no
+		augroup END
+	endif
+endif
+
