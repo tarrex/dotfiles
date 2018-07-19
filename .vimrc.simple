@@ -1,0 +1,175 @@
+" Tarrex's vimrc
+"       ------ Enjoy vim, enjoy life.
+
+
+" ============> General Setting <============
+
+syntax on                       " syntax highlighting
+
+set nocompatible                " be iMproved, required
+
+filetype off                    " close filetype detection
+filetype plugin on              " plugin for specific filetypes on 
+filetype indent on              " indent for specific filetypes on
+
+set showmatch                   " highlight match \{\}\[\]\(\)
+
+set smartcase
+set magic
+
+set number
+set ruler
+
+set backspace=indent,eol,start  " same as set backspace=2 set backspace key can delete anything on insert mode
+
+set expandtab                   " covert tabs to spaces
+
+set shiftwidth=4                " 1 tabs == 4 spaces 
+set tabstop=4                   " number of visual spaces per tab
+set softtabstop=4               " number of spaces in tab when editing
+set smarttab                    " be smart when use tabs
+
+set ambiwidth=double
+
+set autoindent
+" set smartindent
+set cindent
+
+" set wrap                      " wrap line
+set lbr
+set tw=500
+
+" set paste
+set pastetoggle=<F4>            " set paste toggle
+
+set history=10000               " set how many lines of command history vim has to remember
+
+set noerrorbells                " bell settings
+set novisualbell
+
+set encoding=utf-8
+set fileencoding=utf-8          " file encoding setting
+set fileencodings=utf-8,gbk,big5,latin1
+
+set fileformat=unix             " filetypes setting
+set fileformats=unix,mac,dos
+
+set autoread                    " auto load the file when changed outside vim
+set autowrite                   " auto write file when building"
+
+" set mouse=a                     " automatically enable mouse usage
+set mousehide                   " hide mouse cursor while typing"
+
+set report=0                    " show change count
+
+" set updatecount=0               " close swap file
+
+set ignorecase                  " ignore case when search
+set incsearch                   " real time show the search case
+set hlsearch                    " highlight search
+" highlight search cterm=underline ctermfg=white
+
+set laststatus=2                " show status line
+" set showcmd                     " show command on status bar
+set showmode                    " show mode status
+" set noshowmode                  " hide mode status in status line
+
+set cursorline                  " show underline for the cursor's line
+" set cursorcolumn                " show column line for the cursor's column
+
+set wildmenu                    " show autocomplete for command menu
+
+set lazyredraw                  " don't redraw while executing macros
+
+" InsertLeave *   set imdisable   " cancle IME on normal mode
+" InsertEnter *   set noimdisable
+
+" set backupcopy=yes              " backup setting
+set nobackup
+set nowritebackup
+set noswapfile
+set noundofile
+
+" set foldmarker={,}
+" set foldmethod=indent
+" set foldlevel=100
+" set foldopen-=search
+" set foldopen-=undo
+
+set cm=blowfish2
+
+" Ignore the following extensions on file search and completion
+set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
+set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib                               "stuff to ignore when tab completing
+set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
+set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz             " MacOSX/Linux
+set wildignore+=*DS_Store*,*.ipch
+set wildignore+=*.gem
+set wildignore+=*.png,*.jpg,*.gif,*.bmp,*.tga,*.pcx,*.ppm,*.img,*.iso
+set wildignore+=*.so,*.swp,*.zip,*/.Trash/**,*.pdf,*.dmg,*/.rbenv/**
+set wildignore+=*/.nx/**,*.app,*.git,.git
+set wildignore+=*.wav,*.mp3,*.ogg,*.pcm
+set wildignore+=*.mht,*.suo,*.sdf,*.jnlp
+set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf
+set wildignore+=*.mp4,*.avi,*.flv,*.mov,*.mkv,*.swf,*.swc
+set wildignore+=*.ppt,*.pptx,*.docx,*.xlt,*.xls,*.xlsx,*.odt,*.wps
+set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
+set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
+set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
+
+" ============> Custom Setting <============
+
+" ----> GUI settings
+if has('gui_running')
+    set lines=25
+    set columns=80
+    set lazyredraw
+    set guioptions-=m             " hide menu bar
+    set guioptions-=T             " hode tool bar
+    set guifont=consolas\ 10
+    set gcr=a:blinkon0            " disable cursor blink
+endif
+
+" ----> colorscheme settings
+set t_Co=256
+set background=dark 
+colorscheme cobalt2
+
+" ----> keyboard settings
+let mapleader=','               " set vim map leader
+let g:mapleader=','
+
+nnoremap <leader><space> :nohlsearch<cr>    " turn off search highlight
+nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
+
+nnoremap j gj                   " treat long lines as break lines
+nnoremap k gk
+
+nnoremap B ^                    " move to beginning/end of line
+nnoremap E $
+
+nnoremap $ <nop>                " $/^ doesn't do anything
+nnoremap ^ <nop>
+
+nnoremap gV `[v`]               " highlight last inserted text
+
+nmap <m-t>   :tabnew<cr>        " tab operation shortcut
+nmap <m-p>   :tabprevious<cr>
+nmap <m-n>   :tabnext<cr>
+nmap <m-k>   :tabclose<cr>
+nmap <m-tab> :tabnext<cr>
+
+" Highlight some special strings
+highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
+match hs /\(TODO\)/
+
+" Terminal setting
+if has('terminal') && exists(':terminal') == 2
+	if exists('##TerminalOpen')
+		augroup VimUnixTerminalGroup
+			au!
+			au TerminalOpen * setlocal nonumber signcolumn=no
+		augroup END
+	endif
+endif
+

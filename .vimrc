@@ -48,10 +48,11 @@ set noerrorbells                " bell settings
 set novisualbell
 
 set encoding=utf-8
-set fileencoding=UTF-8          " file encoding setting
-set fileencodings=UTF-8,GBK,BIG5,latin1
+set fileencoding=utf-8          " file encoding setting
+set fileencodings=utf-8,gbk,big5,latin1
 
 set fileformat=unix             " filetypes setting
+set fileformats=unix,mac,dos
 
 set autoread                    " auto load the file when changed outside vim
 set autowrite                   " auto write file when building"
