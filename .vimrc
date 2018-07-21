@@ -8,9 +8,7 @@ syntax on                       " syntax highlighting
 
 set nocompatible                " be iMproved, required
 
-filetype off                    " close filetype detection
-filetype plugin on              " plugin for specific filetypes on 
-filetype indent on              " indent for specific filetypes on
+filetype indent plugin on       " filetype detection on 
 
 set showmatch                   " highlight match \{\}\[\]\(\)
 
@@ -36,8 +34,8 @@ set autoindent
 set cindent
 
 " set wrap                      " wrap line
-set lbr
-set tw=500
+set linebreak
+set textwidth=500
 
 " set paste
 set pastetoggle=<F4>            " set paste toggle
@@ -46,6 +44,7 @@ set history=10000               " set how many lines of command history vim has 
 
 set noerrorbells                " bell settings
 set novisualbell
+set vb t_vb=
 
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
@@ -96,13 +95,13 @@ set noundofile
 " set foldopen-=search
 " set foldopen-=undo
 
-set cm=blowfish2
+set cryptmethod=blowfish2
 
 " Ignore the following extensions on file search and completion
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
 set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib                               "stuff to ignore when tab completing
 set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
-set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz             " MacOSX/Linux
+set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz
 set wildignore+=*DS_Store*,*.ipch
 set wildignore+=*.gem
 set wildignore+=*.png,*.jpg,*.gif,*.bmp,*.tga,*.pcx,*.ppm,*.img,*.iso
@@ -134,10 +133,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind']}
-Plug 'yggdroot/indentline'
 
 " Tag plugin
-Plug 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar', {'on': ['TagbarToggle']}
 
 " Golang
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go']}
@@ -148,11 +146,12 @@ Plug 'tpope/vim-markdown', {'for': ['markdown', 'md']}
 " Utils
 Plug 'scrooloose/nerdcommenter'
 Plug 'jiangmiao/auto-pairs'
-Plug 'kien/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'tacahiroy/ctrlp-funky'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
-Plug 'valloric/youcompleteme', {'for': ['go', 'c', 'cpp', 'python', 'javascript']}
+Plug 'valloric/youcompleteme', {'do': './install.py --clang-complete --gocode-completer', 'for': ['go', 'c', 'cpp', 'python', 'javascript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
 Plug 'w0rp/ale'
 Plug 'tpope/vim-unimpaired'
@@ -160,21 +159,7 @@ Plug 'tpope/vim-unimpaired'
 " Initialize plugin system
 call plug#end()
 
-filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-"filetype plugin on
-
 " ----> fatih/vim-go setting
-let g:go_highlight_build_constraints = 1
-let g:go_highlight_extra_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_types = 1
-let g:go_highlight_generate_tags = 1
-
 " Enable highlighting of variables that are the same
 " let g:go_auto_sameids = 1
 " Show type information in status line
@@ -205,48 +190,42 @@ au Filetype go nmap <leader>gah <Plug>(go-alternate-split)
 au Filetype go nmap <leader>gav <Plug>(go-alternate-vertical)
 au FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
 
-au FileType go nmap <F12> <Plug>(go-def)
+au FileType go nmap <F10> <Plug>(go-def)
 
 " ----> scrooloose/nerdtree setting
 nmap <F8> :NERDTreeToggle<CR>
 
-" ----> yggdroot/indentline setting
-let g:indentLine_enabled = 0
-let g:indentLine_char = 'c'    " c, ¦, ┆, │, or ▏
-" let g:indentLine_setColors = 0
-let g:indentLine_color_term = 232
-let g:indentLine_bgcolor_term = 240
-"let g:indentLine_concealcursor = 'inc'
-"let g:indentLine_conceallevel = 2
-let g:indentLine_setConceal = 0
-nmap <F10> :IndentLinesToggle<CR>
-
 " ----> mhinz/vim-signify setting
 let g:signify_disable_by_default = 1
+let g:signify_vcs_list = ['git', 'svn']
+let g:signify_sign_add = '+'
+let g:signify_sign_delete = '_'
+let g:signify_sign_delete_first_line = '‾'
+let g:signify_sign_change = '~'
+let g:signify_sign_changedelete = g:signify_sign_change
+let g:signify_vcs_cmds = {
+    \ 'git': 'git diff --no-color --diff-algorithm=histogram --no-ext-diff -U0 -- %f',
+    \}
 nmap <F7> :SignifyToggle<CR>
 
 " ----> vim-airline/vim-airline
-if !exists('g:airline_symbols')
-    let g:airline_symbols = {}
-endif
-if !exists('g:airline_powerline_fonts')
-	let g:airline_left_sep=''
-	let g:airline_right_sep=''
-endif
+let g:airline_symbols = {}
 let g:airline_symbols.space = "\ua0"
 let g:airline_symbols.branch = 'ᚠ'
+let g:airline_left_sep=''
+let g:airline_left_alt_sep = ''
+let g:airline_right_sep=''
+let g:airline_right_alt_sep = ''
+let g:airline_powerline_fonts = 0
 " let g:airline_theme='solarized'
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#fugitiveline#enabled = 1
 let g:airline#extensions#ycm#enabled = 1
-let g:airline#extensions#branch#enabled=1
-let g:airline#extensions#hunks#enabled=0
 let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_sep = ' '
-let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#formatter = 'unique_tail'
-let g:airline_section_a=airline#section#create(['mode', 'branch'])
-" let g:airline_section_y='BN: %{bufnr("%")}'
+let g:airline#extensions#tabline#tab_nr_type = 1
+let g:airline#extensions#tabline#show_tab_type = 0
+let g:airline#extensions#branch#enabled = 1
+let g:airline_section_a = airline#section#create(['mode', 'branch'])
 
 " ----> scrooloose/nerdcommenter setting
 " Add spaces after comment delimiters by default
@@ -264,16 +243,21 @@ let g:NERDCommentEmptyLines = 1
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
 
-" ----> kien/ctrlp.vim setting
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_working_path_mode = 'ra'
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+" ----> ctrlpvim/ctrlp.vim setting
+let g:ctrlp_map = ''
+let g:ctrlp_root_markers = ['.project', '.root', '.svn', '.git']
+let g:ctrlp_working_path = 0
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\v[\/]\.(git|hg|svn)$',
   \ 'file': '\v\.(exe|so|dll)$',
   \ 'link': 'some_bad_symbolic_links',
   \ }
+noremap <c-p> :CtrlP<cr>
+noremap <c-n> :CtrlPMRUFiles<cr>
+
+" ----> tacahiroy/ctrlp-funky setting
+noremap <c-f> :CtrlPFunky<cr>
+noremap <c-u> :CtrlPBuffer<cr>
 
 " ----> tpope/vim-markdown
 autocmd BufNewFile,BufReadPost *.md set filetype=markdown
@@ -288,9 +272,10 @@ let g:UltiSnipsJumpBackwardTrigger='<c-z>'
 let g:UltiSnipsEditSplit='vertical'
 
 " ----> majutsushi/tagbar setting
-nmap <F9> :TagbarToggle<CR>
-let g:tagbar_ctags_bin='/usr/bin/ctags'
-let g:tagbar_width=50
+if executable('ctags')
+    nmap <F9> :TagbarToggle<CR>
+    let g:tagbar_width=50
+endif
 
 " ----> valloric/youcompleteme setting
 nmap <leader>gd :YcmDiags<CR>
@@ -311,51 +296,96 @@ let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_complete_in_comments = 1
 let g:ycm_complete_in_strings = 1
-let g:ycm_key_invoke_completion = '<c-/>'
+let g:ycm_key_invoke_completion = '<c-z>'
 set completeopt=menu,menuone
-noremap <c-/> <NOP>
+noremap <c-z> <NOP>
 let g:ycm_use_ultisnips_completer = 1
 let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_cache_omnifunc = 0
-let g:ycm_filetype_blacklist = {
-            \ 'tex'     : 1,
-            \ 'markdown': 1,
-            \ 'text'    : 1,
-            \ 'html'    : 1,
-            \ 'tagbar'  : 1,
-            \ 'qf'      : 1,
-            \ 'notes'   : 1,
-            \ 'unite'   : 1,
-            \ 'vimwiki' : 1,
-            \ 'pandoc'  : 1,
-            \ 'infolog' : 1,
-            \ 'mail'    : 1
-            \ }
 " let g:syntastic_ignore_files = [".*\.py$"] "python has its own check engine
 let g:ycm_semantic_triggers = {
             \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
             \ 'cs,lua,javascript': ['re!\w{2}'],
             \ }
 let g:ycm_filetype_whitelist = {
-            \ 'c'       : 1,
-            \ 'cpp'     : 1,
-            \ 'go'      : 1,
-            \ 'sh'      : 1,
-            \ 'java'    : 1,
-            \ 'python'  : 1
+			\ "c":1,
+			\ "cpp":1,
+			\ "objc":1,
+			\ "objcpp":1,
+			\ "python":1,
+			\ "java":1,
+			\ "javascript":1,
+			\ "coffee":1,
+			\ "vim":1,
+			\ "go":1,
+			\ "cs":1,
+			\ "lua":1,
+			\ "perl":1,
+			\ "perl6":1,
+			\ "php":1,
+			\ "ruby":1,
+			\ "rust":1,
+			\ "erlang":1,
+			\ "asm":1,
+			\ "nasm":1,
+			\ "masm":1,
+			\ "tasm":1,
+			\ "asm68k":1,
+			\ "asmh8300":1,
+			\ "asciidoc":1,
+			\ "basic":1,
+			\ "vb":1,
+			\ "make":1,
+			\ "cmake":1,
+			\ "html":1,
+			\ "css":1,
+			\ "less":1,
+			\ "json":1,
+			\ "cson":1,
+			\ "typedscript":1,
+			\ "haskell":1,
+			\ "lhaskell":1,
+			\ "lisp":1,
+			\ "scheme":1,
+			\ "sdl":1,
+			\ "sh":1,
+			\ "zsh":1,
+			\ "bash":1,
+			\ "man":1,
+			\ "markdown":1,
+			\ "matlab":1,
+			\ "maxima":1,
+			\ "dosini":1,
+			\ "conf":1,
+			\ "config":1,
+			\ "zimbu":1,
+			\ "ps1":1,
             \ }
 
 " ----> w0rp/ale setting
-" Write this in your vimrc file
 let g:ale_lint_on_text_changed = 'never'
-" You can disable this option too
-" if you don't want linters to run on opening a file
 let g:ale_lint_on_enter = 0
 let g:ale_linters = {
-            \   'javascript': ['eslint'],
-            \   'go': ['gofmt -e', 'go vet', 'golint'],
+            \ 'javascript': ['eslint'],
+            \ 'go': ['go build', 'gofmt -e', 'go vet', 'golint'],
+			\ 'c': ['gcc', 'cppcheck'], 
+			\ 'cpp': ['gcc', 'cppcheck'], 
+			\ 'python': ['flake8', 'pylint'], 
+			\ 'lua': ['luac'], 
+			\ 'java': ['javac'],
             \}
 " let g:ale_linter_aliases = {'jsx': 'css'}
+let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
+let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+let g:ale_c_cppcheck_options = ''
+let g:ale_cpp_cppcheck_options = ''
+let g:ale_fixers = {
+            \ 'javascript': ['eslint'],
+            \ 'python': ['autopep8', 'yapf'],
+            \}
+" Set this variable to 1 to fix files when you save them.
+let g:ale_fix_on_save = 1
 let g:ale_sign_column_always = 0
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '--'
@@ -365,18 +395,23 @@ let g:ale_echo_delay = 20
 let g:ale_lint_delay = 500
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_echo_msg_format = '[%linter%] %s [%code%]'
 let g:ale_lint_on_insert_leave = 1
+" reduce the process priority of ale
+if has('win32') == 0 && has('win64') == 0 && has('win32unix') == 0
+	let g:ale_command_wrapper = 'nice -n5'
+endif
 highlight clear ALEErrorSign
 highlight clear ALEWarningSign
 function! LinterStatus() abort
     let l:counts = ale#statusline#Count(bufnr(''))
     let l:all_errors = l:counts.error + l:counts.style_error
     let l:all_non_errors = l:counts.total - l:all_errors
-                    \   '%dW %dE',
-                    \   all_non_errors,
-                    \   all_errors
-                    \)
+    return l:counts.total == 0 ? 'OK' : printf(
+    \   '%dW %dE',
+    \   all_non_errors,
+    \   all_errors
+    \)
 endfunction
 
 set statusline=%{LinterStatus()}
@@ -387,6 +422,9 @@ let g:ale_open_list = 1
 " This can be useful if you are combining ALE with
 " some other plugin which sets quickfix errors, etc.
 " let g:ale_keep_list_window_open = 1
+
+" Show 5 lines of errors (default: 10)
+let g:ale_list_window_size = 5
 
 " ============> Custom Setting <============
 
@@ -424,11 +462,10 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]               " highlight last inserted text
 
-nmap <m-t>   :tabnew<cr>        " tab operation shortcut
-nmap <m-p>   :tabprevious<cr>
-nmap <m-n>   :tabnext<cr>
-nmap <m-k>   :tabclose<cr>
-nmap <m-tab> :tabnext<cr>
+nnoremap <Leader>tc :tabc<CR>   " close current tab page
+nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
+nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
+nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
 
 " Highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -444,3 +481,21 @@ if has('terminal') && exists(':terminal') == 2
 	endif
 endif
 
+function! s:PythonHeader()
+    normal i#! /usr/bin/env python
+    normal o# -*- coding: utf-8 -*-
+    let fullname = ''
+    if has('macunix')
+        let fullname = split(system("finger `whoami` | awk -F: '{ print $3  }' | head -n1 | sed 's/^ //'"), '\n')[0]
+    elseif has('unix')
+        let fullname = split(system('whoami | head -n1'), '\n')[0]
+    endif
+    if fullname != ''
+        let @o = "# by " . fullname . " " . strftime("%Y-%m-%d %H:%M:%S")
+        put o
+    endif
+endfunction
+
+augroup PythonHeader
+    autocmd BufNewFile *.py call s:PythonHeader()
+augroup END
