@@ -8,9 +8,7 @@ syntax on                       " syntax highlighting
 
 set nocompatible                " be iMproved, required
 
-filetype off                    " close filetype detection
-filetype plugin on              " plugin for specific filetypes on 
-filetype indent on              " indent for specific filetypes on
+filetype indent plugin on       " filetype detection on 
 
 set showmatch                   " highlight match \{\}\[\]\(\)
 
@@ -36,8 +34,8 @@ set autoindent
 set cindent
 
 " set wrap                      " wrap line
-set lbr
-set tw=500
+set linebreak
+set textwidth=500
 
 " set paste
 set pastetoggle=<F4>            " set paste toggle
@@ -46,6 +44,7 @@ set history=10000               " set how many lines of command history vim has 
 
 set noerrorbells                " bell settings
 set novisualbell
+set vb t_vb=
 
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
@@ -96,13 +95,13 @@ set noundofile
 " set foldopen-=search
 " set foldopen-=undo
 
-set cm=blowfish2
+set cryptmethod=blowfish2
 
 " Ignore the following extensions on file search and completion
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
 set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib                               "stuff to ignore when tab completing
 set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
-set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz             " MacOSX/Linux
+set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz
 set wildignore+=*DS_Store*,*.ipch
 set wildignore+=*.gem
 set wildignore+=*.png,*.jpg,*.gif,*.bmp,*.tga,*.pcx,*.ppm,*.img,*.iso
@@ -133,7 +132,7 @@ endif
 " ----> colorscheme settings
 set t_Co=256
 set background=dark 
-colorscheme cobalt2
+colorscheme default
 
 " ----> keyboard settings
 let mapleader=','               " set vim map leader
@@ -153,11 +152,10 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]               " highlight last inserted text
 
-nmap <m-t>   :tabnew<cr>        " tab operation shortcut
-nmap <m-p>   :tabprevious<cr>
-nmap <m-n>   :tabnext<cr>
-nmap <m-k>   :tabclose<cr>
-nmap <m-tab> :tabnext<cr>
+nnoremap <Leader>tc :tabc<CR>   " close current tab page
+nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
+nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
+nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
 
 " Highlight some special strings
 highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -173,3 +171,21 @@ if has('terminal') && exists(':terminal') == 2
 	endif
 endif
 
+function! s:PythonHeader()
+    normal i#! /usr/bin/env python
+    normal o# -*- coding: utf-8 -*-
+    let fullname = ''
+    if has('macunix')
+        let fullname = split(system("finger `whoami` | awk -F: '{ print $3  }' | head -n1 | sed 's/^ //'"), '\n')[0]
+    elseif has('unix')
+        let fullname = split(system('whoami | head -n1'), '\n')[0]
+    endif
+    if fullname != ''
+        let @o = "# by " . fullname . " " . strftime("%Y-%m-%d %H:%M:%S")
+        put o
+    endif
+endfunction
+
+augroup PythonHeader
+    autocmd BufNewFile *.py call s:PythonHeader()
+augroup END
