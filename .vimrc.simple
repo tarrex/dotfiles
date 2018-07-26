@@ -6,14 +6,11 @@
 
 syntax on                       " syntax highlighting
 
-set nocompatible                " be iMproved, required
+if has('vim_starting')
+    set nocompatible            " be iMproved, required
+endif
 
 filetype indent plugin on       " filetype detection on 
-
-set showmatch                   " highlight match \{\}\[\]\(\)
-
-set smartcase
-set magic
 
 set number
 set ruler
@@ -40,18 +37,26 @@ set textwidth=500
 " set paste
 set pastetoggle=<F4>            " set paste toggle
 
-set history=10000               " set how many lines of command history vim has to remember
+set history=1000                " set how many lines of command history vim has to remember
+set undolevels=1000             " set how many levels of undo
 
 set noerrorbells                " bell settings
 set novisualbell
 set vb t_vb=
+if has('autocmd')
+    autocmd GUIEnter * set visualbell t_vb=
+endif
+
+set title                       " change terminal's title
+set titleold="Terminal"
+set titlestring=%F
 
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
-set fileencodings=utf-8,gbk,big5,latin1
+set fileencodings=utf-8
 
 set fileformat=unix             " filetypes setting
-set fileformats=unix,mac,dos
+set fileformats=unix,dos,mac
 
 set autoread                    " auto load the file when changed outside vim
 set autowrite                   " auto write file when building"
@@ -63,6 +68,8 @@ set report=0                    " show change count
 
 " set updatecount=0               " close swap file
 
+set smartcase                   " searching
+set magic
 set ignorecase                  " ignore case when search
 set incsearch                   " real time show the search case
 set hlsearch                    " highlight search
@@ -71,7 +78,6 @@ set hlsearch                    " highlight search
 set laststatus=2                " show status line
 " set showcmd                     " show command on status bar
 set showmode                    " show mode status
-" set noshowmode                  " hide mode status in status line
 
 set cursorline                  " show underline for the cursor's line
 " set cursorcolumn                " show column line for the cursor's column
@@ -89,6 +95,8 @@ set nowritebackup
 set noswapfile
 set noundofile
 
+set showmatch                   " highlight match \{\}\[\]\(\)
+
 " set foldmarker={,}
 " set foldmethod=indent
 " set foldlevel=100
@@ -96,6 +104,14 @@ set noundofile
 " set foldopen-=undo
 
 set cryptmethod=blowfish2
+
+" set hidden                      " enable hidden buffers
+
+if exists('$SHELL')
+    set shell=$SHELL
+else
+    set shell=/bin/sh
+endif
 
 " Ignore the following extensions on file search and completion
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
@@ -116,6 +132,33 @@ set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 
+" Shortcuts setting
+cnoreabbrev W! w!
+cnoreabbrev Q! q!
+cnoreabbrev Qall! qall!
+cnoreabbrev Wq wq
+cnoreabbrev Wa wa
+cnoreabbrev wQ wq
+cnoreabbrev WQ wq
+cnoreabbrev W w
+cnoreabbrev Q q
+cnoreabbrev Qall qall
+
+" Remember cursor position
+augroup VimRememberCursorPosition
+    autocmd!
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+
+" Color Setting
+set t_Co=256
+set background=dark
+if &term =~ '256color'
+    " disable Background Color Erase (BCE) so that color schemes
+    " render properly when inside 256-color tmux and GNU screen.
+    set t_ut=
+endif
+
 " ============> Custom Setting <============
 
 " ----> GUI settings
@@ -130,15 +173,13 @@ if has('gui_running')
 endif
 
 " ----> colorscheme settings
-set t_Co=256
-set background=dark 
 colorscheme default
 
 " ----> keyboard settings
 let mapleader=','               " set vim map leader
 let g:mapleader=','
 
-nnoremap <leader><space> :nohlsearch<cr>    " turn off search highlight
+nnoremap <silent> <leader><space> :nohlsearch<cr>    " turn off search highlight
 nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
 
 nnoremap j gj                   " treat long lines as break lines
@@ -163,16 +204,16 @@ match hs /\(TODO\)/
 
 " Terminal setting
 if has('terminal') && exists(':terminal') == 2
-	if exists('##TerminalOpen')
-		augroup VimUnixTerminalGroup
-			au!
-			au TerminalOpen * setlocal nonumber signcolumn=no
-		augroup END
-	endif
+    if exists('##TerminalOpen')
+        augroup VimUnixTerminalGroup
+            au!
+            au TerminalOpen * setlocal nonumber signcolumn=no
+        augroup END
+    endif
 endif
 
 function! s:PythonHeader()
-    normal i#! /usr/bin/env python
+    normal i#!/usr/bin/env python
     normal o# -*- coding: utf-8 -*-
     let fullname = ''
     if has('macunix')
@@ -184,6 +225,7 @@ function! s:PythonHeader()
         let @o = "# by " . fullname . " " . strftime("%Y-%m-%d %H:%M:%S")
         put o
     endif
+    normal o
 endfunction
 
 augroup PythonHeader
