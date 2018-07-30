@@ -192,7 +192,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tacahiroy/ctrlp-funky'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
-Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
+Plug 'godlygeek/tabular'
 Plug 'valloric/youcompleteme', {'do': './install.py --clang-complete --gocode-completer', 'for': ['go', 'c', 'cpp', 'python', 'javascript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
 Plug 'w0rp/ale'
@@ -264,6 +264,7 @@ nmap <F8> :GitGutterLineHighlightsToggle<CR>
 let g:airline_symbols = {}
 let g:airline_symbols.space = "\ua0"
 let g:airline_symbols.branch = 'ᚠ'
+let g:airline_symbols.notexists = ' Ɇ'
 let g:airline_left_sep=''
 let g:airline_left_alt_sep = ''
 let g:airline_right_sep=''
