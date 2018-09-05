@@ -417,7 +417,7 @@ nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
 nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
 nnoremap <leader>gg :YcmCompleter GoToDefinitionElseDeclaration<CR>
 let g:ycm_python_binary_path='python'
-" let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
 let g:ycm_error_symbol = '>>'
 let g:ycm_warning_symbol = '>*'
 let g:ycm_confirm_extra_conf = 0 "no annoying tips on vim starting

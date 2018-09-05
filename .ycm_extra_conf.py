@@ -152,7 +152,7 @@ def FlagsForCompilationDatabase(root, filename):
 
 
 # This is the entry point; this function is called by ycmd to produce flags for a file.
-def FlagsForFile(filename, **kenwargs):
+def FlagsForFile(filename):
     root = os.path.realpath(filename);
     compilation_db_flags = FlagsForCompilationDatabase(root, filename)
     if compilation_db_flags:
