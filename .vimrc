@@ -193,7 +193,13 @@ Plug 'tacahiroy/ctrlp-funky'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'godlygeek/tabular'
-Plug 'valloric/youcompleteme', {'do': './install.py --clang-complete --gocode-completer', 'for': ['go', 'c', 'cpp', 'python', 'javascript']}
+" C# support: install Mono and add --cs-completer when calling ./install.py.
+" Go support: install Go and add --go-completer when calling ./install.py.
+" JavaScript and TypeScript support: install Node.js and npm then install the TypeScript SDK with npm install -g typescript.
+" Rust support: install Rust and add --rust-completer when calling ./install.py.
+" Java support: install JDK8 (version 8 required) and add --java-completer when calling ./install.py.
+" C-family support: install build-essential cmake3 python-dev python3-dev  and add --clang-completer when calling ./install.py.
+Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer --gocode-completer', 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
 Plug 'w0rp/ale'
 Plug 'sheerun/vim-polyglot'
@@ -412,10 +418,20 @@ let g:tagbar_type_r = {
 let g:polyglot_disabled = ['python']
 
 " ----> valloric/youcompleteme setting
-nmap <leader>gd :YcmDiags<CR>
-nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
-nnoremap <leader>gf :YcmCompleter GoToDefinition<CR>
-nnoremap <leader>gg :YcmCompleter GoToDefinitionElseDeclaration<CR>
+nmap <leader>yd :YcmDiags<CR>
+augroup ycm
+    au!
+    au FileType c,cpp                                           nnoremap <leader>yi :YcmCompleter GoToInclude<CR>
+    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yl :YcmCompleter GoToDeclaration<CR>
+    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>ye :YcmCompleter GoToDefinition<CR>
+    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yo :YcmCompleter GoTo<CR>
+    au FileType java,javascript,python,typescript               nnoremap <leader>yr :YcmCompleter GoToReferences<CR>
+    au FileType javascript,typescript                           nnoremap <leader>yp :YcmCompleter GoToType<CR>
+    au FileType c,cpp,java,javascript,typescript                nnoremap <leader>yg :YcmCompleter GetType<CR>
+    au FileType c,cpp                                           nnoremap <leader>ya :YcmCompleter GetParent<CR>
+    au FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<CR>
+    au FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<CR>
+augroup END
 let g:ycm_python_binary_path='python'
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
 let g:ycm_error_symbol = '>>'
