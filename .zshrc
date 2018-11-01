@@ -71,6 +71,12 @@ alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 alias tmux='tmux -2'
 
+# set proxy with http_proxy https_proxy or ALL_PROXY by http/https/socks5
+# no_proxy will ignore special domains
+proxy_address="127.0.0.1:7080"
+alias setproxy="export http_proxy=http://$proxy_address https_proxy=http://$proxy_address"
+alias unsetproxy="unset http_proxy; unset https_proxy"
+
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
