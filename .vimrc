@@ -42,9 +42,12 @@ set undolevels=1000             " set how many levels of undo
 
 set noerrorbells                " bell settings
 set novisualbell
-set vb t_vb=
+set visualbell t_vb=
 if has('autocmd')
-    autocmd GUIEnter * set visualbell t_vb=
+    augroup VBForGUIEnter
+        au!
+        autocmd GUIEnter * set visualbell t_vb=
+    augroup End
 endif
 
 set title                       " change terminal's title
@@ -146,14 +149,14 @@ cnoreabbrev Qall qall
 
 " Remember cursor position
 augroup VimRememberCursorPosition
-    autocmd!
+    au!
     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 augroup END
 
 " Color Setting
 set t_Co=256
 set background=dark
-if &term =~ '256color'
+if &term =~? '256color'
     " disable Background Color Erase (BCE) so that color schemes
     " render properly when inside 256-color tmux and GNU screen.
     set t_ut=
@@ -162,14 +165,17 @@ endif
 " ============> Plugin Setting <============
 let vimplug_exists=expand('~/.vim/autoload/plug.vim')
 if !filereadable(vimplug_exists)
-    if !executable("curl")
-        echoerr "You have to install curl or first install vim-plug yourself!"
-        execute "q!"
+    if !executable('curl')
+        echoerr 'You have to install curl or first install vim-plug yourself!'
+        execute 'q!'
     endif
-    echo "Installing Vim-Plug..."
-    echo ""
+    echo 'Installing Vim-Plug...'
+    echo ''
     silent !\curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall
+    augroup PluginInstallForVimEnter
+        au!
+        autocmd VimEnter * PlugInstall
+    augroup END
 endif
 
 " Specify a directory for plugins
@@ -209,7 +215,7 @@ call plug#end()
 
 " ----> fatih/vim-go setting
 " let g:go_addtags_transform = 'camelcase'
-let g:go_list_type = "quickfix"
+let g:go_list_type = 'quickfix'
 let g:go_fmt_command = 'goimports'
 
 let g:go_highlight_types = 1
@@ -268,7 +274,7 @@ nmap <F8> :GitGutterLineHighlightsToggle<CR>
 
 " ----> vim-airline/vim-airline
 let g:airline_symbols = {}
-let g:airline_symbols.space = "\ua0"
+let g:airline_symbols.space = '\ua0'
 let g:airline_symbols.branch = 'ᚠ'
 let g:airline_symbols.notexists = ' Ɇ'
 let g:airline_left_sep=''
@@ -321,7 +327,10 @@ noremap <c-f> :CtrlPFunky<cr>
 noremap <c-u> :CtrlPBuffer<cr>
 
 " ----> tpope/vim-markdown
-autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+augroup VimMarkdown
+    au!
+    autocmd BufNewFile,BufReadPost *.md set filetype=markdown
+augroup END
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 
 " ----> sirver/ultisnips setting
@@ -334,7 +343,7 @@ let g:UltiSnipsEditSplit='vertical'
 
 " ----> majutsushi/tagbar setting
 nmap <silent> <F6> :TagbarToggle<CR>
-let g:tagbar_ctags_bin = "/usr/bin/ctags"
+let g:tagbar_ctags_bin = '/usr/bin/ctags'
 let g:tagbar_autofocus = 1
 let g:tagbar_width = 50
 
@@ -457,58 +466,58 @@ let g:ycm_semantic_triggers = {
     \ 'cs,lua,javascript': ['re!\w{2}'],
     \ }
 let g:ycm_filetype_whitelist = {
-    \ "c":1,
-    \ "cpp":1,
-    \ "objc":1,
-    \ "objcpp":1,
-    \ "python":1,
-    \ "java":1,
-    \ "javascript":1,
-    \ "coffee":1,
-    \ "vim":1,
-    \ "go":1,
-    \ "cs":1,
-    \ "lua":1,
-    \ "perl":1,
-    \ "perl6":1,
-    \ "php":1,
-    \ "ruby":1,
-    \ "rust":1,
-    \ "erlang":1,
-    \ "asm":1,
-    \ "nasm":1,
-    \ "masm":1,
-    \ "tasm":1,
-    \ "asm68k":1,
-    \ "asmh8300":1,
-    \ "asciidoc":1,
-    \ "basic":1,
-    \ "vb":1,
-    \ "make":1,
-    \ "cmake":1,
-    \ "html":1,
-    \ "css":1,
-    \ "less":1,
-    \ "json":1,
-    \ "cson":1,
-    \ "typedscript":1,
-    \ "haskell":1,
-    \ "lhaskell":1,
-    \ "lisp":1,
-    \ "scheme":1,
-    \ "sdl":1,
-    \ "sh":1,
-    \ "zsh":1,
-    \ "bash":1,
-    \ "man":1,
-    \ "markdown":1,
-    \ "matlab":1,
-    \ "maxima":1,
-    \ "dosini":1,
-    \ "conf":1,
-    \ "config":1,
-    \ "zimbu":1,
-    \ "ps1":1,
+    \ 'c':1,
+    \ 'cpp':1,
+    \ 'objc':1,
+    \ 'objcpp':1,
+    \ 'python':1,
+    \ 'java':1,
+    \ 'javascript':1,
+    \ 'coffee':1,
+    \ 'vim':1,
+    \ 'go':1,
+    \ 'cs':1,
+    \ 'lua':1,
+    \ 'perl':1,
+    \ 'perl6':1,
+    \ 'php':1,
+    \ 'ruby':1,
+    \ 'rust':1,
+    \ 'erlang':1,
+    \ 'asm':1,
+    \ 'nasm':1,
+    \ 'masm':1,
+    \ 'tasm':1,
+    \ 'asm68k':1,
+    \ 'asmh8300':1,
+    \ 'asciidoc':1,
+    \ 'basic':1,
+    \ 'vb':1,
+    \ 'make':1,
+    \ 'cmake':1,
+    \ 'html':1,
+    \ 'css':1,
+    \ 'less':1,
+    \ 'json':1,
+    \ 'cson':1,
+    \ 'typedscript':1,
+    \ 'haskell':1,
+    \ 'lhaskell':1,
+    \ 'lisp':1,
+    \ 'scheme':1,
+    \ 'sdl':1,
+    \ 'sh':1,
+    \ 'zsh':1,
+    \ 'bash':1,
+    \ 'man':1,
+    \ 'markdown':1,
+    \ 'matlab':1,
+    \ 'maxima':1,
+    \ 'dosini':1,
+    \ 'conf':1,
+    \ 'config':1,
+    \ 'zimbu':1,
+    \ 'ps1':1,
     \ }
 
 " ----> w0rp/ale setting
@@ -585,7 +594,7 @@ if has('gui_running')
     set guioptions-=m             " hide menu bar
     set guioptions-=T             " hode tool bar
     set guifont=consolas\ 10
-    set gcr=a:blinkon0            " disable cursor blink
+    set guicursor=a:blinkon0      " disable cursor blink
 endif
 
 " ----> colorscheme settings
@@ -629,19 +638,19 @@ if has('terminal') && exists(':terminal') == 2
 endif
 
 function! s:PythonHeader()
-    normal i#!/usr/bin/env python
-    normal o# -*- coding: utf-8 -*-
+    normal! i#!/usr/bin/env python
+    normal! o# -*- coding: utf-8 -*-
     let fullname = ''
     if has('macunix')
         let fullname = split(system("finger `whoami` | awk -F: '{ print $3  }' | head -n1 | sed 's/^ //'"), '\n')[0]
     elseif has('unix')
         let fullname = split(system('whoami | head -n1'), '\n')[0]
     endif
-    if fullname != ''
-        let @o = "# by " . fullname . " " . strftime("%Y-%m-%d %H:%M:%S")
+    if fullname !=? ''
+        let @o = '# by ' . fullname . ' ' . strftime('%Y-%m-%d %H:%M:%S')
         put o
     endif
-    normal o
+    normal! o
 endfunction
 
 augroup PythonHeader
