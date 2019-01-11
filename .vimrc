@@ -274,7 +274,7 @@ nmap <F8> :GitGutterLineHighlightsToggle<CR>
 
 " ----> vim-airline/vim-airline
 let g:airline_symbols = {}
-let g:airline_symbols.space = '\ua0'
+let g:airline_symbols.space = "\ua0"
 let g:airline_symbols.branch = 'ᚠ'
 let g:airline_symbols.notexists = ' Ɇ'
 let g:airline_left_sep=''
