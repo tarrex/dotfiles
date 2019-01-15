@@ -29,13 +29,18 @@
 [alias]
     prune = fetch --prune
     undo = reset --soft HEAD^
+    unstage = reset HEAD --
     stash-all = stash save --include-untracked
     glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+    stat = !git --no-pager diff --stat
+    sweep = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
+    serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
 [color]
     diff = auto
     status = auto
     branch = auto
     interactive = auto
+    ui = auto
 [color "branch"]
     current = yellow
     local = green
@@ -57,3 +62,5 @@
 [rerere]
     enabled = 1
     autoupdate = 1
+[help]
+    autocorrect = 1

@@ -64,12 +64,17 @@ export GOPATH=$GOBASEPATH
 export PATH=$PATH:$GOROOT/bin:$GOBASEPATH/bin:$GOPATH/bin:
 
 # env
+export HOMEBREW_NO_ANALYTICS=1
 export EDITOR=vim
 
 # alias
 alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 alias tmux='tmux -2'
+alias serve='python -m SimpleHTTPServer 8000'
+alias weather='_weather(){curl -H "Accept-Language: zh" wttr.in/$1};_weather'
+alias cinfo='_cinfo(){curl cht.sh/$1};_cinfo'
+alias ipinfo='curl ipinfo.io'
 
 # set proxy with http_proxy https_proxy or ALL_PROXY by http/https/socks5
 # no_proxy will ignore special domains
