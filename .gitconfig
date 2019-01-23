@@ -5,15 +5,25 @@
     private = yes
 [github]
     user = tarrex
+[apply]
+    whitespace = fix
 [core]
     editor = vim
     pager = less -FRX
     excludesFile = ~/.gitignore
+    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+    trustctime = false
+    precomposeunicode = false
+    untrackedCache = true
 [diff]
     tool = vimdiff
+    renames = copies
+[diff "bin"]
+    textconv = hexdump -v -C
 [difftool]
     prompt = false
 [merge]
+    log = true
     ff = only
     # conflictstyle = diff3
 [commit]
@@ -42,15 +52,15 @@
     interactive = auto
     ui = auto
 [color "branch"]
-    current = yellow
-    local = green
-    remote = cyan
+    current = yellow reverse
+    local = yellow
+    remote = green
     upstream = magenta
     plain = red
 [color "diff"]
     context = cyan
-    meta = yellow
-    frag = magenta
+    meta = yellow bold
+    frag = magenta bold
     old = red
     new = green
     commit = white
