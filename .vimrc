@@ -343,7 +343,7 @@ let g:UltiSnipsEditSplit='vertical'
 
 " ----> majutsushi/tagbar setting
 nmap <silent> <F6> :TagbarToggle<CR>
-let g:tagbar_ctags_bin = '/usr/bin/ctags'
+let g:tagbar_ctags_bin = 'ctags'
 let g:tagbar_autofocus = 1
 let g:tagbar_width = 50
 
@@ -376,7 +376,7 @@ let g:tagbar_type_go = {
 \ }
 
 let g:tagbar_type_css = {
-\ 'ctagstype' : 'Css',
+\ 'ctagstype' : 'css',
     \ 'kinds'     : [
         \ 'c:classes',
         \ 's:selectors',
@@ -387,10 +387,9 @@ let g:tagbar_type_css = {
 let g:tagbar_type_markdown = {
     \ 'ctagstype' : 'markdown',
     \ 'kinds' : [
-        \ 'h:Heading_L1',
-        \ 'i:Heading_L2',
-        \ 'k:Heading_L3'
-    \ ]
+        \ 'h:headings',
+    \ ],
+    \ 'sort': 0
 \ }
 
 let g:tagbar_type_rust = {
@@ -403,7 +402,7 @@ let g:tagbar_type_rust = {
         \'m:modules,module names',
         \'c:consts,static constants',
         \'t:traits',
-        \'i:impls,trait implementations',
+        \'i:impls,trait implementations'
     \ ]
 \ }
 
@@ -419,7 +418,7 @@ let g:tagbar_type_r = {
     \ 'kinds'     : [
         \ 'f:Functions',
         \ 'g:GlobalVariables',
-        \ 'v:FunctionVariables',
+        \ 'v:FunctionVariables'
     \ ]
 \ }
 
