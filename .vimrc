@@ -191,7 +191,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind']}
 Plug 'majutsushi/tagbar', {'on': ['TagbarToggle']}
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go']}
-Plug 'tpope/vim-markdown', {'for': ['markdown', 'md']}
+Plug 'plasticboy/vim-markdown', {'for': ['markdown', 'md']}
 Plug 'scrooloose/nerdcommenter'
 Plug 'jiangmiao/auto-pairs'
 Plug 'ctrlpvim/ctrlp.vim'
@@ -262,9 +262,9 @@ augroup go
 augroup END
 
 " ----> scrooloose/nerdtree setting
-let g:NERDTreeChDirMode=2
-let g:NERDTreeShowBookmarks=1
-let g:nerdtree_tabs_focus_on_files=1
+let g:NERDTreeChDirMode = 2
+let g:NERDTreeShowBookmarks = 1
+let g:nerdtree_tabs_focus_on_files = 1
 nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
@@ -277,12 +277,12 @@ let g:airline_symbols = {}
 let g:airline_symbols.space = "\ua0"
 let g:airline_symbols.branch = 'ᚠ'
 let g:airline_symbols.notexists = ' Ɇ'
-let g:airline_left_sep=''
+let g:airline_left_sep = ''
 let g:airline_left_alt_sep = ''
-let g:airline_right_sep=''
+let g:airline_right_sep = ''
 let g:airline_right_alt_sep = ''
 let g:airline_powerline_fonts = 0
-" let g:airline_theme='powerlineish'
+" let g:airline_theme = 'powerlineish'
 let g:airline#extensions#ale#enabled = 1
 let g:airline#extensions#fugitiveline#enabled = 1
 let g:airline#extensions#branch#enabled = 1
@@ -326,20 +326,21 @@ noremap <c-n> :CtrlPMRUFiles<cr>
 noremap <c-f> :CtrlPFunky<cr>
 noremap <c-u> :CtrlPBuffer<cr>
 
-" ----> tpope/vim-markdown
+" ----> plasticboy/vim-markdown
 augroup VimMarkdown
     au!
     autocmd BufNewFile,BufReadPost *.md set filetype=markdown
 augroup END
-let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_math = 1
 
 " ----> sirver/ultisnips setting
 " Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger='<c-j>'
-let g:UltiSnipsJumpForwardTrigger='<c-b>'
-let g:UltiSnipsJumpBackwardTrigger='<c-z>'
+let g:UltiSnipsExpandTrigger = '<c-j>'
+let g:UltiSnipsJumpForwardTrigger = '<c-b>'
+let g:UltiSnipsJumpBackwardTrigger = '<c-z>'
 " If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit='vertical'
+let g:UltiSnipsEditSplit = 'vertical'
 
 " ----> majutsushi/tagbar setting
 nmap <silent> <F6> :TagbarToggle<CR>
@@ -440,7 +441,7 @@ augroup ycm
     au FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<CR>
     au FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<CR>
 augroup END
-let g:ycm_python_binary_path='python'
+let g:ycm_python_binary_path = 'python'
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
 let g:ycm_error_symbol = '>>'
 let g:ycm_warning_symbol = '>*'
@@ -600,8 +601,8 @@ endif
 colorscheme molokai
 
 " ----> keyboard settings
-let mapleader=','               " set vim map leader
-let g:mapleader=','
+let mapleader = ','               " set vim map leader
+let g:mapleader = ','
 
 nnoremap <silent> <leader><space> :nohlsearch<cr>    " turn off search highlight
 nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
