@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH=/root/.oh-my-zsh
+  export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -57,17 +57,23 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# path
-export GOROOT=/usr/local/go
-export GOBASEPATH=/root/projects/go
+# PATH
+export GOBASEPATH=$HOME/workspace/projects/go
 export GOPATH=$GOBASEPATH
+if [ "$(uname 2> /dev/null)" "==" "Linux" ]; then
+    export GOROOT=/usr/local/go
+fi
 export PATH=$PATH:$GOROOT/bin:$GOBASEPATH/bin:$GOPATH/bin:
+export PYTHON_CONFIGURE_OPTS="--enable-framework"
 
-# env
-export HOMEBREW_NO_ANALYTICS=1
+# ENV
+# For MacOS
+if [ "$(uname 2> /dev/null)" "==" "Darwin" ]; then
+    export HOMEBREW_NO_ANALYTICS=1
+fi
 export EDITOR=vim
 
-# alias
+# Alias
 alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 alias tmux='tmux -2'
@@ -75,12 +81,21 @@ alias serve='python -m SimpleHTTPServer 8000'
 alias weather='_weather(){curl -H "Accept-Language: zh" wttr.in/$1};_weather'
 alias cinfo='_cinfo(){curl cht.sh/$1};_cinfo'
 alias ipinfo='curl ipinfo.io'
+alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 
 # set proxy with http_proxy https_proxy or ALL_PROXY by http/https/socks5
 # no_proxy will ignore special domains
 proxy_address="127.0.0.1:7080"
 alias setproxy="export http_proxy=http://$proxy_address https_proxy=http://$proxy_address"
 alias unsetproxy="unset http_proxy; unset https_proxy"
+
+##  pyenv configuration 
+# To use Homebrew's directories rather than ~/.pyenv add to your profile:
+# export PYENV_ROOT=/usr/local/var/pyenv
+# To enable shims and autocompletion add to your profile:
+if command -v pyenv 1>/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+fi
 
 # export MANPATH="/usr/local/man:$MANPATH"
 

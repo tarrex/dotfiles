@@ -1,12 +1,6 @@
 [user]
     name = tarrex
     email = tarrexchen@gmail.com
-[gist]
-    private = yes
-[github]
-    user = tarrex
-[apply]
-    whitespace = fix
 [core]
     editor = vim
     pager = less -FRX
@@ -15,52 +9,58 @@
     trustctime = false
     precomposeunicode = false
     untrackedCache = true
+    fileMode = false
 [diff]
     tool = vimdiff
-    renames = copies
-[diff "bin"]
-    textconv = hexdump -v -C
 [difftool]
+    renames = copies
     prompt = false
 [merge]
     log = true
-    ff = only
-    # conflictstyle = diff3
+    ff = false
 [commit]
     gpgSign = false
     template = ~/.gitmessage
 [push]
     default = simple
-    followTags = true
+    followTags = false
 [status]
     showUntrackedFiles = all
 [transfer]
-    fsckobjects = true
+    fsckobjects = false
+[gist]
+    private = yes
+[github]
+    user = tarrex
 [alias]
+    st = status -sb
     prune = fetch --prune
     undo = reset --soft HEAD^
     unstage = reset HEAD --
     stash-all = stash save --include-untracked
-    glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+    rank = shortlog -sn --no-merges
+    delete-merged-branchs = "!git branch --merged | grep -v '*' | xargs -n 1 git branch -d"
     stat = !git --no-pager diff --stat
     sweep = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
     serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
+    # log
+    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    slog = log --stat --graph --date-order --oneline
 [color]
     diff = auto
     status = auto
     branch = auto
     interactive = auto
-    ui = auto
 [color "branch"]
-    current = yellow reverse
-    local = yellow
-    remote = green
+    current = yellow
+    local = green
+    remote = cyan
     upstream = magenta
     plain = red
 [color "diff"]
     context = cyan
-    meta = yellow bold
-    frag = magenta bold
+    meta = yellow
+    frag = magenta
     old = red
     new = green
     commit = white
@@ -72,5 +72,14 @@
 [rerere]
     enabled = 1
     autoupdate = 1
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[status]
+    short = true
 [help]
     autocorrect = 1
+[apply]
+    whitespace = fix
