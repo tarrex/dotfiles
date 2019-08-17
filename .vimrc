@@ -199,12 +199,6 @@ Plug 'tacahiroy/ctrlp-funky'
 Plug 'sirver/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'godlygeek/tabular'
-" C# support: install Mono and add --cs-completer when calling ./install.py.
-" Go support: install Go and add --go-completer when calling ./install.py.
-" JavaScript and TypeScript support: install Node.js and npm then install the TypeScript SDK with npm install -g typescript.
-" Rust support: install Rust and add --rust-completer when calling ./install.py.
-" Java support: install JDK8 (version 8 required) and add --java-completer when calling ./install.py.
-" C-family support: install build-essential cmake3 python-dev python3-dev  and add --clang-completer when calling ./install.py.
 Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer --gocode-completer', 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
 Plug 'w0rp/ale'
@@ -214,52 +208,67 @@ Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 " ----> fatih/vim-go setting
+let g:go_fmt_command = "goimports"
+let g:go_autodetect_gopath = 1
+" let g:go_list_type = "quickfix"
 " let g:go_addtags_transform = 'camelcase'
-let g:go_list_type = 'quickfix'
-let g:go_fmt_command = 'goimports'
 
 let g:go_highlight_types = 1
 let g:go_highlight_fields = 1
 let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_generate_tags = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_structs = 1
-let g:go_highlight_generate_tags = 1
 let g:go_highlight_space_tab_error = 0
 let g:go_highlight_array_whitespace_error = 0
 let g:go_highlight_trailing_whitespace_error = 0
-let g:go_highlight_extra_types = 1
+
+" Open :GoDeclsDir with ctrl-g
+nmap <C-g> :GoDeclsDir<cr>
+imap <C-g> <esc>:<C-u>GoDeclsDir<cr>
 
 augroup go
-    au!
-    au Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
-    au Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
-    au Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
-    au Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
-
-    au FileType go nmap <Leader>s <Plug>(go-implements)
-    au FileType go nmap <Leader>i <Plug>(go-info)
-    au FileType go nmap <Leader>e <Plug>(go-rename)
-    au FileType go nmap <leader>r <Plug>(go-run)
-    au FileType go nmap <leader>b <Plug>(go-build)
-    au FileType go nmap <leader>t <Plug>(go-test)
-    au FileType go nmap <Leader>ds <Plug>(go-def-split)
-    au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
-    au FileType go nmap <Leader>dt <Plug>(go-def-tab)
-    au FileType go nmap <Leader>gd <Plug>(go-doc)
-    au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
-    au FileType go nmap <leader>co <Plug>(go-coverage)
-    au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
-
-    au FileType go nmap <leader>gt :GoDeclsDir<cr>
-    au Filetype go nmap <leader>ga <Plug>(go-alternate-edit)
-    au Filetype go nmap <leader>gah <Plug>(go-alternate-split)
-    au Filetype go nmap <leader>gav <Plug>(go-alternate-vertical)
-    au FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
-
-    au FileType go nmap <F10> <Plug>(go-def)
+    autocmd!
+    " :GoBuild and :GoTestCompile
+    autocmd FileType go nmap <leader>b :<C-u>call <SID>build_go_files()<CR>
+    " :GoTest
+    autocmd FileType go nmap <leader>t  <Plug>(go-test)
+    autocmd FileType go nmap <leader>tf  <Plug>(go-test-func)
+    " :GoRun
+    autocmd FileType go nmap <leader>r  <Plug>(go-run)
+    " :GoDoc
+    autocmd FileType go nmap <Leader>d <Plug>(go-doc)
+    " :GoCoverageToggle
+    autocmd FileType go nmap <Leader>c <Plug>(go-coverage-toggle)
+    " :GoInfo
+    autocmd FileType go nmap <Leader>i <Plug>(go-info)
+    " :GoMetaLinter
+    autocmd FileType go nmap <Leader>l <Plug>(go-metalinter)
+    " :GoDef but opens in a vertical split
+    autocmd FileType go nmap <Leader>v <Plug>(go-def-vertical)
+    " :GoDef but opens in a horizontal split
+    autocmd FileType go nmap <Leader>s <Plug>(go-def-split)
+    " :GoAlternate  commands :A, :AV, :AS and :AT
+    autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+    autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+    autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+    autocmd Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
 augroup END
+
+" build_go_files is a custom function that builds or compiles the test file.
+" It calls :GoBuild if its a Go file, or :GoTestCompile if it's a test file
+function! s:build_go_files()
+    let l:file = expand('%')
+    if l:file =~# '^\f\+_test\.go$'
+        call go#test#Test(0, 1)
+    elseif l:file =~# '^\f\+\.go$'
+        call go#cmd#Build(0)
+    endif
+endfunction
 
 " ----> scrooloose/nerdtree setting
 let g:NERDTreeChDirMode = 2
@@ -524,13 +533,13 @@ let g:ycm_filetype_whitelist = {
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_lint_on_enter = 0
 let g:ale_linters = {
-    \ 'javascript': ['eslint'],
     \ 'go': ['go build', 'gofmt -e', 'go vet', 'golint'],
-       \ 'c': ['gcc', 'cppcheck'], 
-       \ 'cpp': ['gcc', 'cppcheck'], 
-       \ 'python': ['flake8', 'pylint'], 
-       \ 'lua': ['luac'], 
-       \ 'java': ['javac'],
+    \ 'javascript': ['eslint'],
+    \ 'c': ['gcc', 'cppcheck'], 
+    \ 'cpp': ['gcc', 'cppcheck'], 
+    \ 'python': ['flake8', 'pylint'], 
+    \ 'lua': ['luac'], 
+    \ 'java': ['javac'],
     \}
 " let g:ale_linter_aliases = {'jsx': 'css'}
 let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
