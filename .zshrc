@@ -72,8 +72,8 @@ plugins=(
     brew
     cargo
     colored-man-pages
+    command-not-found
     common-aliases
-    cp
     debian
     docker-compose
     docker-machine
@@ -81,11 +81,12 @@ plugins=(
     git
     golang
     iterm2
-    nmap
     node
+    osx
     pip
     pyenv
     python
+    rand-quote
     tmux
     z
 )
