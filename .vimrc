@@ -26,13 +26,12 @@ set smarttab                    " be smart when use tabs
 
 set ambiwidth=double
 
-set autoindent
-" set smartindent
-set cindent
+set autoindent                  " copy indent from current line when starting a new line
+" set smartindent               " do smart autoindenting when starting a new line
+set cindent                     " enables automatic c program indenting
+set breakindent                 " every wrapped line will continue visually indented
 
-" set wrap                      " wrap line
-set linebreak
-set textwidth=500
+set wrap                        " wrap line
 
 " set paste
 set pastetoggle=<F4>            " set paste toggle
@@ -64,12 +63,12 @@ set fileformats=unix,dos,mac
 set autoread                    " auto load the file when changed outside vim
 set autowrite                   " auto write file when building"
 
-" set mouse=a                     " automatically enable mouse usage
+" set mouse=a                   " automatically enable mouse usage
 set mousehide                   " hide mouse cursor while typing"
 
 set report=0                    " show change count
 
-" set updatecount=0               " close swap file
+" set updatecount=0             " close swap file
 
 set smartcase                   " searching
 set magic
@@ -83,7 +82,7 @@ set laststatus=2                " show status line
 set showmode                    " show mode status
 
 set cursorline                  " show underline for the cursor's line
-" set cursorcolumn                " show column line for the cursor's column
+" set cursorcolumn              " show column line for the cursor's column
 
 set wildmenu                    " show autocomplete for command menu
 
@@ -108,7 +107,7 @@ set showmatch                   " highlight match \{\}\[\]\(\)
 
 set cryptmethod=blowfish2
 
-" set hidden                      " enable hidden buffers
+" set hidden                    " enable hidden buffers
 
 if exists('$SHELL')
     set shell=$SHELL
@@ -433,6 +432,7 @@ let g:tagbar_type_r = {
 \ }
 
 " ----> sheerun/vim-polyglot etting
+"let g:polyglot_disabled = ['python', 'latex']
 let g:polyglot_disabled = ['python']
 
 " ----> valloric/youcompleteme setting

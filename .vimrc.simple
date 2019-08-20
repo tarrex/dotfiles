@@ -26,13 +26,12 @@ set smarttab                    " be smart when use tabs
 
 set ambiwidth=double
 
-set autoindent
-" set smartindent
-set cindent
+set autoindent                  " copy indent from current line when starting a new line
+" set smartindent               " do smart autoindenting when starting a new line
+set cindent                     " enables automatic c program indenting
+set breakindent                 " every wrapped line will continue visually indented
 
-" set wrap                      " wrap line
-set linebreak
-set textwidth=500
+set wrap                        " wrap line
 
 " set paste
 set pastetoggle=<F4>            " set paste toggle
@@ -42,9 +41,12 @@ set undolevels=1000             " set how many levels of undo
 
 set noerrorbells                " bell settings
 set novisualbell
-set vb t_vb=
+set visualbell t_vb=
 if has('autocmd')
-    autocmd GUIEnter * set visualbell t_vb=
+    augroup VBForGUIEnter
+        au!
+        autocmd GUIEnter * set visualbell t_vb=
+    augroup End
 endif
 
 set title                       " change terminal's title
@@ -61,12 +63,12 @@ set fileformats=unix,dos,mac
 set autoread                    " auto load the file when changed outside vim
 set autowrite                   " auto write file when building"
 
-" set mouse=a                     " automatically enable mouse usage
+" set mouse=a                   " automatically enable mouse usage
 set mousehide                   " hide mouse cursor while typing"
 
 set report=0                    " show change count
 
-" set updatecount=0               " close swap file
+" set updatecount=0             " close swap file
 
 set smartcase                   " searching
 set magic
@@ -80,7 +82,7 @@ set laststatus=2                " show status line
 set showmode                    " show mode status
 
 set cursorline                  " show underline for the cursor's line
-" set cursorcolumn                " show column line for the cursor's column
+" set cursorcolumn              " show column line for the cursor's column
 
 set wildmenu                    " show autocomplete for command menu
 
@@ -105,7 +107,7 @@ set showmatch                   " highlight match \{\}\[\]\(\)
 
 set cryptmethod=blowfish2
 
-" set hidden                      " enable hidden buffers
+" set hidden                    " enable hidden buffers
 
 if exists('$SHELL')
     set shell=$SHELL
@@ -146,14 +148,14 @@ cnoreabbrev Qall qall
 
 " Remember cursor position
 augroup VimRememberCursorPosition
-    autocmd!
+    au!
     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 augroup END
 
 " Color Setting
 set t_Co=256
 set background=dark
-if &term =~ '256color'
+if &term =~? '256color'
     " disable Background Color Erase (BCE) so that color schemes
     " render properly when inside 256-color tmux and GNU screen.
     set t_ut=
@@ -169,15 +171,15 @@ if has('gui_running')
     set guioptions-=m             " hide menu bar
     set guioptions-=T             " hode tool bar
     set guifont=consolas\ 10
-    set gcr=a:blinkon0            " disable cursor blink
+    set guicursor=a:blinkon0      " disable cursor blink
 endif
 
 " ----> colorscheme settings
 colorscheme default
 
 " ----> keyboard settings
-let mapleader=','               " set vim map leader
-let g:mapleader=','
+let mapleader = ','               " set vim map leader
+let g:mapleader = ','
 
 nnoremap <silent> <leader><space> :nohlsearch<cr>    " turn off search highlight
 nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
@@ -213,19 +215,19 @@ if has('terminal') && exists(':terminal') == 2
 endif
 
 function! s:PythonHeader()
-    normal i#!/usr/bin/env python
-    normal o# -*- coding: utf-8 -*-
+    normal! i#!/usr/bin/env python
+    normal! o# -*- coding: utf-8 -*-
     let fullname = ''
     if has('macunix')
         let fullname = split(system("finger `whoami` | awk -F: '{ print $3  }' | head -n1 | sed 's/^ //'"), '\n')[0]
     elseif has('unix')
         let fullname = split(system('whoami | head -n1'), '\n')[0]
     endif
-    if fullname != ''
-        let @o = "# by " . fullname . " " . strftime("%Y-%m-%d %H:%M:%S")
+    if fullname !=? ''
+        let @o = '# by ' . fullname . ' ' . strftime('%Y-%m-%d %H:%M:%S')
         put o
     endif
-    normal o
+    normal! o
 endfunction
 
 augroup PythonHeader
