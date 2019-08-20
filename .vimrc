@@ -636,6 +636,12 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]               " highlight last inserted text
 
+noremap gh <C-W>h
+noremap gk <C-W>k
+noremap gl <C-W>l
+noremap gj <C-W>j
+" noremap F gf
+
 nnoremap <Leader>tc :tabc<CR>   " close current tab page
 nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
 nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
