@@ -10,7 +10,7 @@ if has('vim_starting')
     set nocompatible            " be iMproved, required
 endif
 
-filetype indent plugin on       " filetype detection on 
+filetype indent plugin on       " filetype detection on
 
 set number
 set ruler
@@ -19,7 +19,7 @@ set backspace=indent,eol,start  " same as set backspace=2 set backspace key can 
 
 set expandtab                   " covert tabs to spaces
 
-set shiftwidth=4                " 1 tabs == 4 spaces 
+set shiftwidth=4                " 1 tabs == 4 spaces
 set tabstop=4                   " number of visual spaces per tab
 set softtabstop=4               " number of spaces in tab when editing
 set smarttab                    " be smart when use tabs
@@ -32,6 +32,8 @@ set cindent                     " enables automatic c program indenting
 set breakindent                 " every wrapped line will continue visually indented
 
 set wrap                        " wrap line
+set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
+set linebreak
 
 " set paste
 set pastetoggle=<F4>            " set paste toggle
@@ -55,7 +57,7 @@ set titlestring=%F
 
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
-set fileencodings=utf-8
+set fileencodings=utf-8,big5-hkscs,utf8,iso8859-1
 
 set fileformat=unix             " filetypes setting
 set fileformats=unix,dos,mac
@@ -88,6 +90,9 @@ set wildmenu                    " show autocomplete for command menu
 
 set lazyredraw                  " don't redraw while executing macros
 
+set splitbelow                  " horizontally split below
+set splitright                  " vertically split to the right
+
 " InsertLeave *   set imdisable   " cancle IME on normal mode
 " InsertEnter *   set noimdisable
 
@@ -114,6 +119,8 @@ if exists('$SHELL')
 else
     set shell=/bin/sh
 endif
+
+set dictionary+=/usr/share/dict/words " dictionary for x mode <c-x> -> <c-n> or <c-k>
 
 " Ignore the following extensions on file search and completion
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
@@ -160,6 +167,9 @@ if &term =~? '256color'
     " render properly when inside 256-color tmux and GNU screen.
     set t_ut=
 endif
+
+" Spell Setting
+noremap <F2> :setlocal spell! spelllang=en_us<CR>
 
 " ============> Plugin Setting <============
 let vimplug_exists=expand('~/.vim/autoload/plug.vim')
@@ -273,7 +283,6 @@ endfunction
 let g:NERDTreeChDirMode = 2
 let g:NERDTreeShowBookmarks = 1
 let g:nerdtree_tabs_focus_on_files = 1
-nnoremap <silent> <F2> :NERDTreeFind<CR>
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
 " ----> airblade/vim-gitgutter setting
@@ -535,10 +544,10 @@ let g:ale_lint_on_enter = 0
 let g:ale_linters = {
     \ 'go': ['go build', 'gofmt -e', 'go vet', 'golint'],
     \ 'javascript': ['eslint'],
-    \ 'c': ['gcc', 'cppcheck'], 
-    \ 'cpp': ['gcc', 'cppcheck'], 
-    \ 'python': ['flake8', 'pylint'], 
-    \ 'lua': ['luac'], 
+    \ 'c': ['gcc', 'cppcheck'],
+    \ 'cpp': ['gcc', 'cppcheck'],
+    \ 'python': ['flake8', 'pylint'],
+    \ 'lua': ['luac'],
     \ 'java': ['javac'],
     \}
 " let g:ale_linter_aliases = {'jsx': 'css'}
@@ -633,8 +642,13 @@ nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
 nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
 
 " Highlight some special strings
-highlight hs cterm=bold term=bold ctermbg=yellow ctermfg=black
-match hs /\(TODO\)/
+highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
+match ToDo /\(TODO\)/
+autocmd WinEnter * match ToDo /\(TODO\)/
+
+" highlight WhiteSpaceEOL ctermbg=darkgreen guibg=lightgreen
+" match WhiteSpaceEOL /\s$/
+" autocmd WinEnter * match WhiteSpaceEOL /\s$/
 
 " Terminal setting
 if has('terminal') && exists(':terminal') == 2
