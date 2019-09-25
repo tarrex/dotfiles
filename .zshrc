@@ -140,7 +140,7 @@ alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 alias tmux='tmux -2'
 alias serve='python -m SimpleHTTPServer 8000'
-alias weather='_weather(){curl -H "Accept-Language: zh" wttr.in/$1};_weather'
+alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
 alias cinfo='_cinfo(){curl cht.sh/$1};_cinfo'
 alias ipinfo='curl ipinfo.io'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"

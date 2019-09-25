@@ -210,8 +210,9 @@ Plug 'honza/vim-snippets'
 Plug 'godlygeek/tabular'
 Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer --gocode-completer', 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
+Plug 'rust-lang/rust.vim', {'for': ['rust']}
 
 " Initialize plugin system
 call plug#end()
@@ -601,6 +602,9 @@ let g:ale_open_list = 1
 
 " Show 5 lines of errors (default: 10)
 let g:ale_list_window_size = 5
+
+" ----> rust-lang/rust.vim setting
+let g:rustfmt_autosave = 1
 
 " ============> Custom Setting <============
 
