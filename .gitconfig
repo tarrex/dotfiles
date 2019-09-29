@@ -15,6 +15,10 @@
 [difftool]
     renames = copies
     prompt = false
+[branch "master"]
+    remote = origin
+    merge = refs/heads/master
+    rebase = true
 [merge]
     log = true
     ff = false
