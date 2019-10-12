@@ -144,11 +144,14 @@ alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.
 alias cinfo='_cinfo(){curl cht.sh/$1};_cinfo'
 alias ipinfo='curl ipinfo.io'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
+alias cmdrank='history | awk '\''{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}'\'' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10'
 
 # set proxy with http_proxy https_proxy or ALL_PROXY by http/https/socks5
 # no_proxy will ignore special domains
-proxy_address="127.0.0.1:7080"
-alias setproxy="export http_proxy=http://$proxy_address https_proxy=http://$proxy_address"
+http_proxy_address="127.0.0.1:7080"
+socks5_proxy_address="127.0.0.1:1086"
+alias proxybyhttp="export http_proxy=http://$http_proxy_address https_proxy=http://$http_proxy_address"
+alias proxybysocks5="export http_proxy=socks5://$socks5_proxy_address https_proxy=socks5://$socks5_proxy_address"
 alias unsetproxy="unset http_proxy; unset https_proxy"
 
 # pyenv configuration 
