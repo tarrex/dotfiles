@@ -1,8 +1,7 @@
 " Tarrex's vimrc
 "       ------ Enjoy vim, enjoy life.
 
-
-" ============> General Setting <============
+" ============> General <============
 
 syntax on                       " syntax highlighting
 
@@ -35,7 +34,6 @@ set wrap                        " wrap line
 set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
 set linebreak
 
-" set paste
 set pastetoggle=<F4>            " set paste toggle
 
 set history=1000                " set how many lines of command history vim has to remember
@@ -46,7 +44,7 @@ set novisualbell
 set visualbell t_vb=
 if has('autocmd')
     augroup VBForGUIEnter
-        au!
+        autocmd!
         autocmd GUIEnter * set visualbell t_vb=
     augroup End
 endif
@@ -80,7 +78,7 @@ set hlsearch                    " highlight search
 " highlight search cterm=underline ctermfg=white
 
 set laststatus=2                " show status line
-" set showcmd                     " show command on status bar
+" set showcmd                   " show command on status bar
 set showmode                    " show mode status
 
 set cursorline                  " show underline for the cursor's line
@@ -96,7 +94,7 @@ set splitright                  " vertically split to the right
 " InsertLeave *   set imdisable   " cancle IME on normal mode
 " InsertEnter *   set noimdisable
 
-" set backupcopy=yes              " backup setting
+" set backupcopy=yes            " backup setting
 set nobackup
 set nowritebackup
 set noswapfile
@@ -141,39 +139,9 @@ set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 
-" Shortcuts setting
-cnoreabbrev W! w!
-cnoreabbrev Q! q!
-cnoreabbrev Qall! qall!
-cnoreabbrev Wq wq
-cnoreabbrev Wa wa
-cnoreabbrev wQ wq
-cnoreabbrev WQ wq
-cnoreabbrev W w
-cnoreabbrev Q q
-cnoreabbrev Qall qall
+" ============> Custom <============
 
-" Remember cursor position
-augroup VimRememberCursorPosition
-    au!
-    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-augroup END
-
-" Color Setting
-set t_Co=256
-set background=dark
-if &term =~? '256color'
-    " disable Background Color Erase (BCE) so that color schemes
-    " render properly when inside 256-color tmux and GNU screen.
-    set t_ut=
-endif
-
-" Spell Setting
-noremap <F2> :setlocal spell! spelllang=en_us<CR>
-
-" ============> Custom Setting <============
-
-" ----> GUI settings
+" ----> GUI
 if has('gui_running')
     set lines=25
     set columns=80
@@ -184,26 +152,54 @@ if has('gui_running')
     set guicursor=a:blinkon0      " disable cursor blink
 endif
 
-" ----> colorscheme settings
+" ----> Color
+set t_Co=256
+set background=dark
+if &term =~? '256color'
+    " disable Background Color Erase (BCE) so that color schemes
+    " render properly when inside 256-color tmux and GNU screen.
+    set t_ut=
+endif
+
 colorscheme default
 
-" ----> keyboard settings
-let mapleader = ','               " set vim map leader
+" set colorcolumn=120     " column color
+
+" ----> Keyboard
+let mapleader = ','     " set vim map leader
 let g:mapleader = ','
 
-nnoremap <silent> <leader><space> :nohlsearch<cr>    " turn off search highlight
-nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
+nnoremap <silent> <leader><space> :nohlsearch<cr>   " turn off search highlight
+nnoremap <leader>sh :sh<cr>                         " hold vim and run a shell at this directory, exit will return vim
 
-nnoremap j gj                   " treat long lines as break lines
+nnoremap <Leader>tc :tabc<CR>   " close current tab page
+nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
+nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
+nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
+
+noremap <F2> :setlocal spell! spelllang=en_us<CR>   " set spell shortcut
+
+cnoreabbrev W! w!   " easy exit vim
+cnoreabbrev Q! q!
+cnoreabbrev Qall! qall!
+cnoreabbrev Wq wq
+cnoreabbrev Wa wa
+cnoreabbrev wQ wq
+cnoreabbrev WQ wq
+cnoreabbrev W w
+cnoreabbrev Q q
+cnoreabbrev Qall qall
+
+nnoremap j gj   " treat long lines as break lines
 nnoremap k gk
 
-nnoremap B ^                    " move to beginning/end of line
+nnoremap B ^    " move to beginning/end of line
 nnoremap E $
 
-nnoremap $ <nop>                " $/^ doesn't do anything
+nnoremap $ <nop>    " $/^ doesn't do anything
 nnoremap ^ <nop>
 
-nnoremap gV `[v`]               " highlight last inserted text
+nnoremap gV `[v`]   " highlight last inserted text
 
 noremap gh <C-W>h
 noremap gk <C-W>k
@@ -211,11 +207,7 @@ noremap gl <C-W>l
 noremap gj <C-W>j
 " noremap F gf
 
-nnoremap <Leader>tc :tabc<CR>   " close current tab page
-nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
-nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
-nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
-
+" ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
 match ToDo /\(TODO\)/
@@ -225,16 +217,27 @@ autocmd WinEnter * match ToDo /\(TODO\)/
 " match WhiteSpaceEOL /\s$/
 " autocmd WinEnter * match WhiteSpaceEOL /\s$/
 
+" ----> Tricks
+" Trim trailing whitespace on write
+autocmd BufWritePre * :%s/\s\+$//e
+
 " Terminal setting
 if has('terminal') && exists(':terminal') == 2
     if exists('##TerminalOpen')
         augroup VimUnixTerminalGroup
-            au!
-            au TerminalOpen * setlocal nonumber signcolumn=no
+            autocmd!
+            autocmd TerminalOpen * setlocal nonumber signcolumn=no
         augroup END
     endif
 endif
 
+" Remember cursor position
+augroup VimRememberCursorPosition
+    autocmd!
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+
+" ----> Headers
 function! s:PythonHeader()
     normal! i#!/usr/bin/env python
     normal! o# -*- coding: utf-8 -*-
@@ -252,5 +255,6 @@ function! s:PythonHeader()
 endfunction
 
 augroup PythonHeader
+    autocmd!
     autocmd BufNewFile *.py call s:PythonHeader()
 augroup END

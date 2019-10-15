@@ -1,8 +1,7 @@
 " Tarrex's vimrc
 "       ------ Enjoy vim, enjoy life.
 
-
-" ============> General Setting <============
+" ============> General <============
 
 syntax on                       " syntax highlighting
 
@@ -35,7 +34,6 @@ set wrap                        " wrap line
 set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
 set linebreak
 
-" set paste
 set pastetoggle=<F4>            " set paste toggle
 
 set history=1000                " set how many lines of command history vim has to remember
@@ -46,7 +44,7 @@ set novisualbell
 set visualbell t_vb=
 if has('autocmd')
     augroup VBForGUIEnter
-        au!
+        autocmd!
         autocmd GUIEnter * set visualbell t_vb=
     augroup End
 endif
@@ -80,7 +78,7 @@ set hlsearch                    " highlight search
 " highlight search cterm=underline ctermfg=white
 
 set laststatus=2                " show status line
-" set showcmd                     " show command on status bar
+" set showcmd                   " show command on status bar
 set showmode                    " show mode status
 
 set cursorline                  " show underline for the cursor's line
@@ -96,7 +94,7 @@ set splitright                  " vertically split to the right
 " InsertLeave *   set imdisable   " cancle IME on normal mode
 " InsertEnter *   set noimdisable
 
-" set backupcopy=yes              " backup setting
+" set backupcopy=yes            " backup setting
 set nobackup
 set nowritebackup
 set noswapfile
@@ -141,37 +139,7 @@ set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 
-" Shortcuts setting
-cnoreabbrev W! w!
-cnoreabbrev Q! q!
-cnoreabbrev Qall! qall!
-cnoreabbrev Wq wq
-cnoreabbrev Wa wa
-cnoreabbrev wQ wq
-cnoreabbrev WQ wq
-cnoreabbrev W w
-cnoreabbrev Q q
-cnoreabbrev Qall qall
-
-" Remember cursor position
-augroup VimRememberCursorPosition
-    au!
-    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-augroup END
-
-" Color Setting
-set t_Co=256
-set background=dark
-if &term =~? '256color'
-    " disable Background Color Erase (BCE) so that color schemes
-    " render properly when inside 256-color tmux and GNU screen.
-    set t_ut=
-endif
-
-" Spell Setting
-noremap <F2> :setlocal spell! spelllang=en_us<CR>
-
-" ============> Plugin Setting <============
+" ============> Plugins <============
 let vimplug_exists=expand('~/.vim/autoload/plug.vim')
 if !filereadable(vimplug_exists)
     if !executable('curl')
@@ -182,7 +150,7 @@ if !filereadable(vimplug_exists)
     echo ''
     silent !\curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     augroup PluginInstallForVimEnter
-        au!
+        autocmd!
         autocmd VimEnter * PlugInstall
     augroup END
 endif
@@ -193,49 +161,44 @@ endif
 call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter', {'on': ['GitGutterToggle', 'GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
+Plug 'itchyny/lightline.vim'
 Plug 'flazz/vim-colorschemes'
-Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind']}
-Plug 'majutsushi/tagbar', {'on': ['TagbarToggle']}
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go']}
-Plug 'plasticboy/vim-markdown', {'for': ['markdown', 'md']}
-Plug 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
+Plug 'majutsushi/tagbar', {'on': 'TagbarToggle'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'tacahiroy/ctrlp-funky'
-Plug 'sirver/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'godlygeek/tabular'
-Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer --gocode-completer', 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
-Plug 'rdnetto/ycm-generator', {'branch': 'stable'}
+Plug 'junegunn/vim-easy-align'
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
+Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
+Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
-Plug 'rust-lang/rust.vim', {'for': ['rust']}
+Plug 'ycm-core/youcompleteme', {'do': './install.py --clang-completer --gocode-completer --rust-completer',
+                             \ 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 
 " Initialize plugin system
 call plug#end()
 
-" ----> fatih/vim-go setting
+" ----> fatih/vim-go
 let g:go_fmt_command = "goimports"
 let g:go_autodetect_gopath = 1
 " let g:go_list_type = "quickfix"
 " let g:go_addtags_transform = 'camelcase'
-
+let g:go_def_reuse_buffer = 1
+let g:go_decls_mode = 'ctrlp.vim'
 let g:go_highlight_types = 1
 let g:go_highlight_fields = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
+let g:go_highlight_function_parameters = 1
 let g:go_highlight_extra_types = 1
 let g:go_highlight_generate_tags = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_structs = 1
-let g:go_highlight_space_tab_error = 0
-let g:go_highlight_array_whitespace_error = 0
-let g:go_highlight_trailing_whitespace_error = 0
 
 " Open :GoDeclsDir with ctrl-g
 nmap <C-g> :GoDeclsDir<cr>
@@ -280,91 +243,79 @@ function! s:build_go_files()
     endif
 endfunction
 
-" ----> scrooloose/nerdtree setting
-let g:NERDTreeChDirMode = 2
-let g:NERDTreeShowBookmarks = 1
-let g:nerdtree_tabs_focus_on_files = 1
+" ----> scrooloose/nerdtree
+let g:NERDTreeChDirMode = 1
+let g:NERDTreeMarkBookmarks = 0
+let g:NERDTreeAutoDeleteBuffer = 1
 nnoremap <silent> <F3> :NERDTreeToggle<CR>
 
-" ----> airblade/vim-gitgutter setting
-nmap <F7> :GitGutterSignsToggle<CR>
-nmap <F8> :GitGutterLineHighlightsToggle<CR>
+" ----> airblade/vim-gitgutter
+nmap <F6> :GitGutterSignsToggle<CR>
+nmap <F7> :GitGutterLineHighlightsToggle<CR>
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
 
-" ----> vim-airline/vim-airline
-let g:airline_symbols = {}
-let g:airline_symbols.space = "\ua0"
-let g:airline_symbols.branch = 'ᚠ'
-let g:airline_symbols.notexists = ' Ɇ'
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
-let g:airline_powerline_fonts = 0
-" let g:airline_theme = 'powerlineish'
-let g:airline#extensions#ale#enabled = 1
-let g:airline#extensions#fugitiveline#enabled = 1
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#ycm#enabled = 1
-let g:airline#extensions#virtualenv#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#tab_nr_type = 1
-let g:airline#extensions#tabline#show_tab_type = 0
-let g:airline_section_a = airline#section#create(['mode', 'branch'])
+" ----> itchyny/lightline.vim
+set showtabline=2  " show tabline
+set guioptions-=e  " don't use GUI tabline
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+    \   'left': [ [ 'mode', 'paste' ],
+    \             [ 'gitbranch', 'venv', 'readonly', 'filename' ] ],
+    \   'right': [ [ 'lineinfo' ],
+    \            [ 'percent' ],
+    \            [ 'fileformat', 'fileencoding', 'filetype' ] ],
+    \ },
+    \ 'component_function': {
+    \   'gitbranch': 'fugitive#head',
+    \   'filename': 'LightlineFilename',
+    \   'venv': 'virtualenv#statusline'
+    \ },
+    \ 'tabline': {
+	\   'left': [ [ 'tabs' ] ],
+	\   'right': []
+    \ },
+    \ 'tab': {
+	\   'active': [ 'filename', 'modified' ],
+    \   'inactive': [ 'filename', 'modified' ]
+    \ }
+\ }
+function! LightlineFilename()
+    let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+    let modified = &modified ? ' +' : ''
+    return filename . modified
+endfunction
 
-" ----> scrooloose/nerdcommenter setting
-" Add spaces after comment delimiters by default
-let g:NERDSpaceDelims = 1
-" Use compact syntax for prettified multi-line comments
-let g:NERDCompactSexyComs = 1
-" Align line-wise comment delimiters flush left instead of following code indentation
-let g:NERDDefaultAlign = 'left'
-" Set a language to use its alternate delimiters by default
-let g:NERDAltDelims_java = 1
-" Add your own custom formats or override the defaults
-let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
-" Allow commenting and inverting empty lines (useful when commenting a region)
-let g:NERDCommentEmptyLines = 1
-" Enable trimming of trailing whitespace when uncommenting
-let g:NERDTrimTrailingWhitespace = 1
-
-" ----> ctrlpvim/ctrlp.vim setting
-let g:ctrlp_map = ''
+" ----> ctrlpvim/ctrlp.vim
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_switch_buffer = 0
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_match_window = 'bottom,order:ttb'
+let g:ctrlp_types = ['mru', 'fil', 'buf']
 let g:ctrlp_root_markers = ['.project', '.root', '.svn', '.git']
-let g:ctrlp_working_path = 0
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/]\.(git|hg|svn)$',
     \ 'file': '\v\.(exe|so|dll)$',
     \ 'link': 'some_bad_symbolic_links',
-    \ }
-noremap <c-p> :CtrlP<cr>
-noremap <c-n> :CtrlPMRUFiles<cr>
+\ }
 
-" ----> tacahiroy/ctrlp-funky setting
-noremap <c-f> :CtrlPFunky<cr>
-noremap <c-u> :CtrlPBuffer<cr>
+" ----> junegunn/vim-easy-align
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
 
 " ----> plasticboy/vim-markdown
-augroup VimMarkdown
-    au!
-    autocmd BufNewFile,BufReadPost *.md set filetype=markdown
-augroup END
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_math = 1
+let g:vim_markdown_frontmatter = 1
+let g:vim_markdown_toml_frontmatter = 1
 
-" ----> sirver/ultisnips setting
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger = '<c-j>'
-let g:UltiSnipsJumpForwardTrigger = '<c-b>'
-let g:UltiSnipsJumpBackwardTrigger = '<c-z>'
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit = 'vertical'
-
-" ----> majutsushi/tagbar setting
-nmap <silent> <F6> :TagbarToggle<CR>
+" ----> majutsushi/tagbar
+nmap <silent> <F8> :TagbarToggle<CR>
 let g:tagbar_ctags_bin = 'ctags'
 let g:tagbar_autofocus = 1
-let g:tagbar_width = 50
+let g:tagbar_width = 40
 
 let g:tagbar_type_go = {
     \ 'ctagstype' : 'go',
@@ -411,20 +362,6 @@ let g:tagbar_type_markdown = {
     \ 'sort': 0
 \ }
 
-let g:tagbar_type_rust = {
-    \ 'ctagstype' : 'rust',
-    \ 'kinds' : [
-        \'T:types,type definitions',
-        \'f:functions,function definitions',
-        \'g:enum,enumeration names',
-        \'s:structure names',
-        \'m:modules,module names',
-        \'c:consts,static constants',
-        \'t:traits',
-        \'i:impls,trait implementations'
-    \ ]
-\ }
-
 let g:tagbar_type_make = {
     \ 'kinds':[
         \ 'm:macros',
@@ -441,127 +378,101 @@ let g:tagbar_type_r = {
     \ ]
 \ }
 
-" ----> sheerun/vim-polyglot etting
-"let g:polyglot_disabled = ['python', 'latex']
-let g:polyglot_disabled = ['python']
+let g:rust_use_custom_ctags_defs = 1  " if using rust.vim
+let g:tagbar_type_rust = {
+  \ 'ctagsbin' : '/path/to/your/universal/ctags',
+  \ 'ctagstype' : 'rust',
+  \ 'kinds' : [
+      \ 'n:modules',
+      \ 's:structures:1',
+      \ 'i:interfaces',
+      \ 'c:implementations',
+      \ 'f:functions:1',
+      \ 'g:enumerations:1',
+      \ 't:type aliases:1:0',
+      \ 'v:constants:1:0',
+      \ 'M:macros:1',
+      \ 'm:fields:1:0',
+      \ 'e:enum variants:1:0',
+      \ 'P:methods:1',
+  \ ],
+  \ 'sro': '::',
+  \ 'kind2scope' : {
+      \ 'n': 'module',
+      \ 's': 'struct',
+      \ 'i': 'interface',
+      \ 'c': 'implementation',
+      \ 'f': 'function',
+      \ 'g': 'enum',
+      \ 't': 'typedef',
+      \ 'v': 'variable',
+      \ 'M': 'macro',
+      \ 'm': 'field',
+      \ 'e': 'enumerator',
+      \ 'P': 'method',
+  \ },
+\ }
 
-" ----> valloric/youcompleteme setting
+" ----> sheerun/vim-polyglot
+let g:polyglot_disabled = ['go', 'python', 'rust']
+
+" ----> ycm-core/youcompleteme
 nmap <leader>yd :YcmDiags<CR>
 augroup ycm
-    au!
-    au FileType c,cpp                                           nnoremap <leader>yi :YcmCompleter GoToInclude<CR>
-    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yl :YcmCompleter GoToDeclaration<CR>
-    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>ye :YcmCompleter GoToDefinition<CR>
-    au FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yo :YcmCompleter GoTo<CR>
-    au FileType java,javascript,python,typescript               nnoremap <leader>yr :YcmCompleter GoToReferences<CR>
-    au FileType javascript,typescript                           nnoremap <leader>yp :YcmCompleter GoToType<CR>
-    au FileType c,cpp,java,javascript,typescript                nnoremap <leader>yg :YcmCompleter GetType<CR>
-    au FileType c,cpp                                           nnoremap <leader>ya :YcmCompleter GetParent<CR>
-    au FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<CR>
-    au FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<CR>
+    autocmd!
+    autocmd FileType c,cpp                                           nnoremap <leader>yi :YcmCompleter GoToInclude<CR>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yl :YcmCompleter GoToDeclaration<CR>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>ye :YcmCompleter GoToDefinition<CR>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yo :YcmCompleter GoTo<CR>
+    autocmd FileType java,javascript,python,typescript               nnoremap <leader>yr :YcmCompleter GoToReferences<CR>
+    autocmd FileType javascript,typescript                           nnoremap <leader>yp :YcmCompleter GoToType<CR>
+    autocmd FileType c,cpp,java,javascript,typescript                nnoremap <leader>yg :YcmCompleter GetType<CR>
+    autocmd FileType c,cpp                                           nnoremap <leader>ya :YcmCompleter GetParent<CR>
+    autocmd FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<CR>
+    autocmd FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<CR>
 augroup END
 let g:ycm_python_binary_path = 'python'
-let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py' "default ycm conf location
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'    "default ycm conf location
 let g:ycm_error_symbol = '>>'
-let g:ycm_warning_symbol = '>*'
-let g:ycm_confirm_extra_conf = 0 "no annoying tips on vim starting
-let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_warning_symbol = '--'
+let g:ycm_confirm_extra_conf = 0    "no annoying tips on vim starting
 let g:ycm_show_diagnostics_ui = 0
-let g:ycm_server_log_level = 'info'
-let g:ycm_min_num_of_chars_for_completion = 2
-let g:ycm_min_num_identifier_candidate_chars = 2
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_collect_identifiers_from_tags_files = 1
 let g:ycm_complete_in_comments = 1
-let g:ycm_complete_in_strings = 1
 let g:ycm_key_invoke_completion = '<c-z>'
 set completeopt=menu,menuone
 noremap <c-z> <NOP>
-let g:ycm_use_ultisnips_completer = 1
+let g:ycm_use_ultisnips_completer = 0
 let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_cache_omnifunc = 0
-let g:ycm_semantic_triggers = {
-    \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-    \ 'cs,lua,javascript': ['re!\w{2}'],
-    \ }
-let g:ycm_filetype_whitelist = {
-    \ 'c':1,
-    \ 'cpp':1,
-    \ 'objc':1,
-    \ 'objcpp':1,
-    \ 'python':1,
-    \ 'java':1,
-    \ 'javascript':1,
-    \ 'coffee':1,
-    \ 'vim':1,
-    \ 'go':1,
-    \ 'cs':1,
-    \ 'lua':1,
-    \ 'perl':1,
-    \ 'perl6':1,
-    \ 'php':1,
-    \ 'ruby':1,
-    \ 'rust':1,
-    \ 'erlang':1,
-    \ 'asm':1,
-    \ 'nasm':1,
-    \ 'masm':1,
-    \ 'tasm':1,
-    \ 'asm68k':1,
-    \ 'asmh8300':1,
-    \ 'asciidoc':1,
-    \ 'basic':1,
-    \ 'vb':1,
-    \ 'make':1,
-    \ 'cmake':1,
-    \ 'html':1,
-    \ 'css':1,
-    \ 'less':1,
-    \ 'json':1,
-    \ 'cson':1,
-    \ 'typedscript':1,
-    \ 'haskell':1,
-    \ 'lhaskell':1,
-    \ 'lisp':1,
-    \ 'scheme':1,
-    \ 'sdl':1,
-    \ 'sh':1,
-    \ 'zsh':1,
-    \ 'bash':1,
-    \ 'man':1,
-    \ 'markdown':1,
-    \ 'matlab':1,
-    \ 'maxima':1,
-    \ 'dosini':1,
-    \ 'conf':1,
-    \ 'config':1,
-    \ 'zimbu':1,
-    \ 'ps1':1,
-    \ }
+let g:ycm_semantic_triggers = {'*': ['re![.:>\-\w]{2}']}
 
-" ----> w0rp/ale setting
-let g:ale_lint_on_text_changed = 'never'
+" ----> dense-analysis/ale
+let g:ale_lint_on_text_changed = 0
 let g:ale_lint_on_enter = 0
 let g:ale_linters = {
-    \ 'go': ['go build', 'gofmt -e', 'go vet', 'golint'],
-    \ 'javascript': ['eslint'],
     \ 'c': ['gcc', 'cppcheck'],
     \ 'cpp': ['gcc', 'cppcheck'],
-    \ 'python': ['flake8', 'pylint'],
+    \ 'csh': ['shell'],
+    \ 'elixir': ['credo', 'dialyxir', 'dogma'],
+    \ 'go': ['gofmt', 'golint', 'go vet'],
+    \ 'hack': ['hack'],
     \ 'lua': ['luac'],
     \ 'java': ['javac'],
-    \}
-" let g:ale_linter_aliases = {'jsx': 'css'}
-let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
+    \ 'javascript': ['eslint'],
+    \ 'perl': ['perlcritic'],
+    \ 'python': ['flake8', 'mypy', 'pylint'],
+    \ 'rust': ['cargo'],
+    \ 'text': ['textlint', 'write-good', 'languagetool'],
+    \ 'vue': ['eslint', 'vls'],
+    \ 'zsh': ['shell']
+\ }
 let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
 let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-let g:ale_c_cppcheck_options = ''
-let g:ale_cpp_cppcheck_options = ''
 let g:ale_fixers = {
-   \ 'javascript': ['eslint'],
-   \ 'python': ['autopep8', 'yapf'],
-   \}
-" Set this variable to 1 to fix files when you save them.
+    \ 'javascript': ['eslint'],
+    \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'autopep8'],
+\ }
 let g:ale_fix_on_save = 1
 let g:ale_sign_column_always = 0
 let g:ale_sign_error = '>>'
@@ -571,6 +482,7 @@ let g:ale_completion_delay = 500
 let g:ale_echo_delay = 20
 let g:ale_lint_delay = 500
 let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_info_str = 'I'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 let g:ale_lint_on_insert_leave = 1
@@ -580,17 +492,18 @@ if has('win32') == 0 && has('win64') == 0 && has('win32unix') == 0
 endif
 highlight clear ALEErrorSign
 highlight clear ALEWarningSign
+highlight clear ALEInfoSign
+
 function! LinterStatus() abort
     let l:counts = ale#statusline#Count(bufnr(''))
     let l:all_errors = l:counts.error + l:counts.style_error
     let l:all_non_errors = l:counts.total - l:all_errors
     return l:counts.total == 0 ? 'OK' : printf(
-        \   '%dW %dE',
-        \   all_non_errors,
-        \   all_errors
-        \)
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
 endfunction
-
 set statusline=%{LinterStatus()}
 set statusline+=%*
 
@@ -603,12 +516,12 @@ let g:ale_open_list = 1
 " Show 5 lines of errors (default: 10)
 let g:ale_list_window_size = 5
 
-" ----> rust-lang/rust.vim setting
+" ----> rust-lang/rust.vim
 let g:rustfmt_autosave = 1
 
-" ============> Custom Setting <============
+" ============> Custom <============
 
-" ----> GUI settings
+" ----> GUI
 if has('gui_running')
     set lines=25
     set columns=80
@@ -619,26 +532,54 @@ if has('gui_running')
     set guicursor=a:blinkon0      " disable cursor blink
 endif
 
-" ----> colorscheme settings
+" ----> Color
+set t_Co=256
+set background=dark
+if &term =~? '256color'
+    " disable Background Color Erase (BCE) so that color schemes
+    " render properly when inside 256-color tmux and GNU screen.
+    set t_ut=
+endif
+
 colorscheme molokai
 
-" ----> keyboard settings
-let mapleader = ','               " set vim map leader
+" set colorcolumn=120     " column color
+
+" ----> Keyboard
+let mapleader = ','     " set vim map leader
 let g:mapleader = ','
 
-nnoremap <silent> <leader><space> :nohlsearch<cr>    " turn off search highlight
-nnoremap <leader>sh :sh<cr>     " hold vim and run a shell at this directory, exit will return vim
+nnoremap <silent> <leader><space> :nohlsearch<cr>   " turn off search highlight
+nnoremap <leader>sh :sh<cr>                         " hold vim and run a shell at this directory, exit will return vim
 
-nnoremap j gj                   " treat long lines as break lines
+nnoremap <Leader>tc :tabc<CR>   " close current tab page
+nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
+nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
+nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
+
+noremap <F2> :setlocal spell! spelllang=en_us<CR>   " set spell shortcut
+
+cnoreabbrev W! w!   " easy exit vim
+cnoreabbrev Q! q!
+cnoreabbrev Qall! qall!
+cnoreabbrev Wq wq
+cnoreabbrev Wa wa
+cnoreabbrev wQ wq
+cnoreabbrev WQ wq
+cnoreabbrev W w
+cnoreabbrev Q q
+cnoreabbrev Qall qall
+
+nnoremap j gj   " treat long lines as break lines
 nnoremap k gk
 
-nnoremap B ^                    " move to beginning/end of line
+nnoremap B ^    " move to beginning/end of line
 nnoremap E $
 
-nnoremap $ <nop>                " $/^ doesn't do anything
+nnoremap $ <nop>    " $/^ doesn't do anything
 nnoremap ^ <nop>
 
-nnoremap gV `[v`]               " highlight last inserted text
+nnoremap gV `[v`]   " highlight last inserted text
 
 noremap gh <C-W>h
 noremap gk <C-W>k
@@ -646,11 +587,7 @@ noremap gl <C-W>l
 noremap gj <C-W>j
 " noremap F gf
 
-nnoremap <Leader>tc :tabc<CR>   " close current tab page
-nnoremap <Leader>tn :tabn<CR>   " go to the next tab page
-nnoremap <Leader>tp :tabp<CR>   " go to the previous tab page
-nnoremap <Leader>te :tabe<CR>   " open a new tab page with an empty window
-
+" ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
 match ToDo /\(TODO\)/
@@ -660,16 +597,27 @@ autocmd WinEnter * match ToDo /\(TODO\)/
 " match WhiteSpaceEOL /\s$/
 " autocmd WinEnter * match WhiteSpaceEOL /\s$/
 
+" ----> Tricks
+" Trim trailing whitespace on write
+autocmd BufWritePre * :%s/\s\+$//e
+
 " Terminal setting
 if has('terminal') && exists(':terminal') == 2
     if exists('##TerminalOpen')
         augroup VimUnixTerminalGroup
-            au!
-            au TerminalOpen * setlocal nonumber signcolumn=no
+            autocmd!
+            autocmd TerminalOpen * setlocal nonumber signcolumn=no
         augroup END
     endif
 endif
 
+" Remember cursor position
+augroup VimRememberCursorPosition
+    autocmd!
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+augroup END
+
+" ----> Headers
 function! s:PythonHeader()
     normal! i#!/usr/bin/env python
     normal! o# -*- coding: utf-8 -*-
@@ -687,5 +635,6 @@ function! s:PythonHeader()
 endfunction
 
 augroup PythonHeader
+    autocmd!
     autocmd BufNewFile *.py call s:PythonHeader()
 augroup END
