@@ -108,9 +108,7 @@ set showmatch                   " highlight match \{\}\[\]\(\)
 " set foldopen-=search
 " set foldopen-=undo
 
-set cryptmethod=blowfish2
-
-" set hidden                    " enable hidden buffers
+set hidden                      " enable hidden buffers
 
 if exists('$SHELL')
     set shell=$SHELL

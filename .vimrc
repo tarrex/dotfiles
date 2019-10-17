@@ -108,9 +108,7 @@ set showmatch                   " highlight match \{\}\[\]\(\)
 " set foldopen-=search
 " set foldopen-=undo
 
-set cryptmethod=blowfish2
-
-" set hidden                    " enable hidden buffers
+set hidden                      " enable hidden buffers
 
 if exists('$SHELL')
     set shell=$SHELL
@@ -431,7 +429,6 @@ augroup ycm
     autocmd FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<CR>
     autocmd FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<CR>
 augroup END
-let g:ycm_python_binary_path = 'python'
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'    "default ycm conf location
 let g:ycm_error_symbol = '>>'
 let g:ycm_warning_symbol = '--'
