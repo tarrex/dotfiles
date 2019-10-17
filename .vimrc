@@ -153,9 +153,6 @@ if !filereadable(vimplug_exists)
     augroup END
 endif
 
-" Specify a directory for plugins
-" " - For Neovim: ~/.local/share/nvim/plugged
-" " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin('~/.vim/plugged')
 
 Plug 'tpope/vim-fugitive'
@@ -176,7 +173,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'ycm-core/youcompleteme', {'do': './install.py --clang-completer --gocode-completer --rust-completer',
                              \ 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 
-" Initialize plugin system
 call plug#end()
 
 " ----> fatih/vim-go
