@@ -94,6 +94,10 @@ export LC_ALL=en_US.UTF-8
 # fi
 export EDITOR=vim
 
+# ~/.local/bin
+# normal for AppImage files
+export PATH=$PATH:$HOME/.local/bin
+
 # Golang
 export GO111MODULE=on
 export GOBASEPATH=$HOME/workspace/projects/go
