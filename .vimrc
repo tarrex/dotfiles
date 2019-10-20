@@ -488,6 +488,10 @@ nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
 " ============> Custom <============
 
 " ----> Color
+set termguicolors
+let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+
 set t_Co=256
 set background=dark
 if &term =~? '256color'
@@ -498,7 +502,7 @@ endif
 
 colorscheme molokai
 
-" set colorcolumn=120     " column color
+" set colorcolumn=120   " column color
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
