@@ -187,7 +187,7 @@ if &term =~? '256color'
     set t_ut=
 endif
 
-colorscheme default
+colorscheme desert
 
 " set colorcolumn=120     " column color
 
