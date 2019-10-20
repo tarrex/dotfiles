@@ -18,12 +18,12 @@
 
 --langdef=Markdown
 --langmap=Markdown:.md.markdown
---regex-Markdown=/^#{1}[ \t]*([^#]+.*)/. \1/h,headings/
---regex-Markdown=/^#{2}[ \t]*([^#]+.*)/.   \1/h,headings/
---regex-Markdown=/^#{3}[ \t]*([^#]+.*)/.     \1/h,headings/
---regex-Markdown=/^#{4}[ \t]*([^#]+.*)/.       \1/h,headings/
---regex-Markdown=/^#{5}[ \t]*([^#]+.*)/.         \1/h,headings/
---regex-Markdown=/^#{6}[ \t]*([^#]+.*)/.           \1/h,headings/
+--regex-Markdown=/^#{1}[ \t]*([^#]+.*)/.\1/h,headings/
+--regex-Markdown=/^#{2}[ \t]*([^#]+.*)/. \1/h,headings/
+--regex-Markdown=/^#{3}[ \t]*([^#]+.*)/.  \1/h,headings/
+--regex-Markdown=/^#{4}[ \t]*([^#]+.*)/.   \1/h,headings/
+--regex-Markdown=/^#{5}[ \t]*([^#]+.*)/.    \1/h,headings/
+--regex-Markdown=/^#{6}[ \t]*([^#]+.*)/.     \1/h,headings/
 
 --langdef=Rust
 --langmap=Rust:.rs

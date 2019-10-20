@@ -1,0 +1,71 @@
+{
+    "suggest.maxCompleteItemCount": 20,
+    "suggest.minTriggerInputLength": 2,
+
+    "diagnostic.errorSign": ">>",
+    "diagnostic.warningSign": "--",
+    "diagnostic.infoSign": "~~",
+    "diagnostic.hintSign": "**",
+
+    "coc.preferences.rootPatterns": [
+        ".vim",
+        ".git",
+        ".hg",
+        ".projections.json",
+        ".travis.yml",
+        "Cargo.toml",
+        "go.mod"
+    ],
+    "coc.preferences.formatOnType": true,
+    "coc.preferences.formatOnSaveFiletypes": [
+        "html",
+        "css",
+        "javascript",
+        "typescript",
+        "json",
+        "markdown",
+        "go",
+        "rust",
+        "python"
+    ],
+    "coc.preferences.snippets.enable": false,
+    "coc.preferences.extensionUpdateCheck": "weekly",
+
+    "git.enableGutters": false,
+    "git.realtimeGutters": false,
+    "git.branchCharacter": "",
+    "git.addGlameToBufferVar": true,
+
+    "languageserver": {
+        "ccls": {
+            "command": "ccls",
+            "filetypes": ["c", "cpp", "objc", "objcpp"],
+            "rootPatterns": [".ccls", "compile_commands.json", ".vim/", ".git/", ".hg/"],
+            "initializationOptions": {
+                "cache": {
+                    "directory": "/tmp/ccls"
+                },
+                "clang": {
+                    "resourceDir": "/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0",
+                    "extraArgs": [
+                        "-isystem",
+                        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1",
+                        "-I",
+                        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/"
+                    ]
+                }
+            }
+        },
+        "golang": {
+            "command": "gopls",
+            "args": ["serve", "-debug", "0.0.0.0:8484", "-rpc.trace"],
+            "initializationOptions": {
+                "gocodeCompletionEnabled": true,
+                "diagnosticsEnabled": true,
+                "lintTool": "golangci-lint"
+            },
+            "rootPatterns": ["go.mod", ".git/"],
+            "filetypes": ["go"]
+        }
+    }
+}

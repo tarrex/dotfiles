@@ -145,6 +145,8 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
 Plug 'itchyny/lightline.vim'
 Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
@@ -155,8 +157,11 @@ Plug 'junegunn/vim-easy-align'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
+Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'ycm-core/youcompleteme', {'do': './install.py --clang-completer --gocode-completer --rust-completer',
+                             \ 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 
 call plug#end()
 
@@ -228,6 +233,12 @@ let g:NERDTreeMarkBookmarks = 0
 let g:NERDTreeAutoDeleteBuffer = 1
 nnoremap <silent> <F3> :NERDTreeToggle<cr>
 
+" ----> airblade/vim-gitgutter
+nmap <F6> :GitGutterSignsToggle<cr>
+nmap <F7> :GitGutterLineHighlightsToggle<cr>
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
+
 " ----> itchyny/lightline.vim
 set showtabline=2  " show tabline
 let g:lightline = {
@@ -272,17 +283,6 @@ function! LightlineFilename()
     return filename . modified
 endfunction
 
-function! LightlineGitBlame() abort
-    let blame = get(b:, 'coc_git_blame', '')
-    " return blame
-    return winwidth(0) > 120 ? blame : ''
-endfunction
-
-function! LightlineGitBranch() abort
-    let branch = get(g:, 'coc_git_status', '')
-    return branch
-endfunction
-
 " ----> ctrlpvim/ctrlp.vim
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -300,6 +300,12 @@ let g:ctrlp_custom_ignore = {
 " ----> junegunn/vim-easy-align
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
+
+" ----> plasticboy/vim-markdown
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_math = 1
+let g:vim_markdown_frontmatter = 1
+let g:vim_markdown_toml_frontmatter = 1
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
@@ -403,75 +409,107 @@ let g:tagbar_type_rust = {
   \ },
 \ }
 
+" ----> ycm-core/youcompleteme
+nmap <leader>yd :YcmDiags<cr>
+augroup ycm
+    autocmd!
+    autocmd FileType c,cpp                                           nnoremap <leader>yi :YcmCompleter GoToInclude<cr>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yl :YcmCompleter GoToDeclaration<cr>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>ye :YcmCompleter GoToDefinition<cr>
+    autocmd FileType c,cpp,go,java,javascript,python,rust,typescript nnoremap <leader>yo :YcmCompleter GoTo<cr>
+    autocmd FileType java,javascript,python,typescript               nnoremap <leader>yr :YcmCompleter GoToReferences<cr>
+    autocmd FileType javascript,typescript                           nnoremap <leader>yp :YcmCompleter GoToType<cr>
+    autocmd FileType c,cpp,java,javascript,typescript                nnoremap <leader>yg :YcmCompleter GetType<cr>
+    autocmd FileType c,cpp                                           nnoremap <leader>ya :YcmCompleter GetParent<cr>
+    autocmd FileType c,cpp,java,javascript,python,rust,typescript    nnoremap <leader>yc :YcmCompleter GetDoc<cr>
+    autocmd FileType c,cpp,java,javascript,typescript                nnoremap <leader>yf :YcmCompleter FixIt<cr>
+augroup END
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'    "default ycm conf location
+let g:ycm_error_symbol = '>>'
+let g:ycm_warning_symbol = '--'
+let g:ycm_confirm_extra_conf = 0    "no annoying tips on vim starting
+let g:ycm_show_diagnostics_ui = 0
+let g:ycm_collect_identifiers_from_comments_and_strings = 1
+let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_complete_in_comments = 1
+let g:ycm_key_invoke_completion = '<c-z>'
+set completeopt=menu,menuone
+noremap <c-z> <NOP>
+let g:ycm_use_ultisnips_completer = 0
+let g:ycm_seed_identifiers_with_syntax = 1
+let g:ycm_semantic_triggers = {'*': ['re![.:>\-\w]{2}']}
+
+" ----> dense-analysis/ale
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_enter = 0
+let g:ale_linters = {
+    \ 'c': ['gcc', 'cppcheck'],
+    \ 'cpp': ['gcc', 'cppcheck'],
+    \ 'csh': ['shell'],
+    \ 'elixir': ['credo', 'dialyxir', 'dogma'],
+    \ 'go': ['gofmt', 'golint', 'go vet'],
+    \ 'hack': ['hack'],
+    \ 'lua': ['luac'],
+    \ 'java': ['javac'],
+    \ 'javascript': ['eslint'],
+    \ 'perl': ['perlcritic'],
+    \ 'python': ['flake8', 'mypy', 'pylint'],
+    \ 'rust': ['cargo'],
+    \ 'text': ['textlint', 'write-good', 'languagetool'],
+    \ 'vue': ['eslint', 'vls'],
+    \ 'zsh': ['shell']
+\ }
+let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+let g:ale_fixers = {
+    \ 'javascript': ['eslint'],
+    \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'autopep8'],
+\ }
+let g:ale_fix_on_save = 1
+let g:ale_sign_column_always = 0
+let g:ale_sign_error = '>>'
+let g:ale_sign_warning = '--'
+let g:ale_linters_explicit = 1
+let g:ale_completion_delay = 500
+let g:ale_echo_delay = 20
+let g:ale_lint_delay = 500
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_info_str = 'I'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_lint_on_insert_leave = 1
+" reduce the process priority of ale
+if has('win32') == 0 && has('win64') == 0 && has('win32unix') == 0
+    let g:ale_command_wrapper = 'nice -n5'
+endif
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+highlight clear ALEInfoSign
+
+function! LinterStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? 'OK' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
+endfunction
+set statusline=%{LinterStatus()}
+set statusline+=%*
+
+let g:ale_open_list = 1
+" Set this if you want to.
+" This can be useful if you are combining ALE with
+" some other plugin which sets quickfix errors, etc.
+" let g:ale_keep_list_window_open = 1
+
+" Show 5 lines of errors (default: 10)
+let g:ale_list_window_size = 5
+
 " ----> rust-lang/rust.vim
 let g:rustfmt_autosave = 1
-
-" ----> neoclide/coc.nvim
-let g:coc_global_extensions = [
-    \ 'coc-json',
-    \ 'coc-yaml',
-    \ 'coc-tsserver',
-    \ 'coc-html',
-    \ 'coc-css',
-    \ 'coc-dictionary',
-    \ 'coc-word',
-    \ 'coc-emoji',
-    \ 'coc-python',
-    \ 'coc-syntax',
-    \ 'coc-rls',
-    \ 'coc-git'
-\]
-
-highlight clear CocErrorSign
-highlight clear CocWarningSign
-highlight clear CocInfoSign
-
-" Use <tab> and <s-tab> to navigate the completion list
-inoremap <expr> <tab> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
-" Use <cr> to confirm completion
-inoremap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
-
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<c-g>u\<cr>"
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<c-g>u\<cr>\<c-r>=coc#on_enter()\<cr>"
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-
-" Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window
-nnoremap <silent> K :call <SID>show_documentation()<cr>
-function! s:show_documentation()
-    if (index(['vim','help'], &filetype) >= 0)
-        execute 'h '.expand('<cword>')
-    else
-        call CocAction('doHover')
-    endif
-endfunction
-
-" Remap for rename current word
-nmap <leader>rn <Plug>(coc-rename)
-
-" Remap for format selected region
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-
-" Using CocList
-nnoremap <silent> <space>a  :<c-u>CocList diagnostics<cr>
-nnoremap <silent> <space>e  :<c-u>CocList extensions<cr>
-nnoremap <silent> <space>c  :<c-u>CocList commands<cr>
-nnoremap <silent> <space>o  :<c-u>CocList -A outline<cr>
-nnoremap <silent> <space>s  :<c-u>CocList -I -N symbols<cr>
-nnoremap <silent> <space>j  :<c-u>CocNext<cr>
-nnoremap <silent> <space>k  :<c-u>CocPrev<cr>
-nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
 
 " ============> Custom <============
 

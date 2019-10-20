@@ -69,25 +69,10 @@ ZSH_THEME="af-magic"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    brew
-    cargo
     colored-man-pages
     command-not-found
     common-aliases
-    debian
-    docker-compose
-    docker-machine
-    docker
     git
-    golang
-    iterm2
-    node
-    osx
-    pip
-    pyenv
-    python
-    rand-quote
-    tmux
     z
 )
 
@@ -110,6 +95,7 @@ export LC_ALL=en_US.UTF-8
 export EDITOR=vim
 
 # Golang
+export GO111MODULE=on
 export GOBASEPATH=$HOME/workspace/projects/go
 export GOPATH=$GOBASEPATH
 if [ "$(uname 2> /dev/null)" "==" "Linux" ]; then
@@ -123,6 +109,19 @@ export PYTHON_CONFIGURE_OPTS="--enable-framework"
 # Brew
 if [ "$(uname 2> /dev/null)" "==" "Darwin" ]; then
     export HOMEBREW_NO_ANALYTICS=1
+    export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+fi
+
+# Rust
+export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+export PATH="$HOME/.cargo/bin:$PATH"
+
+
+# Java
+if [ "$(uname 2> /dev/null)" "==" "Darwin" ]; then
+    export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home"
+    export PATH="$JAVA_HOME/bin:$PATH"
+    export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
 fi
 
 # Compilation flags
@@ -154,7 +153,7 @@ alias proxybyhttp="export http_proxy=http://$http_proxy_address https_proxy=http
 alias proxybysocks5="export http_proxy=socks5://$socks5_proxy_address https_proxy=socks5://$socks5_proxy_address"
 alias unsetproxy="unset http_proxy; unset https_proxy"
 
-# pyenv configuration 
+# pyenv configuration
 # To use Homebrew's directories rather than ~/.pyenv add to your profile:
 # export PYENV_ROOT=/usr/local/var/pyenv
 # To enable shims and autocompletion add to your profile:
