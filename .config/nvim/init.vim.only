@@ -145,7 +145,7 @@ if !filereadable(coc_cofig_exists) || !filereadable(vimplug_exists)
         endif
         echo 'Download coc-settings.json...'
         echo ''
-        silent !\curl -fLo ~/.config/nvim/coc-settings.json --create-dirs https://tarrex.github.io/dotfiles/.vim/coc-settings.json
+        silent !\curl -fLo ~/.config/nvim/coc-settings.json --create-dirs https://tarrex.github.io/dotfiles/coc-settings.json
     endif
     if !filereadable(vimplug_exists)
         echo 'Installing Vim-Plug...'
@@ -429,6 +429,7 @@ let g:coc_global_extensions = [
     \ 'coc-word',
     \ 'coc-emoji',
     \ 'coc-python',
+    \ 'coc-java',
     \ 'coc-syntax',
     \ 'coc-rls',
     \ 'coc-git'
