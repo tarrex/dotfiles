@@ -134,17 +134,25 @@ set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 
 " Statusline
 set statusline=
-set statusline+=[%{mode()}]     " buffer mode
-set statusline+=[%n]            " buffer number
-set statusline+=%r              " read only flag
-set statusline+=%f              " tail of the filename
-set statusline+=%m              " modified flag
-set statusline+=%=              " left/right separator
-set statusline+=[%{&ff}]        " file format
-set statusline+=\|[%{&fenc}]    " file encoding
-set statusline+=\|%y            " filetype
-set statusline+=\|[%P]          " percent through file
-set statusline+=\|[%c:%l]\      " cursor column
+set statusline+=\ %{mode()}\                " buffer mode
+set statusline+=\|\ %n\                     " buffer number
+set statusline+=%{ReadOnly()}               " read only flag
+set statusline+=\|\ %f\                     " tail of the filename
+set statusline+=%M                          " modified flag
+set statusline+=%=                          " left/right separator
+set statusline+=%{&ff}\                     " file format
+set statusline+=\|\ %{&fenc?&fenc:&enc}\    " file encoding
+set statusline+=%{FileType()}               " filetype
+set statusline+=\|\ %3p%%\                  " percent through file
+set statusline+=\|\ %3l:%-2v\               " cursor column
+
+function! FileType()
+    return &ft!=#""?"| " . &ft . " ":"| no ft "
+endfunction
+
+function! ReadOnly()
+    return &ro!=#""?"| RO ":""
+endfunction
 
 " Netrw
 let g:netrw_liststyle = 3
