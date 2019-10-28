@@ -178,18 +178,17 @@ let g:go_autodetect_gopath = 1
 " let g:go_list_type = "quickfix"
 " let g:go_addtags_transform = 'camelcase'
 let g:go_def_reuse_buffer = 1
+let g:go_def_mapping_enabled = 0
 let g:go_decls_mode = 'ctrlp.vim'
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
+let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
 let g:go_highlight_function_parameters = 1
-let g:go_highlight_extra_types = 1
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
 let g:go_highlight_generate_tags = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
-let g:go_highlight_structs = 1
+let g:go_highlight_format_strings = 1
 
 " Open :GoDeclsDir with ctrl-g
 nmap <c-g> :GoDeclsDir<cr>
@@ -241,11 +240,11 @@ let g:NERDTreeAutoDeleteBuffer = 1
 nnoremap <silent> <F3> :NERDTreeToggle<cr>
 
 " ----> itchyny/lightline.vim
-set showtabline=2  " show tabline
+" set showtabline=2  " show tabline
 let g:lightline = {
     \ 'enable': {
     \   'statusline': 1,
-	\   'tabline': 1
+    \   'tabline': 1
     \ },
     \ 'colorscheme': 'wombat',
     \ 'active': {
@@ -265,11 +264,11 @@ let g:lightline = {
     \   'blame': 'LightlineGitBlame'
     \ },
     \ 'tabline': {
-	\   'left': [ [ 'tabs' ] ],
-	\   'right': []
+    \   'left': [ [ 'tabs' ] ],
+    \   'right': []
     \ },
     \ 'tab': {
-	\   'active': [ 'filename', 'modified' ],
+    \   'active': [ 'filename', 'modified' ],
     \   'inactive': [ 'filename', 'modified' ]
     \ },
     \ 'component': {
@@ -469,12 +468,34 @@ function! s:show_documentation()
     endif
 endfunction
 
+" Highlight symbol under cursor on CursorHold
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 
 " Remap for format selected region
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
+
+" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
+
+" Remap for do codeAction of current line
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Fix autofix problem of current line
+nmap <leader>qf  <Plug>(coc-fix-current)
+
+" Create mappings for function text object, requires document symbols feature of languageserver.
+xmap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap if <Plug>(coc-funcobj-i)
+omap af <Plug>(coc-funcobj-a)
+
+" Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nmap <silent> <C-d> <Plug>(coc-range-select)
+xmap <silent> <C-d> <Plug>(coc-range-select)
 
 " Using CocList
 nnoremap <silent> <space>a  :<c-u>CocList diagnostics<cr>

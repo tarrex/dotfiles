@@ -171,18 +171,17 @@ let g:go_autodetect_gopath = 1
 " let g:go_list_type = "quickfix"
 " let g:go_addtags_transform = 'camelcase'
 let g:go_def_reuse_buffer = 1
+let g:go_def_mapping_enabled = 0
 let g:go_decls_mode = 'ctrlp.vim'
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
+let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
 let g:go_highlight_function_parameters = 1
-let g:go_highlight_extra_types = 1
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
 let g:go_highlight_generate_tags = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
-let g:go_highlight_structs = 1
+let g:go_highlight_format_strings = 1
 
 " Open :GoDeclsDir with ctrl-g
 nmap <c-g> :GoDeclsDir<cr>
@@ -240,11 +239,11 @@ nmap ]h <Plug>(GitGutterNextHunk)
 nmap [h <Plug>(GitGutterPrevHunk)
 
 " ----> itchyny/lightline.vim
-set showtabline=2  " show tabline
+" set showtabline=2  " show tabline
 let g:lightline = {
     \ 'enable': {
     \   'statusline': 1,
-	\   'tabline': 1
+    \   'tabline': 1
     \ },
     \ 'colorscheme': 'wombat',
     \ 'active': {
@@ -254,21 +253,19 @@ let g:lightline = {
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'fileformat', 'fileencoding', 'filetype' ],
-    \            [ 'tagbar' ],
-    \            [ 'blame' ] ]
+    \            [ 'tagbar' ]]
     \ },
     \ 'component_function': {
     \   'gitbranch': 'LightlineGitBranch',
     \   'filename': 'LightlineFilename',
-    \   'venv': 'virtualenv#statusline',
-    \   'blame': 'LightlineGitBlame'
+    \   'venv': 'virtualenv#statusline'
     \ },
     \ 'tabline': {
-	\   'left': [ [ 'tabs' ] ],
-	\   'right': []
+    \   'left': [ [ 'tabs' ] ],
+    \   'right': []
     \ },
     \ 'tab': {
-	\   'active': [ 'filename', 'modified' ],
+    \   'active': [ 'filename', 'modified' ],
     \   'inactive': [ 'filename', 'modified' ]
     \ },
     \ 'component': {
@@ -281,6 +278,13 @@ function! LightlineFilename()
     let filename = expand('%') !=# '' ? expand('%') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
+endfunction
+
+function! LightlineGitBranch()
+    if &ft !~? 'vimfiler' && exists('*fugitive#head')
+        return fugitive#head()
+    endif
+    return ''
 endfunction
 
 " ----> ctrlpvim/ctrlp.vim

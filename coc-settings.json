@@ -1,4 +1,5 @@
 {
+    "suggest.autoTrigger": "always",
     "suggest.maxCompleteItemCount": 20,
     "suggest.minTriggerInputLength": 2,
 
@@ -7,15 +8,7 @@
     "diagnostic.infoSign": "~~",
     "diagnostic.hintSign": "**",
 
-    "coc.preferences.rootPatterns": [
-        ".vim",
-        ".git",
-        ".hg",
-        ".projections.json",
-        ".travis.yml",
-        "Cargo.toml",
-        "go.mod"
-    ],
+    "coc.preferences.extensionUpdateCheck": "weekly",
     "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
         "html",
@@ -28,8 +21,17 @@
         "rust",
         "python"
     ],
+    "coc.preferences.rootPatterns": [
+        ".vim",
+        ".git",
+        ".hg",
+        ".projections.json",
+        ".travis.yml",
+        "Cargo.toml",
+        "go.mod"
+    ],
+    "coc.preferences.jumpCommand": "vsplit",
     "coc.preferences.snippets.enable": false,
-    "coc.preferences.extensionUpdateCheck": "weekly",
 
     "git.enableGutters": false,
     "git.realtimeGutters": false,
