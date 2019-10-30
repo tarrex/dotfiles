@@ -233,6 +233,9 @@ noremap gl <c-w>l
 noremap gj <c-w>j
 " noremap F gf
 
+noremap <leader>tm :terminal<cr><esc><c-w>L
+nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
+
 " ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
