@@ -139,6 +139,11 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias nvimdiff='nvim -d'
+alias nvimrc='nvim ~/.config/nvim/init.vim'
+alias vimrc='vim ~/.vimrc'
+alias workbench='tmux -2 new -A -c ~/workspace/github -s Workbench'
+
 alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 alias tmux='tmux -2'

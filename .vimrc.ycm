@@ -166,12 +166,12 @@ Plug 'ycm-core/youcompleteme', {'do': './install.py --clang-completer --gocode-c
 call plug#end()
 
 " ----> fatih/vim-go
-let g:go_fmt_command = "goimports"
+let g:go_code_completion_enabled = 0
+let g:go_def_mapping_enabled = 0
 let g:go_autodetect_gopath = 1
+let g:go_fmt_command = "goimports"
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
-let g:go_def_reuse_buffer = 1
-let g:go_def_mapping_enabled = 0
 let g:go_decls_mode = 'ctrlp.vim'
 let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
@@ -471,7 +471,7 @@ let g:ale_lint_on_save = 1
 let g:ale_linters = {
     \ 'c': ['gcc'],
     \ 'cpp': ['gcc'],
-    \ 'go': ['gofmt', 'golint', 'govet'],
+    \ 'go': ['goimports', 'golint', 'govet'],
     \ 'java': ['javac'],
     \ 'lua': ['luac'],
     \ 'rust': ['cargo'],
@@ -486,7 +486,7 @@ let g:ale_linter_aliases = {
 \ }
 let g:ale_fixers = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-    \ 'go': ['gofmt']
+    \ 'go': ['goimports']
 \}
 let g:ale_fix_on_save = 1
 let g:ale_set_highlights = 0
