@@ -167,6 +167,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -175,8 +176,8 @@ call plug#end()
 " ----> fatih/vim-go
 let g:go_fmt_command = "goimports"
 let g:go_autodetect_gopath = 1
-" let g:go_list_type = "quickfix"
-" let g:go_addtags_transform = 'camelcase'
+let g:go_list_type = "locationlist"
+let g:go_addtags_transform = 'camelcase'
 let g:go_def_reuse_buffer = 1
 let g:go_def_mapping_enabled = 0
 let g:go_decls_mode = 'ctrlp.vim'
@@ -253,14 +254,15 @@ let g:lightline = {
     \           [ 'gitbranch', 'venv', 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
-    \            [ 'fileformat', 'fileencoding', 'filetype' ],
+    \            [ 'linter', 'fileformat', 'fileencoding', 'filetype' ],
     \            [ 'tagbar' ],
     \            [ 'blame' ] ]
     \ },
     \ 'component_function': {
-    \   'gitbranch': 'LightlineGitBranch',
     \   'filename': 'LightlineFilename',
+    \   'linter': 'LightlineLinter',
     \   'venv': 'virtualenv#statusline',
+    \   'gitbranch': 'LightlineGitBranch',
     \   'blame': 'LightlineGitBlame'
     \ },
     \ 'tabline': {
@@ -283,15 +285,26 @@ function! LightlineFilename()
     return filename . modified
 endfunction
 
-function! LightlineGitBlame() abort
-    let blame = get(b:, 'coc_git_blame', '')
-    " return blame
-    return winwidth(0) > 120 ? blame : ''
+function! LightlineLinter() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? 'OK' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
 endfunction
 
 function! LightlineGitBranch() abort
     let branch = get(g:, 'coc_git_status', '')
     return branch
+endfunction
+
+function! LightlineGitBlame() abort
+    let blame = get(b:, 'coc_git_blame', '')
+    " return blame
+    return winwidth(0) > 120 ? blame : ''
 endfunction
 
 " ----> ctrlpvim/ctrlp.vim
@@ -468,9 +481,6 @@ function! s:show_documentation()
     endif
 endfunction
 
-" Highlight symbol under cursor on CursorHold
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
 
@@ -493,9 +503,9 @@ xmap af <Plug>(coc-funcobj-a)
 omap if <Plug>(coc-funcobj-i)
 omap af <Plug>(coc-funcobj-a)
 
-" Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
-nmap <silent> <C-d> <Plug>(coc-range-select)
-xmap <silent> <C-d> <Plug>(coc-range-select)
+" Use <c-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+nmap <silent> <c-d> <Plug>(coc-range-select)
+xmap <silent> <c-d> <Plug>(coc-range-select)
 
 " Using CocList
 nnoremap <silent> <space>a  :<c-u>CocList diagnostics<cr>
@@ -506,6 +516,60 @@ nnoremap <silent> <space>s  :<c-u>CocList -I -N symbols<cr>
 nnoremap <silent> <space>j  :<c-u>CocNext<cr>
 nnoremap <silent> <space>k  :<c-u>CocPrev<cr>
 nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
+
+" ----> dense-analysis/ale
+let g:ale_disable_lsp = 1
+let g:ale_maximum_file_size = 2 * 1024 * 1024
+let g:ale_linters_explicit = 1
+let g:ale_command_wrapper = 'nice -n5 %*'
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_filetype_changed = 0
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_save = 1
+let g:ale_linters = {
+    \ 'c': ['gcc'],
+    \ 'cpp': ['gcc'],
+    \ 'go': ['gofmt', 'golint', 'govet'],
+    \ 'java': ['javac'],
+    \ 'lua': ['luac'],
+    \ 'rust': ['cargo'],
+    \ 'sh': ['shell']
+\ }
+let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+let g:ale_linter_aliases = {
+    \ 'Dockerfile': 'dockerfile',
+    \ 'vimwiki': 'markdown',
+    \ 'zsh': 'sh'
+\ }
+let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'go': ['gofmt']
+\}
+let g:ale_fix_on_save = 1
+let g:ale_set_highlights = 0
+let g:ale_sign_error = '>>'
+let g:ale_sign_warning = '--'
+let g:ale_sign_info = '~~'
+let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
+let g:ale_loclist_msg_format = '[%linter%] %s'
+let g:ale_list_window_size = 5
+let g:ale_open_list = 'on_save'
+
+augroup CloseLoclistWindowGroup
+    autocmd!
+    autocmd QuitPre * if empty(&buftype) | lclose | endif
+augroup END
+
+nmap <silent> <c-k> <Plug>(ale_previous_wrap)
+nmap <silent> <c-j> <Plug>(ale_next_wrap)
+
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+highlight clear ALEInfoSign
+highlight clear ALEStyleErrorSign
+highlight clear ALEStyleWarningSign
 
 " ============> Custom <============
 
@@ -521,7 +585,9 @@ set t_8f=^[[38;2;%lu;%lu;%lum   " set foreground color
 set t_8b=^[[48;2;%lu;%lu;%lum   " set background color
 set t_Co=256                    " enable 256 colors
 
-set termguicolors   " enable GUI colors for the terminal to get truecolor
+if has('termguicolors')
+    set termguicolors   " enable GUI colors for the terminal to get truecolor
+endif
 
 set background=dark
 

@@ -145,8 +145,6 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
 Plug 'itchyny/lightline.vim'
 Plug 'flazz/vim-colorschemes'
 Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
@@ -157,9 +155,11 @@ Plug 'junegunn/vim-easy-align'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
-Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
+Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
 Plug 'ycm-core/youcompleteme', {'do': './install.py --clang-completer --gocode-completer --rust-completer',
                              \ 'for': ['c', 'cpp', 'go', 'java', 'javascript', 'python', 'rust', 'typescript']}
 
@@ -168,8 +168,8 @@ call plug#end()
 " ----> fatih/vim-go
 let g:go_fmt_command = "goimports"
 let g:go_autodetect_gopath = 1
-" let g:go_list_type = "quickfix"
-" let g:go_addtags_transform = 'camelcase'
+let g:go_list_type = "locationlist"
+let g:go_addtags_transform = 'camelcase'
 let g:go_def_reuse_buffer = 1
 let g:go_def_mapping_enabled = 0
 let g:go_decls_mode = 'ctrlp.vim'
@@ -238,6 +238,12 @@ nmap <F7> :GitGutterLineHighlightsToggle<cr>
 nmap ]h <Plug>(GitGutterNextHunk)
 nmap [h <Plug>(GitGutterPrevHunk)
 
+" ----> plasticboy/vim-markdown
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_math = 1
+let g:vim_markdown_frontmatter = 1
+let g:vim_markdown_toml_frontmatter = 1
+
 " ----> itchyny/lightline.vim
 " set showtabline=2  " show tabline
 let g:lightline = {
@@ -252,13 +258,14 @@ let g:lightline = {
     \           [ 'gitbranch', 'venv', 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
-    \            [ 'fileformat', 'fileencoding', 'filetype' ],
-    \            [ 'tagbar' ]]
+    \            [ 'linter', 'fileformat', 'fileencoding', 'filetype' ],
+    \            [ 'tagbar' ] ]
     \ },
     \ 'component_function': {
-    \   'gitbranch': 'LightlineGitBranch',
     \   'filename': 'LightlineFilename',
-    \   'venv': 'virtualenv#statusline'
+    \   'linter': 'LightlineLinter',
+    \   'venv': 'virtualenv#statusline',
+    \   'gitbranch': 'LightlineGitBranch'
     \ },
     \ 'tabline': {
     \   'left': [ [ 'tabs' ] ],
@@ -280,7 +287,18 @@ function! LightlineFilename()
     return filename . modified
 endfunction
 
-function! LightlineGitBranch()
+function! LightlineLinter() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? 'OK' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
+endfunction
+
+function! LightlineGitBranch() abort
     if &ft !~? 'vimfiler' && exists('*fugitive#head')
         return fugitive#head()
     endif
@@ -304,12 +322,6 @@ let g:ctrlp_custom_ignore = {
 " ----> junegunn/vim-easy-align
 xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
-
-" ----> plasticboy/vim-markdown
-let g:vim_markdown_folding_disabled = 1
-let g:vim_markdown_math = 1
-let g:vim_markdown_frontmatter = 1
-let g:vim_markdown_toml_frontmatter = 1
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
@@ -413,6 +425,9 @@ let g:tagbar_type_rust = {
   \ },
 \ }
 
+" ----> rust-lang/rust.vim
+let g:rustfmt_autosave = 1
+
 " ----> ycm-core/youcompleteme
 nmap <leader>yd :YcmDiags<cr>
 augroup ycm
@@ -444,76 +459,58 @@ let g:ycm_seed_identifiers_with_syntax = 1
 let g:ycm_semantic_triggers = {'*': ['re![.:>\-\w]{2}']}
 
 " ----> dense-analysis/ale
-let g:ale_lint_on_text_changed = 0
+let g:ale_disable_lsp = 1
+let g:ale_maximum_file_size = 2 * 1024 * 1024
+let g:ale_linters_explicit = 1
+let g:ale_command_wrapper = 'nice -n5 %*'
 let g:ale_lint_on_enter = 0
+let g:ale_lint_on_filetype_changed = 0
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_save = 1
 let g:ale_linters = {
-    \ 'c': ['gcc', 'cppcheck'],
-    \ 'cpp': ['gcc', 'cppcheck'],
-    \ 'csh': ['shell'],
-    \ 'elixir': ['credo', 'dialyxir', 'dogma'],
-    \ 'go': ['gofmt', 'golint', 'go vet'],
-    \ 'hack': ['hack'],
-    \ 'lua': ['luac'],
+    \ 'c': ['gcc'],
+    \ 'cpp': ['gcc'],
+    \ 'go': ['gofmt', 'golint', 'govet'],
     \ 'java': ['javac'],
-    \ 'javascript': ['eslint'],
-    \ 'perl': ['perlcritic'],
-    \ 'python': ['flake8', 'mypy', 'pylint'],
+    \ 'lua': ['luac'],
     \ 'rust': ['cargo'],
-    \ 'text': ['textlint', 'write-good', 'languagetool'],
-    \ 'vue': ['eslint', 'vls'],
-    \ 'zsh': ['shell']
+    \ 'sh': ['shell']
 \ }
 let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
 let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-let g:ale_fixers = {
-    \ 'javascript': ['eslint'],
-    \ 'python': ['remove_trailing_lines', 'trim_whitespace', 'autopep8'],
+let g:ale_linter_aliases = {
+    \ 'Dockerfile': 'dockerfile',
+    \ 'vimwiki': 'markdown',
+    \ 'zsh': 'sh'
 \ }
+let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'go': ['gofmt']
+\}
 let g:ale_fix_on_save = 1
-let g:ale_sign_column_always = 0
+let g:ale_set_highlights = 0
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '--'
-let g:ale_linters_explicit = 1
-let g:ale_completion_delay = 500
-let g:ale_echo_delay = 20
-let g:ale_lint_delay = 500
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_info_str = 'I'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_lint_on_insert_leave = 1
-" reduce the process priority of ale
-if has('win32') == 0 && has('win64') == 0 && has('win32unix') == 0
-    let g:ale_command_wrapper = 'nice -n5'
-endif
+let g:ale_sign_info = '~~'
+let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
+let g:ale_loclist_msg_format = '[%linter%] %s'
+let g:ale_list_window_size = 5
+let g:ale_open_list = 'on_save'
+
+augroup CloseLoclistWindowGroup
+    autocmd!
+    autocmd QuitPre * if empty(&buftype) | lclose | endif
+augroup END
+
+nmap <silent> <c-k> <Plug>(ale_previous_wrap)
+nmap <silent> <c-j> <Plug>(ale_next_wrap)
+
 highlight clear ALEErrorSign
 highlight clear ALEWarningSign
 highlight clear ALEInfoSign
-
-function! LinterStatus() abort
-    let l:counts = ale#statusline#Count(bufnr(''))
-    let l:all_errors = l:counts.error + l:counts.style_error
-    let l:all_non_errors = l:counts.total - l:all_errors
-    return l:counts.total == 0 ? 'OK' : printf(
-        \ '%dW %dE',
-        \ all_non_errors,
-        \ all_errors
-    \ )
-endfunction
-set statusline=%{LinterStatus()}
-set statusline+=%*
-
-let g:ale_open_list = 1
-" Set this if you want to.
-" This can be useful if you are combining ALE with
-" some other plugin which sets quickfix errors, etc.
-" let g:ale_keep_list_window_open = 1
-
-" Show 5 lines of errors (default: 10)
-let g:ale_list_window_size = 5
-
-" ----> rust-lang/rust.vim
-let g:rustfmt_autosave = 1
+highlight clear ALEStyleErrorSign
+highlight clear ALEStyleWarningSign
 
 " ============> Custom <============
 
@@ -529,7 +526,9 @@ set t_8f=^[[38;2;%lu;%lu;%lum   " set foreground color
 set t_8b=^[[48;2;%lu;%lu;%lum   " set background color
 set t_Co=256                    " enable 256 colors
 
-set termguicolors   " enable GUI colors for the terminal to get truecolor
+if has('termguicolors')
+    set termguicolors   " enable GUI colors for the terminal to get truecolor
+endif
 
 set background=dark
 

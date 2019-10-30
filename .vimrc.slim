@@ -133,26 +133,22 @@ set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 " ============> Simple <============
 
 " Statusline
-set statusline=
-set statusline+=\ %{mode()}\                " buffer mode
-set statusline+=\|\ %n\                     " buffer number
-set statusline+=%{ReadOnly()}               " read only flag
-set statusline+=\|\ %f\                     " tail of the filename
-set statusline+=%M                          " modified flag
-set statusline+=%=                          " left/right separator
-set statusline+=%{&ff}\                     " file format
-set statusline+=\|\ %{&fenc?&fenc:&enc}\    " file encoding
-set statusline+=%{FileType()}               " filetype
-set statusline+=\|\ %3p%%\                  " percent through file
-set statusline+=\|\ %3l:%-2v\               " cursor column
-
-function! FileType()
-    return &ft!=#""?"| " . &ft . " ":"| no ft "
+function! s:statusline()
+    let mo   = ' %{mode()} '                " buffer mode
+    let bnum = '| %n '                      " buffer number
+    let ro   = '%{&ro!=#""?"| RO ":""}'     " read only flag
+    let fil  = '| %f '                      " tail of filename
+    let md   = '%{&modified?"+":""}'        " modified flag
+    let sep  = ' %= '                       " separator
+    let ff   = '%{&ff} '                    " file format
+    let fe   = '| %{&fenc?&fenc:&enc} '     " file encoding
+    let ft   = '| %{&ft!=#""?&ft:"no ft"} ' " filetype
+    let pct  = '| %3p%% '                   " percent through file
+    let pos  = '| %3l:%-2v '                " cursor column
+    return mo.bnum.ro.fil.md.sep.ff.fe.ft.pct.pos
 endfunction
 
-function! ReadOnly()
-    return &ro!=#""?"| RO ":""
-endfunction
+let &statusline = s:statusline()
 
 " Netrw
 let g:netrw_liststyle = 3
@@ -175,15 +171,6 @@ function! ToggleNetrw()
 endfunction
 nnoremap <silent> <F3> :call ToggleNetrw() <cr>
 
-" Auto pairs
-inoremap " ""<left>
-inoremap ' ''<left>
-inoremap ( ()<left>
-inoremap [ []<left>
-inoremap { {}<left>
-inoremap {<CR> {<CR>}<ESC>O
-inoremap {;<CR> {<CR>};<ESC>O
-
 " ============> Custom <============
 
 " ----> Color
@@ -198,7 +185,9 @@ set t_8f=^[[38;2;%lu;%lu;%lum   " set foreground color
 set t_8b=^[[48;2;%lu;%lu;%lum   " set background color
 set t_Co=256                    " enable 256 colors
 
-set termguicolors   " enable GUI colors for the terminal to get truecolor
+if has('termguicolors')
+    set termguicolors   " enable GUI colors for the terminal to get truecolor
+endif
 
 set background=dark
 
