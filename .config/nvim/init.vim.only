@@ -178,6 +178,7 @@ let g:go_code_completion_enabled = 0
 let g:go_def_mapping_enabled = 0
 let g:go_autodetect_gopath = 1
 let g:go_fmt_autosave = 0
+let g:go_fmt_command = 'goimports'
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
 let g:go_decls_mode = 'ctrlp.vim'
@@ -530,7 +531,7 @@ let g:ale_linters_explicit = 1
 let g:ale_lint_on_enter = 0
 let g:ale_lint_on_filetype_changed = 0
 let g:ale_lint_on_text_changed = 0
-let g:ale_lint_on_insert_leave = 0
+let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_save = 1
 let g:ale_linters = {
     \ 'c': ['gcc'],
@@ -559,11 +560,7 @@ let g:ale_sign_info = '~~'
 let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
 let g:ale_loclist_msg_format = '[%linter%] %s'
 let g:ale_list_window_size = 5
-let g:ale_open_list = 1
-if has('nvim')
-    let g:ale_virtualtext_cursor = 1
-    let g:ale_virtualtext_prefix = '> '
-endif
+let g:ale_open_list = 'on_save'
 
 augroup CloseLoclistWindowGroup
     autocmd!

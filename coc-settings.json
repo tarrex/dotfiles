@@ -3,6 +3,7 @@
     "suggest.maxCompleteItemCount": 20,
     "suggest.minTriggerInputLength": 2,
 
+    "diagnostic.enable": false,
     "diagnostic.displayByAle": true,
     "diagnostic.errorSign": ">>",
     "diagnostic.warningSign": "--",
