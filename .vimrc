@@ -177,7 +177,7 @@ call plug#end()
 let g:go_code_completion_enabled = 0
 let g:go_def_mapping_enabled = 0
 let g:go_autodetect_gopath = 1
-let g:go_fmt_command = "goimports"
+let g:go_fmt_autosave = 0
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
 let g:go_decls_mode = 'ctrlp.vim'
@@ -190,6 +190,12 @@ let g:go_highlight_fields = 1
 let g:go_highlight_generate_tags = 1
 let g:go_highlight_build_constraints = 1
 let g:go_highlight_format_strings = 1
+if has('nvim')
+    let g:go_term_enabled = 1
+    let g:go_term_mode = 'split'
+    let g:go_term_height = 10
+    " let g:go_term_width = 40
+endif
 
 " Open :GoDeclsDir with ctrl-g
 nmap <c-g> :GoDeclsDir<cr>
@@ -521,7 +527,6 @@ nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
 let g:ale_disable_lsp = 1
 let g:ale_maximum_file_size = 2 * 1024 * 1024
 let g:ale_linters_explicit = 1
-let g:ale_command_wrapper = 'nice -n5 %*'
 let g:ale_lint_on_enter = 0
 let g:ale_lint_on_filetype_changed = 0
 let g:ale_lint_on_text_changed = 0
@@ -548,14 +553,17 @@ let g:ale_fixers = {
     \ 'go': ['goimports']
 \}
 let g:ale_fix_on_save = 1
-let g:ale_set_highlights = 0
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '--'
 let g:ale_sign_info = '~~'
 let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
 let g:ale_loclist_msg_format = '[%linter%] %s'
 let g:ale_list_window_size = 5
-let g:ale_open_list = 'on_save'
+let g:ale_open_list = 1
+if has('nvim')
+    let g:ale_virtualtext_cursor = 1
+    let g:ale_virtualtext_prefix = '> '
+endif
 
 augroup CloseLoclistWindowGroup
     autocmd!
