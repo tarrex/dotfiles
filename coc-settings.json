@@ -5,6 +5,7 @@
 
     "diagnostic.enable": true,
     "diagnostic.displayByAle": false,
+    "diagnostic.locationlist": false,
     "diagnostic.errorSign": ">>",
     "diagnostic.warningSign": "--",
     "diagnostic.infoSign": "~~",
@@ -37,7 +38,7 @@
     "git.enableGutters": false,
     "git.realtimeGutters": false,
     "git.branchCharacter": "ᚠ",
-    "git.addGlameToBufferVar": true,
+    "git.addGBlameToBufferVar": true,
 
     "python.pythonPath": "python3",
     "python.jediEnabled": true,
