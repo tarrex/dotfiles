@@ -481,7 +481,7 @@ let g:ale_linters = {
     \ 'java': ['javac'],
     \ 'lua': ['luac'],
     \ 'rust': ['cargo'],
-    \ 'sh': ['shell']
+    \ 'sh': ['shell', 'shellcheck']
 \ }
 let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
 let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
@@ -503,11 +503,6 @@ let g:ale_loclist_msg_format = '[%linter%] %s'
 let g:ale_list_window_size = 5
 let g:ale_open_list = 'on_save'
 
-augroup CloseLoclistWindowGroup
-    autocmd!
-    autocmd QuitPre * if empty(&buftype) | lclose | endif
-augroup END
-
 nmap <silent> <c-k> <Plug>(ale_previous_wrap)
 nmap <silent> <c-j> <Plug>(ale_next_wrap)
 
@@ -527,9 +522,7 @@ if &term =~? '256color'
     set t_ut=
 endif
 
-set t_8f=^[[38;2;%lu;%lu;%lum   " set foreground color
-set t_8b=^[[48;2;%lu;%lu;%lum   " set background color
-set t_Co=256                    " enable 256 colors
+set t_Co=256            " enable 256 colors
 
 if has('termguicolors')
     set termguicolors   " enable GUI colors for the terminal to get truecolor
@@ -582,6 +575,11 @@ noremap gj <c-w>j
 noremap <leader>tm :terminal<cr><esc><c-w>L
 nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
 
+" Hex read
+nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>
+" Hex write
+nmap <leader>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
+
 " ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -610,6 +608,9 @@ endif
 
 " Remember cursor position
 autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+" Close the locationlist window when exiting
+autocmd! QuitPre * if empty(&buftype) | lclose | endif
 
 " ----> Headers
 augroup AddHeaderForNewFile

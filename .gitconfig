@@ -43,13 +43,13 @@
     unstage = reset HEAD --
     stash-all = stash save --include-untracked
     rank = shortlog -sn --no-merges
-    delete-merged-branchs = "!git branch --merged | grep -v '*' | xargs -n 1 git branch -d"
+    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    slog = log --stat --graph --date-order --oneline
     stat = !git --no-pager diff --stat
     sweep = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
     serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
-    # log
-    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
-    slog = log --stat --graph --date-order --oneline
+    cloc = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
+    delete-merged-branchs = !git branch --merged | grep -v '*' | xargs -n 1 git branch -d
 [color]
     diff = auto
     status = auto

@@ -167,6 +167,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -176,7 +177,7 @@ call plug#end()
 let g:go_code_completion_enabled = 0
 let g:go_def_mapping_enabled = 0
 let g:go_autodetect_gopath = 1
-let g:go_fmt_autosave = 1
+let g:go_fmt_autosave = 0
 let g:go_fmt_command = 'goimports'
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
@@ -292,16 +293,14 @@ function! LightlineFilename()
 endfunction
 
 function! LightlineLinter() abort
-    let info = get(b:, 'coc_diagnostic_info', {})
-    if empty(info) | return '' | endif
-        let msgs = []
-        if get(info, 'error', 0)
-            call add(msgs, 'E' . info['error'])
-        endif
-    if get(info, 'warning', 0)
-        call add(msgs, 'W' . info['warning'])
-    endif
-    return join(msgs, ' ') . ' ' . get(g:, 'coc_status', '')
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? '' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
 endfunction
 
 function! LightlineGitBranch() abort
@@ -526,6 +525,53 @@ nnoremap <silent> <space>s  :<c-u>CocList -I -N symbols<cr>
 nnoremap <silent> <space>j  :<c-u>CocNext<cr>
 nnoremap <silent> <space>k  :<c-u>CocPrev<cr>
 nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
+
+" ----> dense-analysis/ale
+let g:ale_disable_lsp = 1
+let g:ale_maximum_file_size = 2 * 1024 * 1024
+let g:ale_linters_explicit = 1
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_filetype_changed = 0
+let g:ale_lint_on_text_changed = 0
+let g:ale_lint_on_insert_leave = 1
+let g:ale_lint_on_save = 1
+let g:ale_linters = {
+    \ 'c': ['gcc'],
+    \ 'cpp': ['gcc'],
+    \ 'go': ['goimports', 'golint', 'govet'],
+    \ 'java': ['javac'],
+    \ 'lua': ['luac'],
+    \ 'rust': ['cargo'],
+    \ 'sh': ['shell', 'shellcheck']
+\ }
+let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
+let g:ale_linter_aliases = {
+    \ 'Dockerfile': 'dockerfile',
+    \ 'vimwiki': 'markdown',
+    \ 'zsh': 'sh'
+\ }
+let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'go': ['goimports']
+\}
+let g:ale_fix_on_save = 1
+let g:ale_sign_error = '>>'
+let g:ale_sign_warning = '--'
+let g:ale_sign_info = '~~'
+let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
+let g:ale_loclist_msg_format = '[%linter%] %s'
+let g:ale_list_window_size = 5
+let g:ale_open_list = 'on_save'
+
+nmap <silent> <c-k> <Plug>(ale_previous_wrap)
+nmap <silent> <c-j> <Plug>(ale_next_wrap)
+
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+highlight clear ALEInfoSign
+highlight clear ALEStyleErrorSign
+highlight clear ALEStyleWarningSign
 
 " ============> Custom <============
 

@@ -95,7 +95,6 @@ export LC_ALL=en_US.UTF-8
 export EDITOR=vim
 
 # ~/.local/bin
-# normal for AppImage files
 export PATH=$PATH:$HOME/.local/bin
 
 # Golang
@@ -120,7 +119,6 @@ fi
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
 export PATH="$HOME/.cargo/bin:$PATH"
 
-
 # Java
 if [ "$(uname 2> /dev/null)" "==" "Darwin" ]; then
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home"
@@ -142,15 +140,23 @@ fi
 alias nvimdiff='nvim -d'
 alias nvimrc='nvim ~/.config/nvim/init.vim'
 alias vimrc='vim ~/.vimrc'
+
 alias workbench='tmux -2 new -A -c ~/workspace/github -s Workbench'
 
 alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
+
 alias tmux='tmux -2'
 alias serve='python -m SimpleHTTPServer 8000'
+
 alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
-alias cinfo='_cinfo(){curl cht.sh/$1};_cinfo'
-alias ipinfo='curl ipinfo.io'
+alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
+alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
+alias ipinfo='curl wtfismyip.com/json'
+alias randname='curl pseudorandom.name'
+alias brow='ssh brow.sh'
+alias reddit='ssh redditbox.us'
+
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 alias cmdrank='history | awk '\''{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}'\'' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10'
 

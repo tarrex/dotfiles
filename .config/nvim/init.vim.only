@@ -452,12 +452,14 @@ let g:coc_global_extensions = [
     \ 'coc-java',
     \ 'coc-syntax',
     \ 'coc-rls',
-    \ 'coc-git'
+    \ 'coc-git',
+    \ 'coc-vimlsp'
 \]
 
 highlight clear CocErrorSign
 highlight clear CocWarningSign
 highlight clear CocInfoSign
+highlight clear CocHintSign
 
 " Use <tab> and <s-tab> to navigate the completion list
 inoremap <expr> <tab> pumvisible() ? "\<c-n>" : "\<tab>"
@@ -535,9 +537,7 @@ if &term =~? '256color'
     set t_ut=
 endif
 
-set t_8f=^[[38;2;%lu;%lu;%lum   " set foreground color
-set t_8b=^[[48;2;%lu;%lu;%lum   " set background color
-set t_Co=256                    " enable 256 colors
+set t_Co=256            " enable 256 colors
 
 if has('termguicolors')
     set termguicolors   " enable GUI colors for the terminal to get truecolor
@@ -590,6 +590,11 @@ noremap gj <c-w>j
 noremap <leader>tm :terminal<cr><esc><c-w>L
 nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
 
+" Hex read
+nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>
+" Hex write
+nmap <leader>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
+
 " ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -618,6 +623,9 @@ endif
 
 " Remember cursor position
 autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+" Close the locationlist window when exiting
+autocmd! QuitPre * if empty(&buftype) | lclose | endif
 
 " ----> Headers
 augroup AddHeaderForNewFile
