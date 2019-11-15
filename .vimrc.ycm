@@ -576,6 +576,10 @@ noremap gj <c-w>j
 vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
 
+" Move vertically by visual line
+noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
+noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
+
 noremap <leader>tm :terminal<cr><esc><c-w>L
 nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
 
