@@ -681,27 +681,19 @@ autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "nor
 " Close the locationlist window when exiting
 autocmd! QuitPre * if empty(&buftype) | lclose | endif
 
-" ----> Headers
-augroup AddHeaderForNewFile
+" Shebang
+augroup ShebangForNewFile
     autocmd!
-    autocmd BufNewFile *.py call s:PythonHeader()
+    autocmd BufNewFile *.sh  0put =\"#!/usr/bin/env bash\<nl>\<nl>\"|$
+    autocmd BufNewFile *.erl 0put =\"#!/usr/bin/env escript\<nl>\<nl>\"|$
+    autocmd BufNewFile *.js  0put =\"#!/usr/bin/env node\<nl>\<nl>\"|$
+    autocmd BufNewFile *.lua 0put =\"#!/usr/bin/env lua\<nl>\<nl>\"|$
+    autocmd BufNewFile *.rb  0put =\"#!/usr/bin/env ruby\<nl>\<nl>\"|$
+    autocmd BufNewFile *.pl  0put =\"#!/usr/bin/env perl\<nl>\<nl>\"|$
+    autocmd BufNewFile *.php 0put =\"#!/usr/bin/env php\<nl>\<nl>\"|$
+    autocmd BufNewFile *.py  0put =\"#!/usr/bin/env python3\<nl>\<nl>\"|$
+    autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
 augroup END
-
-function! s:PythonHeader()
-    normal! i#!/usr/bin/env python
-    normal! o# -*- coding: utf-8 -*-
-    let fullname = ''
-    if has('macunix')
-        let fullname = split(system("finger `whoami` | awk -F: '{ print $3  }' | head -n1 | sed 's/^ //'"), '\n')[0]
-    elseif has('unix')
-        let fullname = split(system('whoami | head -n1'), '\n')[0]
-    endif
-    if fullname !=? ''
-        let @o = '# by ' . fullname . ' ' . strftime('%Y-%m-%d %H:%M:%S')
-        put o
-    endif
-    normal! o
-endfunction
 
 " ----> Zen mode
 let s:hidden_all=0
