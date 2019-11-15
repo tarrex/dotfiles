@@ -633,6 +633,10 @@ noremap gl <c-w>l
 noremap gj <c-w>j
 " noremap F gf
 
+" Move visual block
+vnoremap J :m '>+1<cr>gv=gv
+vnoremap K :m '<-2<cr>gv=gv
+
 noremap <leader>tm :terminal<cr><esc><c-w>L
 nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
 
@@ -694,3 +698,28 @@ function! s:PythonHeader()
     endif
     normal! o
 endfunction
+
+" ----> Zen mode
+let s:hidden_all=0
+function! ToggleHideAll() abort
+    if s:hidden_all==0
+        let s:hidden_all=1
+        set noshowmode
+        set noruler
+        set laststatus=0
+        set noshowcmd
+        set nonumber
+        set scrolloff=999
+        syntax off
+    else
+        let s:hidden_all=0
+        set showmode
+        set ruler
+        set laststatus=2
+        set showcmd
+        set number
+        set scrolloff=5
+        syntax on
+    endif
+endfunction
+nnoremap <silent> <leader>h :call ToggleHideAll()<cr>
