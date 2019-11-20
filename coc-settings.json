@@ -11,7 +11,7 @@
     "diagnostic.infoSign": "~~",
     "diagnostic.hintSign": "**",
 
-    "coc.preferences.extensionUpdateCheck": "weekly",
+    "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
         "html",

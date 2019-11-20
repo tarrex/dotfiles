@@ -26,7 +26,6 @@ set smarttab                    " be smart when use tabs
 set ambiwidth=double
 
 set autoindent                  " copy indent from current line when starting a new line
-" set smartindent               " do smart autoindenting when starting a new line
 set cindent                     " enables automatic c program indenting
 set breakindent                 " every wrapped line will continue visually indented
 
@@ -133,7 +132,7 @@ set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 " ============> Simple <============
 
 " Statusline
-function! s:statusline()
+function! s:statusline() abort
     let mo   = ' %{mode()} '                " buffer mode
     let bnum = '| %n '                      " buffer number
     let ro   = '%{&ro!=#""?"| RO ":""}'     " read only flag
@@ -155,7 +154,7 @@ let g:netrw_liststyle = 3
 let g:netrw_browse_split = 4
 let g:netrw_list_hide = &wildignore
 let g:netrw_winsize = 20
-function! ToggleNetrw()
+function! ToggleNetrw() abort
     let i = bufnr("$")
     let wasOpen = 0
     while (i >= 1)

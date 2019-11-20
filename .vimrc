@@ -26,7 +26,6 @@ set smarttab                    " be smart when use tabs
 set ambiwidth=double
 
 set autoindent                  " copy indent from current line when starting a new line
-" set smartindent               " do smart autoindenting when starting a new line
 set cindent                     " enables automatic c program indenting
 set breakindent                 " every wrapped line will continue visually indented
 
@@ -231,7 +230,7 @@ augroup END
 
 " build_go_files is a custom function that builds or compiles the test file.
 " It calls :GoBuild if its a Go file, or :GoTestCompile if it's a test file
-function! s:build_go_files()
+function! s:build_go_files() abort
     let l:file = expand('%')
     if l:file =~# '^\f\+_test\.go$'
         call go#test#Test(0, 1)
@@ -285,7 +284,7 @@ let g:lightline = {
     \ }
 \ }
 
-function! LightlineFilename()
+function! LightlineFilename() abort
     let filename = expand('%') !=# '' ? expand('%') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
@@ -483,7 +482,7 @@ nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window
 nnoremap <silent> K :call <SID>show_documentation()<cr>
-function! s:show_documentation()
+function! s:show_documentation() abort
     if (index(['vim','help'], &filetype) >= 0)
         execute 'h '.expand('<cword>')
     else
