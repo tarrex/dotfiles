@@ -8,7 +8,7 @@ export ZSH=$HOME/.oh-my-zsh
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="af-magic"
+ZSH_THEME="robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -99,7 +99,7 @@ export PATH=$PATH:$HOME/.local/bin
 
 # Golang
 export GO111MODULE=on
-export GOBASEPATH=$HOME/workspace/projects/go
+export GOBASEPATH=$HOME/Projects/Go
 export GOPATH=$GOBASEPATH
 if [ "$(uname 2> /dev/null)" "==" "Linux" ]; then
     export GOROOT=/usr/local/go
@@ -141,7 +141,7 @@ alias nvimdiff='nvim -d'
 alias nvimrc='nvim ~/.config/nvim/init.vim'
 alias vimrc='vim ~/.vimrc'
 
-alias workbench='tmux -2 new -A -c ~/workspace/github -s Workbench'
+alias workbench='tmux -2 new -A -c ~/Workspace/Github -s Workbench'
 
 alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'

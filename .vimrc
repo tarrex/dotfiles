@@ -658,7 +658,6 @@ function! ToggleHideAll() abort
         set laststatus=0
         set noshowcmd
         set nonumber
-        set scrolloff=999
         syntax off
     else
         let s:hidden_all=0
@@ -667,7 +666,6 @@ function! ToggleHideAll() abort
         set laststatus=2
         set showcmd
         set number
-        set scrolloff=5
         syntax on
     endif
 endfunction
