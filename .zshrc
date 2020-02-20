@@ -147,7 +147,7 @@ alias gohere='export GOPATH=`pwd`'
 alias gohome='export GOPATH=$GOBASEPATH'
 
 alias tmux='tmux -2'
-alias serve='python -m SimpleHTTPServer 8000'
+alias serve='python3 -m http.server 8000'
 
 alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
 alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
