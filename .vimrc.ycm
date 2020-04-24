@@ -144,18 +144,20 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'chriskempson/base16-vim'
+" Plug 'vim-scripts/ScrollColors'
 Plug 'itchyny/lightline.vim'
-Plug 'flazz/vim-colorschemes'
-Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
+Plug 'easymotion/vim-easymotion'
+Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
+Plug 'yggdroot/leaderf'
 Plug 'jiangmiao/auto-pairs'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'junegunn/vim-easy-align'
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
-Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
-Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'tpope/vim-surround'
 Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
+Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
+Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'ap/vim-css-color', {'for': 'css'}
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
@@ -172,7 +174,6 @@ let g:go_fmt_autosave = 0
 let g:go_fmt_command = 'goimports'
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
-let g:go_decls_mode = 'ctrlp.vim'
 let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
@@ -232,24 +233,6 @@ function! s:build_go_files() abort
     endif
 endfunction
 
-" ----> scrooloose/nerdtree
-let g:NERDTreeChDirMode = 1
-let g:NERDTreeMarkBookmarks = 0
-let g:NERDTreeAutoDeleteBuffer = 1
-nnoremap <silent> <F3> :NERDTreeToggle<cr>
-
-" ----> airblade/vim-gitgutter
-nmap <F6> :GitGutterSignsToggle<cr>
-nmap <F7> :GitGutterLineHighlightsToggle<cr>
-nmap ]h <Plug>(GitGutterNextHunk)
-nmap [h <Plug>(GitGutterPrevHunk)
-
-" ----> plasticboy/vim-markdown
-let g:vim_markdown_folding_disabled = 1
-let g:vim_markdown_math = 1
-let g:vim_markdown_frontmatter = 1
-let g:vim_markdown_toml_frontmatter = 1
-
 " ----> itchyny/lightline.vim
 " set showtabline=2  " show tabline
 let g:lightline = {
@@ -261,7 +244,7 @@ let g:lightline = {
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'buffernum' ],
-    \           [ 'gitbranch', 'venv', 'readonly', 'filename' ] ],
+    \           [ 'gitbranch', 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'linter', 'fileformat', 'fileencoding', 'filetype' ],
@@ -270,7 +253,6 @@ let g:lightline = {
     \ 'component_function': {
     \   'filename': 'LightlineFilename',
     \   'linter': 'LightlineLinter',
-    \   'venv': 'virtualenv#statusline',
     \   'gitbranch': 'LightlineGitBranch'
     \ },
     \ 'tabline': {
@@ -311,23 +293,23 @@ function! LightlineGitBranch() abort
     return ''
 endfunction
 
-" ----> ctrlpvim/ctrlp.vim
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_switch_buffer = 0
-let g:ctrlp_working_path_mode = 0
-let g:ctrlp_match_window = 'bottom,order:ttb'
-let g:ctrlp_types = ['buf', 'mru', 'fil']
-let g:ctrlp_root_markers = ['.project', '.root', '.svn', '.git']
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-    \ 'file': '\v\.(exe|so|dll)$',
-    \ 'link': 'some_bad_symbolic_links',
-\ }
-
-" ----> junegunn/vim-easy-align
-xmap ga <Plug>(EasyAlign)
-nmap ga <Plug>(EasyAlign)
+" ----> yggdroot/leaderf
+let g:Lf_ShortcutF = '<leader>lf'
+let g:Lf_ShortcutB = '<leader>lb'
+noremap <leader>fm :LeaderfMru<cr>
+noremap <leader>fu :LeaderfFunction!<cr>
+noremap <leader>fb :LeaderfBuffer<cr>
+noremap <leader>ft :LeaderfTag<cr>
+let g:Lf_StlSeparator = {'left': '', 'right': '', 'font': ''}
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_CacheDirectory = expand('~/.cache/leaderf')
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+let g:Lf_ShowDevIcons = 0
+let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
+let g:Lf_SpinSymbols = ['△ ', '▲ ', '▷ ', '▶ ', '▽ ', '▼ ', '◁ ', '◀ ']
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
@@ -491,7 +473,8 @@ let g:ale_linter_aliases = {
 \ }
 let g:ale_fixers = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
-    \ 'go': ['goimports']
+    \ 'go': ['goimports'],
+    \ 'python': ['yapf']
 \}
 let g:ale_fix_on_save = 1
 let g:ale_sign_error = '>>'
@@ -529,7 +512,7 @@ endif
 
 set background=dark
 
-colorscheme molokai
+colorscheme base16-tomorrow-night-eighties
 
 " set colorcolumn=120   " column color
 
@@ -632,6 +615,29 @@ augroup ShebangForNewFile
     autocmd BufNewFile *.py  0put =\"#!/usr/bin/env python3\<nl>\<nl>\"|$
     autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
 augroup END
+
+" ----> Netrw
+let g:netrw_banner = 1
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+let g:netrw_list_hide = &wildignore
+function! ToggleNetrw() abort
+    let i = bufnr("$")
+    let wasOpen = 0
+    while (i >= 1)
+        if (getbufvar(i, "&filetype") == "netrw")
+            silent exe "bwipeout " . i
+            let wasOpen = 1
+        endif
+        let i-=1
+    endwhile
+    if !wasOpen
+        silent Lexplore
+    endif
+endfunction
+noremap <silent> <F3> :call ToggleNetrw()<cr>
 
 " ----> Zen mode
 let s:hidden_all=0

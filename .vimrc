@@ -156,18 +156,20 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
+Plug 'chriskempson/base16-vim'
+" Plug 'vim-scripts/ScrollColors'
 Plug 'itchyny/lightline.vim'
-Plug 'flazz/vim-colorschemes'
-Plug 'scrooloose/nerdtree', {'on': 'NERDTreeToggle'}
+Plug 'easymotion/vim-easymotion'
+Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
+Plug 'yggdroot/leaderf'
 Plug 'jiangmiao/auto-pairs'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'junegunn/vim-easy-align'
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
-Plug 'jmcantrell/vim-virtualenv', {'for': 'python'}
-Plug 'rust-lang/rust.vim', {'for': 'rust'}
-Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'sheerun/vim-polyglot'
+Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
+Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'ap/vim-css-color', {'for': 'css'}
 
 call plug#end()
 
@@ -175,11 +177,10 @@ call plug#end()
 let g:go_code_completion_enabled = 0
 let g:go_def_mapping_enabled = 0
 let g:go_autodetect_gopath = 1
-let g:go_fmt_autosave = 1
+let g:go_fmt_autosave = 0
 let g:go_fmt_command = 'goimports'
 let g:go_list_type = "locationlist"
 let g:go_addtags_transform = 'camelcase'
-let g:go_decls_mode = 'ctrlp.vim'
 let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_calls = 1
@@ -239,12 +240,6 @@ function! s:build_go_files() abort
     endif
 endfunction
 
-" ----> scrooloose/nerdtree
-let g:NERDTreeChDirMode = 1
-let g:NERDTreeMarkBookmarks = 0
-let g:NERDTreeAutoDeleteBuffer = 1
-nnoremap <silent> <F3> :NERDTreeToggle<cr>
-
 " ----> itchyny/lightline.vim
 " set showtabline=2  " show tabline
 let g:lightline = {
@@ -256,7 +251,7 @@ let g:lightline = {
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'buffernum' ],
-    \           [ 'gitbranch', 'venv', 'readonly', 'filename' ] ],
+    \           [ 'gitbranch', 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'linter', 'fileformat', 'fileencoding', 'filetype' ],
@@ -266,7 +261,6 @@ let g:lightline = {
     \ 'component_function': {
     \   'filename': 'LightlineFilename',
     \   'linter': 'LightlineLinter',
-    \   'venv': 'virtualenv#statusline',
     \   'gitbranch': 'LightlineGitBranch',
     \   'blame': 'LightlineGitBlame'
     \ },
@@ -314,23 +308,23 @@ function! LightlineGitBlame() abort
     return winwidth(0) > 120 ? blame : ''
 endfunction
 
-" ----> ctrlpvim/ctrlp.vim
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_switch_buffer = 0
-let g:ctrlp_working_path_mode = 0
-let g:ctrlp_match_window = 'bottom,order:ttb'
-let g:ctrlp_types = ['buf', 'mru', 'fil']
-let g:ctrlp_root_markers = ['.project', '.root', '.svn', '.git']
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-    \ 'file': '\v\.(exe|so|dll)$',
-    \ 'link': 'some_bad_symbolic_links',
-\ }
-
-" ----> junegunn/vim-easy-align
-xmap ga <Plug>(EasyAlign)
-nmap ga <Plug>(EasyAlign)
+" ----> yggdroot/leaderf
+let g:Lf_ShortcutF = '<leader>lf'
+let g:Lf_ShortcutB = '<leader>lb'
+noremap <leader>fm :LeaderfMru<cr>
+noremap <leader>fu :LeaderfFunction!<cr>
+noremap <leader>fb :LeaderfBuffer<cr>
+noremap <leader>ft :LeaderfTag<cr>
+let g:Lf_StlSeparator = {'left': '', 'right': '', 'font': ''}
+let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
+let g:Lf_WorkingDirectoryMode = 'Ac'
+let g:Lf_WindowHeight = 0.30
+let g:Lf_CacheDirectory = expand('~/.cache/leaderf')
+let g:Lf_ShowRelativePath = 0
+let g:Lf_HideHelp = 1
+let g:Lf_ShowDevIcons = 0
+let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
+let g:Lf_SpinSymbols = ['△ ', '▲ ', '▷ ', '▶ ', '▽ ', '▼ ', '◁ ', '◀ ']
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
@@ -460,29 +454,45 @@ highlight clear CocWarningSign
 highlight clear CocInfoSign
 highlight clear CocHintSign
 
-" Use <tab> and <s-tab> to navigate the completion list
-inoremap <expr> <tab> pumvisible() ? "\<c-n>" : "\<tab>"
-inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
-" Use <cr> to confirm completion
-inoremap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <tab>
+    \ pumvisible() ? "\<c-n>" :
+    \ <SID>check_back_space() ? "\<tab>" :
+    \ coc#refresh()
+inoremap <expr><s-tab> pumvisible() ? "\<c-p>" : "\<c-h>"
 
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<c-g>u\<cr>"
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<c-g>u\<cr>\<c-r>=coc#on_enter()\<cr>"
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> to confirm completion, `<c-g>u` means break undo chain at current
+" position. Coc only does snippet and additional edit on confirm.
+if exists('*complete_info')
+    inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<c-y>" : "\<c-g>u\<cr>"
+else
+    imap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
+endif
 
 " Use `[g` and `]g` to navigate diagnostics
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" Remap keys for gotos
+" GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window
+" Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<cr>
-function! s:show_documentation() abort
+
+function! s:show_documentation()
     if (index(['vim','help'], &filetype) >= 0)
         execute 'h '.expand('<cword>')
     else
@@ -490,40 +500,72 @@ function! s:show_documentation() abort
     endif
 endfunction
 
-" Remap for rename current word
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 
-" Remap for format selected region
+" Formatting selected code.
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
-" Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+augroup CocFormat
+    autocmd!
+    " Setup formatexpr specified filetype(s).
+    autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    " Update signature help on jump placeholder.
+    autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
 xmap <leader>a  <Plug>(coc-codeaction-selected)
 nmap <leader>a  <Plug>(coc-codeaction-selected)
 
-" Remap for do codeAction of current line
+" Remap keys for applying codeAction to the current line.
 nmap <leader>ac  <Plug>(coc-codeaction)
-" Fix autofix problem of current line
+" Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Create mappings for function text object, requires document symbols feature of languageserver.
+" Introduce function text object
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
 xmap if <Plug>(coc-funcobj-i)
 xmap af <Plug>(coc-funcobj-a)
 omap if <Plug>(coc-funcobj-i)
 omap af <Plug>(coc-funcobj-a)
 
-" Use <c-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
-nmap <silent> <c-d> <Plug>(coc-range-select)
-xmap <silent> <c-d> <Plug>(coc-range-select)
+" Use <tab> for selections ranges.
+" NOTE: Requires 'textDocument/selectionRange' support from the language server.
+" coc-tsserver, coc-python are the examples of servers that support it.
+nmap <silent> <tab> <Plug>(coc-range-select)
+xmap <silent> <tab> <Plug>(coc-range-select)
 
-" Using CocList
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
+
+" Add `:Fold` command to fold current buffer.
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+" Add `:OR` command for organize imports of the current buffer.
+command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+" Mappings using CoCList:
+" Show all diagnostics.
 nnoremap <silent> <space>a  :<c-u>CocList diagnostics<cr>
+" Manage extensions.
 nnoremap <silent> <space>e  :<c-u>CocList extensions<cr>
+" Show commands.
 nnoremap <silent> <space>c  :<c-u>CocList commands<cr>
-nnoremap <silent> <space>o  :<c-u>CocList -A outline<cr>
-nnoremap <silent> <space>s  :<c-u>CocList -I -N symbols<cr>
+" Find symbol of current document.
+nnoremap <silent> <space>o  :<c-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent> <space>s  :<c-u>CocList -I symbols<cr>
+" Do default action for next item.
 nnoremap <silent> <space>j  :<c-u>CocNext<cr>
+" Do default action for previous item.
 nnoremap <silent> <space>k  :<c-u>CocPrev<cr>
+" Resume latest coc list.
 nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
 
 " ============> Custom <============
@@ -544,7 +586,7 @@ endif
 
 set background=dark
 
-colorscheme molokai
+colorscheme base16-tomorrow-night-eighties
 
 " set colorcolumn=120   " column color
 
@@ -647,6 +689,29 @@ augroup ShebangForNewFile
     autocmd BufNewFile *.py  0put =\"#!/usr/bin/env python3\<nl>\<nl>\"|$
     autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
 augroup END
+
+" ----> Netrw
+let g:netrw_banner = 1
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+let g:netrw_list_hide = &wildignore
+function! ToggleNetrw() abort
+    let i = bufnr("$")
+    let wasOpen = 0
+    while (i >= 1)
+        if (getbufvar(i, "&filetype") == "netrw")
+            silent exe "bwipeout " . i
+            let wasOpen = 1
+        endif
+        let i-=1
+    endwhile
+    if !wasOpen
+        silent Lexplore
+    endif
+endfunction
+noremap <silent> <F3> :call ToggleNetrw()<cr>
 
 " ----> Zen mode
 let s:hidden_all=0
