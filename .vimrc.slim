@@ -49,6 +49,7 @@ set titlestring=%F
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
 set fileencodings=utf-8,big5-hkscs,utf8,iso8859-1
+set ttyfast
 
 set fileformat=unix             " filetypes setting
 set fileformats=unix,dos,mac
@@ -73,7 +74,7 @@ set laststatus=2                " show status line
 " set showcmd                   " show command on status bar
 set showmode                    " show mode status
 
-set cursorline                  " show underline for the cursor's line
+" set cursorline                " show underline for the cursor's line
 " set cursorcolumn              " show column line for the cursor's column
 
 set wildmenu                    " show autocomplete for command menu
@@ -178,12 +179,16 @@ let g:mapleader = ','
 nnoremap <silent> <leader>n :nohlsearch<cr> " turn off search highlight
 nnoremap <leader>sh :sh<cr>                 " hold vim and run a shell at this directory, exit will return vim
 
-nnoremap <leader>tc :tabc<cr>   " close current tab page
-nnoremap <leader>tn :tabn<cr>   " go to the next tab page
-nnoremap <leader>tp :tabp<cr>   " go to the previous tab page
-nnoremap <leader>te :tabe<cr>   " open a new tab page with an empty window
+nnoremap <leader>tc :tabclose<cr>
+nnoremap <leader>tn :tabnext<cr>
+nnoremap <leader>tp :tabprevious<cr>
+nnoremap <leader>te :tabnew<cr>
 
-noremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
+nnoremap <leader>bp :bprevious<cr>
+nnoremap <leader>bn :bnext<cr>
+nnoremap <leader>bd :bdelete<cr>
+
+nnoremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
 
 cnoreabbrev W! w!   " easy exit vim
 cnoreabbrev Q! q!
@@ -203,11 +208,19 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]   " highlight last inserted text
 
+" Vmap for maintain Visual Mode after shifting > and <
+vmap < <gv
+vmap > >gv
+
 noremap gh <c-w>h
 noremap gk <c-w>k
 noremap gl <c-w>l
 noremap gj <c-w>j
 " noremap F gf
+
+" Search will center on the line it's found in
+nnoremap n nzzzv
+nnoremap N Nzzzv
 
 " Move visual block
 vnoremap J :m '>+1<cr>gv=gv
@@ -217,8 +230,7 @@ vnoremap K :m '<-2<cr>gv=gv
 noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
 noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
 
-noremap <leader>tm :terminal<cr><esc><c-w>L
-nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
+nnoremap <leader>tm :terminal<cr><c-w>L
 
 " Hex read
 nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>

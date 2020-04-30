@@ -49,6 +49,7 @@ set titlestring=%F
 set encoding=utf-8
 set fileencoding=utf-8          " file encoding setting
 set fileencodings=utf-8,big5-hkscs,utf8,iso8859-1
+set ttyfast
 
 set fileformat=unix             " filetypes setting
 set fileformats=unix,dos,mac
@@ -73,7 +74,7 @@ set laststatus=2                " show status line
 " set showcmd                   " show command on status bar
 set showmode                    " show mode status
 
-set cursorline                  " show underline for the cursor's line
+" set cursorline                " show underline for the cursor's line
 " set cursorcolumn              " show column line for the cursor's column
 
 set wildmenu                    " show autocomplete for command menu
@@ -150,14 +151,15 @@ Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
-Plug 'yggdroot/leaderf'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'dense-analysis/ale'
 Plug 'sheerun/vim-polyglot'
 Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
-Plug 'ap/vim-css-color', {'for': 'css'}
+Plug 'ap/vim-css-color', {'for': ['css', 'sass', 'scss', 'less']}
+Plug 'lervag/vimtex', {'for': 'tex'}
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter', {'on': ['GitGutterSignsToggle', 'GitGutterLineHighlightsToggle']}
 Plug 'plasticboy/vim-markdown', {'for': 'markdown'}
@@ -190,12 +192,11 @@ if has('nvim')
     " let g:go_term_width = 40
 endif
 
-" Open :GoDeclsDir with ctrl-g
-nmap <c-g> :GoDeclsDir<cr>
-imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-
 augroup go
     autocmd!
+    " Open :GoDeclsDir with ctrl-g
+    autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
+    autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
     " :GoBuild and :GoTestCompile
     autocmd FileType go nmap <leader>b :<c-u>call <SID>build_go_files()<cr>
     " :GoTest
@@ -293,23 +294,20 @@ function! LightlineGitBranch() abort
     return ''
 endfunction
 
-" ----> yggdroot/leaderf
-let g:Lf_ShortcutF = '<leader>lf'
-let g:Lf_ShortcutB = '<leader>lb'
-noremap <leader>fm :LeaderfMru<cr>
-noremap <leader>fu :LeaderfFunction!<cr>
-noremap <leader>fb :LeaderfBuffer<cr>
-noremap <leader>ft :LeaderfTag<cr>
-let g:Lf_StlSeparator = {'left': '', 'right': '', 'font': ''}
-let g:Lf_RootMarkers = ['.project', '.root', '.svn', '.git']
-let g:Lf_WorkingDirectoryMode = 'Ac'
-let g:Lf_WindowHeight = 0.30
-let g:Lf_CacheDirectory = expand('~/.cache/leaderf')
-let g:Lf_ShowRelativePath = 0
-let g:Lf_HideHelp = 1
-let g:Lf_ShowDevIcons = 0
-let g:Lf_PreviewResult = {'Function':0, 'BufTag':0}
-let g:Lf_SpinSymbols = ['△ ', '▲ ', '▷ ', '▶ ', '▽ ', '▼ ', '◁ ', '◀ ']
+" ----> ctrlpvim/ctrlp.vim
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_switch_buffer = 0
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_match_window = 'bottom,order:ttb'
+let g:ctrlp_types = ['fil', 'mru', 'buf']
+let g:ctrlp_root_markers = ['.svn', '.git', '.projections.json', '.travis.yml', 'Cargo.toml', 'go.mod']
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    \ 'file': '\v\.(exe|so|dll)$',
+    \ 'link': 'some_bad_symbolic_links',
+\ }
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
@@ -458,7 +456,7 @@ let g:ale_lint_on_save = 1
 let g:ale_linters = {
     \ 'c': ['gcc'],
     \ 'cpp': ['gcc'],
-    \ 'go': ['goimports', 'golint', 'govet'],
+    \ 'go': ['golint', 'go vet'],
     \ 'java': ['javac'],
     \ 'lua': ['luac'],
     \ 'rust': ['cargo'],
@@ -523,12 +521,16 @@ let g:mapleader = ','
 nnoremap <silent> <leader>n :nohlsearch<cr> " turn off search highlight
 nnoremap <leader>sh :sh<cr>                 " hold vim and run a shell at this directory, exit will return vim
 
-nnoremap <leader>tc :tabc<cr>   " close current tab page
-nnoremap <leader>tn :tabn<cr>   " go to the next tab page
-nnoremap <leader>tp :tabp<cr>   " go to the previous tab page
-nnoremap <leader>te :tabe<cr>   " open a new tab page with an empty window
+nnoremap <leader>tc :tabclose<cr>
+nnoremap <leader>tn :tabnext<cr>
+nnoremap <leader>tp :tabprevious<cr>
+nnoremap <leader>te :tabnew<cr>
 
-noremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
+nnoremap <leader>bp :bprevious<cr>
+nnoremap <leader>bn :bnext<cr>
+nnoremap <leader>bd :bdelete<cr>
+
+nnoremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
 
 cnoreabbrev W! w!   " easy exit vim
 cnoreabbrev Q! q!
@@ -548,11 +550,19 @@ nnoremap ^ <nop>
 
 nnoremap gV `[v`]   " highlight last inserted text
 
+" Vmap for maintain Visual Mode after shifting > and <
+vmap < <gv
+vmap > >gv
+
 noremap gh <c-w>h
 noremap gk <c-w>k
 noremap gl <c-w>l
 noremap gj <c-w>j
 " noremap F gf
+
+" Search will center on the line it's found in
+nnoremap n nzzzv
+nnoremap N Nzzzv
 
 " Move visual block
 vnoremap J :m '>+1<cr>gv=gv
@@ -562,8 +572,7 @@ vnoremap K :m '<-2<cr>gv=gv
 noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
 noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
 
-noremap <leader>tm :terminal<cr><esc><c-w>L
-nnoremap <leader>dg :packadd termdebug<cr><esc>:Termdebug<cr><esc><c-w>w<c-w>w<c-w>H
+nnoremap <leader>tm :terminal<cr><c-w>L
 
 " Hex read
 nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>

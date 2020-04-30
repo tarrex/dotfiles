@@ -37,7 +37,7 @@
 
     "git.enableGutters": false,
     "git.realtimeGutters": false,
-    "git.branchCharacter": "ᚠ",
+    "git.branchCharacter": "⎇",
     "git.addGBlameToBufferVar": true,
 
     "python.pythonPath": "python3",
