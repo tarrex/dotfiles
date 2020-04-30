@@ -1,5 +1,5 @@
 " Tarrex's vimrc
-"       ------ Enjoy vim, enjoy life.
+"       ------ Enjoy vim, enjoy coding.
 
 " ============> General <============
 
