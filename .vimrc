@@ -163,15 +163,13 @@ Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim', {'on': 'CtrlP'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sheerun/vim-polyglot'
 Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
-Plug 'ap/vim-css-color', {'for': ['css', 'sass', 'scss', 'less']}
-Plug 'lervag/vimtex', {'for': 'tex'}
 
 call plug#end()
 
@@ -196,34 +194,22 @@ if has('nvim')
     let g:go_term_enabled = 1
     let g:go_term_mode = 'split'
     let g:go_term_height = 10
-    " let g:go_term_width = 40
 endif
 
-augroup go
+augroup Go
     autocmd!
-    " Open :GoDeclsDir with ctrl-g
     autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
     autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-    " :GoBuild and :GoTestCompile
-    autocmd FileType go nmap <leader>b :<c-u>call <SID>build_go_files()<cr>
-    " :GoTest
-    autocmd FileType go nmap <leader>t  <Plug>(go-test)
-    autocmd FileType go nmap <leader>tf  <Plug>(go-test-func)
-    " :GoRun
-    autocmd FileType go nmap <leader>r  <Plug>(go-run)
-    " :GoDoc
-    autocmd FileType go nmap <leader>d <Plug>(go-doc)
-    " :GoCoverageToggle
-    autocmd FileType go nmap <leader>c <Plug>(go-coverage-toggle)
-    " :GoInfo
-    autocmd FileType go nmap <leader>i <Plug>(go-info)
-    " :GoMetaLinter
-    autocmd FileType go nmap <leader>l <Plug>(go-metalinter)
-    " :GoDef but opens in a vertical split
-    autocmd FileType go nmap <leader>v <Plug>(go-def-vertical)
-    " :GoDef but opens in a horizontal split
-    autocmd FileType go nmap <leader>s <Plug>(go-def-split)
-    " :GoAlternate  commands :A, :AV, :AS and :AT
+    autocmd FileType go nmap <leader>gb :<c-u>call <SID>build_go_files()<cr>
+    autocmd FileType go nmap <leader>gt <Plug>(go-test)
+    autocmd FileType go nmap <leader>gf <Plug>(go-test-func)
+    autocmd FileType go nmap <leader>gr <Plug>(go-run)
+    autocmd FileType go nmap <leader>gh <Plug>(go-doc)
+    autocmd FileType go nmap <leader>gc <Plug>(go-coverage-toggle)
+    autocmd FileType go nmap <leader>gi <Plug>(go-info)
+    autocmd FileType go nmap <leader>gd <Plug>(go-def-split)
+    autocmd FileType go nmap <leader>gm <Plug>(go-rename)
+    autocmd FileType go nmap <leader>ge <Plug>(go-iferr)
     autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
     autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
     autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
@@ -309,10 +295,14 @@ function! LightlineGitBlame() abort
     return winwidth(0) > 120 ? blame : ''
 endfunction
 
+" ----> easymotion/vim-easymotion
+let g:EasyMotion_smartcase = 1
+
 " ----> ctrlpvim/ctrlp.vim
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_show_hidden = 1
 let g:ctrlp_switch_buffer = 0
 let g:ctrlp_working_path_mode = 0
 let g:ctrlp_match_window = 'bottom,order:ttb'
@@ -323,57 +313,17 @@ let g:ctrlp_custom_ignore = {
     \ 'file': '\v\.(exe|so|dll)$',
     \ 'link': 'some_bad_symbolic_links',
 \ }
+if executable('rg')
+    set grepprg=rg\ --color=never
+    let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
+    let g:ctrlp_use_caching = 0
+endif
 
 " ----> majutsushi/tagbar
 nmap <silent> <F8> :TagbarToggle<cr>
 let g:tagbar_ctags_bin = 'ctags'
 let g:tagbar_autofocus = 1
 let g:tagbar_width = 40
-
-let g:tagbar_type_go = {
-    \ 'ctagstype': 'go',
-    \ 'kinds': [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro': '.',
-    \ 'kind2scope': {
-        \ 't': 'ctype',
-        \ 'n': 'ntype'
-    \ },
-    \ 'scope2kind': {
-        \ 'ctype': 't',
-        \ 'ntype': 'n'
-    \ },
-    \ 'ctagsbin': 'gotags',
-    \ 'ctagsargs': '-sort -silent'
-\ }
-
-let g:tagbar_type_css = {
-\ 'ctagstype': 'css',
-    \ 'kinds': [
-        \ 'c:classes',
-        \ 's:selectors',
-        \ 'i:identities'
-    \ ]
-\ }
-
-let g:tagbar_type_markdown = {
-    \ 'ctagstype': 'markdown',
-    \ 'kinds': [
-        \ 'h:headings',
-    \ ],
-    \ 'sort': 0
-\ }
 
 let g:tagbar_type_make = {
     \ 'ctagstype': 'make',
@@ -383,47 +333,12 @@ let g:tagbar_type_make = {
     \ ]
 \ }
 
-let g:tagbar_type_r = {
-    \ 'ctagstype': 'r',
+let g:tagbar_type_markdown = {
+    \ 'ctagstype': 'markdown',
     \ 'kinds': [
-        \ 'f:Functions',
-        \ 'g:GlobalVariables',
-        \ 'v:FunctionVariables'
-    \ ]
-\ }
-
-let g:rust_use_custom_ctags_defs = 1  " if using rust.vim
-let g:tagbar_type_rust = {
-  \ 'ctagstype': 'rust',
-  \ 'kinds' : [
-      \ 'n:modules',
-      \ 's:structures:1',
-      \ 'i:interfaces',
-      \ 'c:implementations',
-      \ 'f:functions:1',
-      \ 'g:enumerations:1',
-      \ 't:type aliases:1:0',
-      \ 'v:constants:1:0',
-      \ 'M:macros:1',
-      \ 'm:fields:1:0',
-      \ 'e:enum variants:1:0',
-      \ 'P:methods:1',
-  \ ],
-  \ 'sro': '::',
-  \ 'kind2scope' : {
-      \ 'n': 'module',
-      \ 's': 'struct',
-      \ 'i': 'interface',
-      \ 'c': 'implementation',
-      \ 'f': 'function',
-      \ 'g': 'enum',
-      \ 't': 'typedef',
-      \ 'v': 'variable',
-      \ 'M': 'macro',
-      \ 'm': 'field',
-      \ 'e': 'enumerator',
-      \ 'P': 'method',
-  \ },
+        \ 'h:headings',
+    \ ],
+    \ 'sort': 0
 \ }
 
 " ----> rust-lang/rust.vim
@@ -586,8 +501,6 @@ set background=dark
 
 colorscheme base16-tomorrow-night-eighties
 
-" set colorcolumn=120   " column color
-
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
 let g:mapleader = ','
@@ -595,14 +508,16 @@ let g:mapleader = ','
 nnoremap <silent> <leader>n :nohlsearch<cr> " turn off search highlight
 nnoremap <leader>sh :sh<cr>                 " hold vim and run a shell at this directory, exit will return vim
 
-nnoremap <leader>tc :tabclose<cr>
-nnoremap <leader>tn :tabnext<cr>
-nnoremap <leader>tp :tabprevious<cr>
-nnoremap <leader>te :tabnew<cr>
+nnoremap <leader>tc :tabclose<cr>           " close tab
+nnoremap <leader>tn :tabnext<cr>            " go to next tab
+nnoremap <leader>tp :tabprevious<cr>        " go to previous tab
+nnoremap <leader>te :tabnew<cr>             " create new tab
 
-nnoremap <leader>bp :bprevious<cr>
-nnoremap <leader>bn :bnext<cr>
-nnoremap <leader>bd :bdelete<cr>
+nnoremap <leader>bp :bprevious<cr>          " go to previous buffer
+nnoremap <leader>bn :bnext<cr>              " go to next buffer
+nnoremap <leader>bd :bdelete<cr>            " close the current buffer
+nnoremap <leader>bl :buffers<cr>            " list buffers
+nnoremap <leader>bg :buffer                 " go to given buffer number
 
 nnoremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
 
@@ -653,6 +568,15 @@ nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>
 " Hex write
 nmap <leader>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
 
+" Map w!! to write file with sudo
+cmap w!! w !sudo tee % >/dev/null
+
+" Toggle displaying non-printable characters
+nnoremap <leader>ls :set list!<cr>
+
+" Toggle soft-wrap
+nnoremap <leader>wr :set wrap! wrap?<cr>
+
 " ----> Highlights
 " Highlight some special strings
 highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
@@ -669,6 +593,9 @@ augroup END
 " augroup END
 
 " ----> Tricks
+" Switch to working directory of the open file
+autocmd! BufEnter * lcd %:p:h
+
 " Trim trailing whitespace on write
 autocmd! BufWritePre * :%s/\s\+$//e
 
@@ -744,3 +671,45 @@ function! ToggleHideAll() abort
     endif
 endfunction
 nnoremap <silent> <leader>h :call ToggleHideAll()<cr>
+
+" ----> View changes after the last save
+function! s:DiffWithSaved() abort
+    let filetype=&ft
+    diffthis
+    vnew | r # | normal! 1Gdd
+    diffthis
+    exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
+    exe "normal! ]c"
+endfunction
+command! DiffSaved call s:DiffWithSaved()
+nnoremap <leader>? :DiffSaved<cr>
+
+" ----> Toggle Quickfix / Location window
+let g:list_height = 5
+let g:quickfix_open = 0
+function! QuickfixToggle() abort
+    if g:quickfix_open
+        silent! cclose
+        let g:quickfix_open = 0
+        execute g:quickfix_return . 'wincmd w'
+    else
+        let g:quickfix_return = winnr()
+        execute 'silent! copen ' . g:list_height
+        let g:quickfix_open = 1
+    endif
+endfunction
+nnoremap <leader>q :call QuickfixToggle()<cr>
+
+let g:location_open = 0
+function! LocationToggle() abort
+    if g:location_open
+        silent! lclose
+        let g:location_open = 0
+        execute g:location_return . 'wincmd w'
+    else
+        let g:location_return = winnr()
+        execute 'silent! lopen ' . g:list_height
+        let g:location_open = 1
+    endif
+endfunction
+nnoremap <leader>l :call LocationToggle()<cr>
