@@ -155,7 +155,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
-Plug 'ctrlpvim/ctrlp.vim', {'on': 'CtrlP'}
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'dense-analysis/ale'
