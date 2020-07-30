@@ -70,9 +70,14 @@ ZSH_THEME="robbyrussell"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
     colored-man-pages
-    command-not-found
     common-aliases
+    dash
+    docker
     git
+    golang
+    helm
+    kubectl
+    web-search
     z
 )
 
@@ -137,8 +142,6 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias nvimdiff='nvim -d'
-alias nvimrc='nvim ~/.config/nvim/init.vim'
 alias vimrc='vim ~/.vimrc'
 
 alias workbench='tmux -2 new -A -c ~/Workspace/Github -s Workbench'
@@ -154,7 +157,6 @@ alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
 alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
 alias ipinfo='curl wtfismyip.com/json'
 alias randname='curl pseudorandom.name'
-alias brow='ssh brow.sh'
 alias reddit='ssh redditbox.us'
 
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
@@ -166,6 +168,7 @@ http_proxy_address="127.0.0.1:7080"
 socks5_proxy_address="127.0.0.1:1086"
 alias proxybyhttp="export http_proxy=http://$http_proxy_address https_proxy=http://$http_proxy_address"
 alias proxybysocks5="export http_proxy=socks5://$socks5_proxy_address https_proxy=socks5://$socks5_proxy_address"
+alias noproxy="export NO_PROXY=localhost,127.0.0.1,10.96.0.0/12,192.168.99.0/24,192.168.39.0/24"
 alias unsetproxy="unset http_proxy; unset https_proxy"
 
 # pyenv configuration
