@@ -2,15 +2,12 @@
     "suggest.autoTrigger": "always",
     "suggest.maxCompleteItemCount": 20,
     "suggest.minTriggerInputLength": 2,
-
     "diagnostic.enable": true,
     "diagnostic.displayByAle": false,
-    "diagnostic.locationlist": false,
     "diagnostic.errorSign": ">>",
     "diagnostic.warningSign": "--",
     "diagnostic.infoSign": "~~",
     "diagnostic.hintSign": "**",
-
     "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
@@ -34,23 +31,28 @@
         "go.mod"
     ],
     "coc.preferences.snippets.enable": false,
-
     "git.enableGutters": false,
     "git.realtimeGutters": false,
     "git.branchCharacter": "⎇",
     "git.addGBlameToBufferVar": true,
-
     "python.pythonPath": "python3",
     "python.jediEnabled": true,
     "python.linting.enabled": true,
-
     "java.errors.incompleteClasspath.severity": "ignore",
-
     "languageserver": {
         "ccls": {
             "command": "ccls",
-            "filetypes": ["c", "cpp", "objc", "objcpp"],
-            "rootPatterns": [".ccls", "compile_commands.json", ".vim/", ".git/", ".hg/"],
+            "filetypes": [
+                "c",
+                "cpp",
+                "objc",
+                "objcpp"
+            ],
+            "rootPatterns": [
+                ".ccls",
+                "compile_commands.json",
+                ".git"
+            ],
             "initializationOptions": {
                 "cache": {
                     "directory": "/tmp/ccls"
@@ -68,8 +70,14 @@
         },
         "golang": {
             "command": "gopls",
-            "filetypes": ["go"],
-            "rootPatterns": ["go.mod", ".git/", "Makefile"],
+            "filetypes": [
+                "go"
+            ],
+            "rootPatterns": [
+                "go.mod",
+                ".git",
+                "Makefile"
+            ],
             "initializationOptions": {
                 "usePlaceholders": true,
                 "completeUnimported": true

@@ -101,6 +101,10 @@ set showmatch                   " highlight match \{\}\[\]\(\)
 " set foldopen-=search
 " set foldopen-=undo
 
+set modelines=0
+
+set scrolloff=1
+
 set hidden                      " enable hidden buffers
 
 if exists('$SHELL')
@@ -234,7 +238,7 @@ let g:lightline = {
     \   'statusline': 1,
     \   'tabline': 1
     \ },
-    \ 'colorscheme': 'wombat',
+    \ 'colorscheme': 'materia',
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'buffernum' ],
@@ -499,7 +503,7 @@ endif
 
 set background=dark
 
-colorscheme base16-tomorrow-night-eighties
+colorscheme base16-materia
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
