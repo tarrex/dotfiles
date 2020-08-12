@@ -290,13 +290,16 @@ endfunction
 
 function! LightlineGitBranch() abort
     let branch = get(g:, 'coc_git_status', '')
-    return branch
+    return len(branch) > 14 ? branch[0:14] . '...' : branch
 endfunction
 
 function! LightlineGitBlame() abort
     let blame = get(b:, 'coc_git_blame', '')
-    " return blame
-    return winwidth(0) > 120 ? blame : ''
+    if winwidth(0) > 120 && len(blame) > 0
+        return split(blame, ')')[0] . ')'
+    else
+        return ''
+    endif
 endfunction
 
 " ----> easymotion/vim-easymotion
@@ -504,6 +507,8 @@ endif
 set background=dark
 
 colorscheme base16-materia
+highlight Normal guibg=black ctermbg=black
+highlight LineNr guibg=black ctermbg=black
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader

@@ -279,7 +279,8 @@ endfunction
 
 function! LightlineGitBranch() abort
     if &ft !~? 'vimfiler' && exists('*fugitive#head')
-        return fugitive#head()
+        let branch = fugitive#head()
+        return branch > 14 ? branch[0:14] . '...' : branch
     endif
     return ''
 endfunction
@@ -430,6 +431,8 @@ endif
 set background=dark
 
 colorscheme base16-materia
+highlight Normal guibg=black ctermbg=black
+highlight LineNr guibg=black ctermbg=black
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
