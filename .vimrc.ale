@@ -3,121 +3,142 @@
 
 " ============> General <============
 
-syntax on                       " syntax highlighting
+let s:vimdir = $HOME . '/.vim'  " vim config directory
 
-if has('vim_starting')
+if &compatible
     set nocompatible            " be iMproved, required
 endif
 
+syntax on                       " syntax highlighting
 filetype indent plugin on       " filetype detection on
 
-set number
-set ruler
+set number                      " print the line number in front of each lin
+set ruler                       " show the line and column number of the cursor position, separated by a comma
+set wrap                        " wrap lines longer than the width of the window
 
-set backspace=indent,eol,start  " same as set backspace=2 set backspace key can delete anything on insert mode
+let s:bytes = getfsize(@%)
+if s:bytes < 10 * 1024 * 1024   " 10MB
+    set cursorline              " show underline for the cursor's line
+    " set cursorcolumn            " show column line for the cursor's column
+else
+    set nocursorline
+    set nocursorcolumn
+endif
 
-set expandtab                   " covert tabs to spaces
-
-set shiftwidth=4                " 1 tabs == 4 spaces
-set tabstop=4                   " number of visual spaces per tab
-set softtabstop=4               " number of spaces in tab when editing
+set expandtab                   " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
+set shiftround                  " round indent to multiple of 'shiftwidth'
+set shiftwidth=4                " number of spaces to use for each step of (auto)indent
+set tabstop=4                   " number of spaces that a <tab> in the file counts for
+set softtabstop=4               " number of spaces that a <tab> counts for while performing editing operations
 set smarttab                    " be smart when use tabs
-
-set ambiwidth=double
 
 set autoindent                  " copy indent from current line when starting a new line
 set cindent                     " enables automatic c program indenting
 set breakindent                 " every wrapped line will continue visually indented
 
-set wrap                        " wrap line
-set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
-set linebreak
+if has('multi_byte')
+    set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,euc-jp,latin1 " list of character encodings considered when starting to edit an existing file
+    set encoding=utf-8          " the character encoding used inside vim
+    set fileencoding=utf-8      " the character encoding for the file of this buffer
+endif
+set fileformat=unix             " gives the <eol> of the current buffer
+set fileformats=unix,dos,mac    " gives the <eol> formats of editing a new buffer or reading a file
 
-set pastetoggle=<F4>            " set paste toggle
+set ambiwidth=double            " use twice the width of ASCII characters for East Asian Width Class Ambiguous
+set delcombine                  " delete each combining character on its own
+set backspace=indent,eol,start  " the working of <bs>, <del>, ctrl-w and ctrl-u in insert mode
 
-set history=1000                " set how many lines of command history vim has to remember
-set undolevels=1000             " set how many levels of undo
-
-set noerrorbells                " bell settings
-set novisualbell
-set visualbell t_vb=
-
-set title                       " change terminal's title
-set titleold="Terminal"
-set titlestring=%F
-
-set encoding=utf-8
-set fileencoding=utf-8          " file encoding setting
-set fileencodings=utf-8,big5-hkscs,utf8,iso8859-1
-set ttyfast
-
-set fileformat=unix             " filetypes setting
-set fileformats=unix,dos,mac
-
+set hidden                      " allow buffers to have changes without being displayed
 set autoread                    " auto load the file when changed outside vim
-set autowrite                   " auto write file when building"
+set autowrite                   " auto write file when building or switching
+set lazyredraw                  " don't redraw while executing macros, registers and other commands that have not been typed
+set report=0                    " always reporting number of lines changed
+set ttyfast                     " indicates a fast terminal connection
+set ttimeout                    " timeout for key codes
+set ttimeoutlen=100             " wait up to 100ms after esc for special key
 
-" set mouse=a                   " automatically enable mouse usage
-set mousehide                   " hide mouse cursor while typing"
-
-set report=0                    " show change count
-
-" set updatecount=0             " close swap file
-
-set smartcase                   " searching
-set magic
-set ignorecase                  " ignore case when search
+set ignorecase                  " ignore case in search patterns.
+set smartcase                   " override the 'ignorecase' option if the search pattern contains upper case characters
 set incsearch                   " real time show the search case
-set hlsearch                    " highlight search
-
-set laststatus=2                " show status line
-" set showcmd                   " show command on status bar
-set showmode                    " show mode status
-
-" set cursorline                " show underline for the cursor's line
-" set cursorcolumn              " show column line for the cursor's column
-
-set wildmenu                    " show autocomplete for command menu
-
-set lazyredraw                  " don't redraw while executing macros
+set hlsearch                    " highlight all search pattern results
 
 set splitbelow                  " horizontally split below
 set splitright                  " vertically split to the right
+set noequalalways               " all the windows are automatically made the same size after splitting or closing a window
 
-" InsertLeave *   set imdisable   " cancle IME on normal mode
-" InsertEnter *   set noimdisable
+set cedit=<c-y>                 " the key used in command-line mode to open the command-line window
+set pastetoggle=<F4>            " set paste toggle
 
-" set backupcopy=yes            " backup setting
-set nobackup
-set nowritebackup
-set noswapfile
-set noundofile
-
-set showmatch                   " highlight match \{\}\[\]\(\)
-
-" set foldmarker={,}
-" set foldmethod=indent
-" set foldlevel=100
-" set foldopen-=search
-" set foldopen-=undo
-
-set modelines=0
-
-set scrolloff=1
-
-set hidden                      " enable hidden buffers
-
-if exists('$SHELL')
-    set shell=$SHELL
-else
-    set shell=/bin/sh
+set background=dark             " try to use colors that look good on a dark background
+if has('termguicolors')
+    set termguicolors           " enable GUI colors for the terminal to get truecolor
 endif
 
-set dictionary+=/usr/share/dict/words " dictionary for x mode <c-x> -> <c-n> or <c-k>
+set noswapfile                  " don't create swapfile for the buffer
+" set nobackup                    " don't make a backup before overwriting a file
+let &backupdir = s:vimdir . '/tmp'
+if !isdirectory(&backupdir)
+    call mkdir(&backupdir, 'p', 0755)
+    set backup                              " make a backup before overwriting a file
+    set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
+    set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
+endif
+if has('persistent_undo')
+    let &undodir = s:vimdir . '/undodir'    " list of directory names for undo files, separated with commas
+    if !isdirectory(&undodir)
+        call mkdir(&undodir, 'p', 0755)
+    endif
+    set undofile                            " automatically saves undo history to an undo file
+    set undolevels=1000                     " maximum number of changes that can be undone
+endif
+
+set viminfo='100,:10000,<50,s10,h,!         " viminfo settings
+let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+set history=10000                           " set how many lines of command history vim has to remember
+
+let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quickfix mode
+
+set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
+
+set comments=                   " clear default comments value, let the filetype handle it
+set include=                    " don't assume I'm editing C; let the filetype set this
+set nrformats-=octal            " treat numbers with a leading zero as decimal, not octal
+set formatoptions+=j            " delete comment leaders when joining lines, if supported
+set signcolumn=number           " display signs in the 'number' column
+set shortmess-=S                " helps to avoid all the hit-enter prompts caused by file messages
+set laststatus=2                " show status line
+set display=lastline            " as much as possible of the last line in a window will be displayed
+set scrolloff=1                 " minimal number of screen lines to keep above and below the cursor
+set nojoinspaces                " don't insert two spaces after a '.', '?' and '!' with a join command
+set matchpairs=(:),{:},[:],《:》,〈:〉,［:］,（:）,「:」,『:』,‘:’,“:” " characters that form pair, % command jumps to the other
+set showmatch                   " show the match pairs  can be seen on the screen
+set nomodeline                  " don't allow setting options via buffer content
+set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
+set linebreak                   " break lines at word boundaries
+set visualbell t_vb=            " no beep or flash is wanted
+
+" set list                        " display tabs
+" set listchars+=extends:>        " unwrapped text to screen right
+" set listchars+=precedes:<       " unwrapped text to screen left
+" set listchars+=tab:>-           " tab characters, preserve width
+" set listchars+=trail:_          " trailing spaces
+" set listchars+=nbsp:+           " non-breaking spaces
+
+set completeopt+=popup,longest,menuone  " list of options for Insert mode completion
+set completepopup=border:off            " used for the properties of the info popup when it is created
+
+set diffopt+=vertical,context:3,foldcolumn:0 " option settings for diff mode
+if &diffopt =~ 'internal'
+    set diffopt+=indent-heuristic,algorithm:patience
+endif
+
+set wildmenu                    " show autocomplete for command menu
+set wildmode=longest:full,full  " completion mode that is used for the character specified with 'wildchar'
+set wildignorecase              " ignore case when completing file names and directories
 
 " Ignore the following extensions on file search and completion
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
-set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib                               "stuff to ignore when tab completing
+set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib "stuff to ignore when tab completing
 set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
 set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz
 set wildignore+=*DS_Store*,*.ipch
@@ -135,145 +156,121 @@ set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
 set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
 
 " ============> Plugins <============
-let coc_cofig_exists=expand('~/.vim/coc-settings.json')
-let vimplug_exists=expand('~/.vim/autoload/plug.vim')
-if !filereadable(coc_cofig_exists) || !filereadable(vimplug_exists)
+let s:coc = expand(s:vimdir . '/coc-settings.json')
+let s:vimplug = expand(s:vimdir . '/autoload/plug.vim')
+if !filereadable(s:coc) || !filereadable(s:vimplug)
     if !executable('curl')
         echoerr 'You have to install curl or first install vim-plug yourself!'
-        execute 'q!'
+        exe 'q!'
     endif
-    if !filereadable(coc_cofig_exists)
+    if !filereadable(s:coc)
         if !executable('yarn') && !executable('npm')
             echoerr 'You have to install yarn/npm for coc.nvim plugin later!'
             echo ''
         endif
         echo 'Download coc-settings.json...'
         echo ''
-        silent !\curl -fLo ~/.vim/coc-settings.json --create-dirs https://tarrex.github.io/dotfiles/coc-settings.json
+        silent exe '!curl -fLo ' . s:coc . ' --create-dirs https://tarrex.github.io/dotfiles/coc-settings.json'
     endif
-    if !filereadable(vimplug_exists)
+    if !filereadable(s:vimplug)
         echo 'Installing Vim-Plug...'
         echo ''
-        silent !\curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        silent exe '!curl -fLo ' . s:vimplug . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
         autocmd! VimEnter * PlugInstall
     endif
 endif
 
-call plug#begin('~/.vim/plugged')
+call plug#begin(s:vimdir . '/plugged')
 
 Plug 'chriskempson/base16-vim'
-" Plug 'vim-scripts/ScrollColors'
+Plug 'vim-scripts/ScrollColors'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'majutsushi/tagbar'
 Plug 'ctrlpvim/ctrlp.vim'
+Plug 'mbbill/undotree'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'dense-analysis/ale'
-Plug 'sheerun/vim-polyglot'
 Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
 
 call plug#end()
 
-" ----> fatih/vim-go
-let g:go_code_completion_enabled = 0
-let g:go_def_mapping_enabled = 0
-let g:go_autodetect_gopath = 1
-let g:go_fmt_autosave = 0
-let g:go_fmt_command = 'goimports'
-let g:go_list_type = "locationlist"
-let g:go_addtags_transform = 'camelcase'
-let g:go_highlight_extra_types = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_function_calls = 1
-let g:go_highlight_function_parameters = 1
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_generate_tags = 1
-let g:go_highlight_build_constraints = 1
-let g:go_highlight_format_strings = 1
-if has('nvim')
-    let g:go_term_enabled = 1
-    let g:go_term_mode = 'split'
-    let g:go_term_height = 10
-endif
-
-augroup Go
-    autocmd!
-    autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
-    autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-    autocmd FileType go nmap <leader>gb :<c-u>call <SID>build_go_files()<cr>
-    autocmd FileType go nmap <leader>gt <Plug>(go-test)
-    autocmd FileType go nmap <leader>gf <Plug>(go-test-func)
-    autocmd FileType go nmap <leader>gr <Plug>(go-run)
-    autocmd FileType go nmap <leader>gh <Plug>(go-doc)
-    autocmd FileType go nmap <leader>gc <Plug>(go-coverage-toggle)
-    autocmd FileType go nmap <leader>gi <Plug>(go-info)
-    autocmd FileType go nmap <leader>gd <Plug>(go-def-split)
-    autocmd FileType go nmap <leader>gm <Plug>(go-rename)
-    autocmd FileType go nmap <leader>ge <Plug>(go-iferr)
-    autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
-    autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
-    autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
-    autocmd Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
-augroup END
-
-" build_go_files is a custom function that builds or compiles the test file.
-" It calls :GoBuild if its a Go file, or :GoTestCompile if it's a test file
-function! s:build_go_files() abort
-    let l:file = expand('%')
-    if l:file =~# '^\f\+_test\.go$'
-        call go#test#Test(0, 1)
-    elseif l:file =~# '^\f\+\.go$'
-        call go#cmd#Build(0)
-    endif
-endfunction
-
 " ----> itchyny/lightline.vim
-" set showtabline=2  " show tabline
 let g:lightline = {
     \ 'enable': {
     \   'statusline': 1,
-    \   'tabline': 1
+    \   'tabline': 0
     \ },
     \ 'colorscheme': 'materia',
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
-    \           [ 'buffernum' ],
+    \           [ 'bufnum' ],
     \           [ 'gitbranch', 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
-    \            [ 'linter', 'fileformat', 'fileencoding', 'filetype' ],
+    \            [ 'linter', 'fileformat', 'fileencoding', 'filetype', 'filesize' ],
     \            [ 'tagbar' ],
     \            [ 'blame' ] ]
+    \ },
+    \ 'inactive': {
+    \   'left': [ [ 'filename' ]],
+    \   'right': [ [ 'lineinfo' ],
+    \            [ 'percent' ]]
     \ },
     \ 'component_function': {
     \   'filename': 'LightlineFilename',
     \   'linter': 'LightlineLinter',
     \   'gitbranch': 'LightlineGitBranch',
-    \   'blame': 'LightlineGitBlame'
-    \ },
-    \ 'tabline': {
-    \   'left': [ [ 'tabs' ] ],
-    \   'right': []
-    \ },
-    \ 'tab': {
-    \   'active': [ 'filename', 'modified' ],
-    \   'inactive': [ 'filename', 'modified' ]
+    \   'blame': 'LightlineGitBlame',
+    \   'filesize': 'LightlineFileSize'
     \ },
     \ 'component': {
-    \   'buffernum': '%n',
-    \   'tagbar': '%{tagbar#currenttag("[%s]", "", "f")}'
+    \   'tagbar': '[%{tagbar#currenttagtype("%s", "")}: %{tagbar#currenttag("%s", "", "f")}]'
     \ }
 \ }
 
 function! LightlineFilename() abort
-    let filename = expand('%') !=# '' ? expand('%') : '[No Name]'
+    let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
+endfunction
+
+function! LightlineFileSize() abort
+    let l:bytes = getfsize(@%)
+    if l:bytes <= 0
+        return '0B'
+    endif
+    " let l:units = 'BKMGT'
+    " let l:fsize = ''
+    " let l:idx = 0
+    " while l:bytes > 0 && len(l:units) > 0 && l:idx < 5
+    "     let l:fsize = l:bytes % 1024 . l:units[l:idx] . l:fsize
+    "     let l:idx += 1
+    "     let l:bytes /= 1024
+    " endwhile
+    " return l:fsize
+    if (l:bytes >= 1024)
+        let l:kbytes = l:bytes / 1024
+    endif
+    if exists('l:kbytes') && l:kbytes >= 1024
+        let l:mbytes = l:kbytes / 1024
+    endif
+    if exists('l:mbytes') && l:mbytes >= 1024
+        let l:gbytes = l:mbytes / 1024
+    endif
+    if exists('l:gbytes')
+        return l:gbytes . 'G'
+    elseif exists('l:mbytes')
+        return l:mbytes . 'M'
+    elseif exists('l:kbytes')
+        return l:kbytes . 'K'
+    else
+        return l:bytes . 'B'
+    endif
 endfunction
 
 function! LightlineLinter() abort
@@ -304,6 +301,29 @@ endfunction
 " ----> easymotion/vim-easymotion
 let g:EasyMotion_smartcase = 1
 
+" ----> majutsushi/tagbar
+nmap <silent> <F8> :TagbarToggle<cr>
+let g:tagbar_ctags_bin = 'ctags'
+let g:tagbar_autofocus = 1
+let g:tagbar_sort = 0
+let g:tagbar_width = 40
+
+let g:tagbar_type_make = {
+    \ 'ctagstype': 'make',
+    \ 'kinds': [
+        \ 'm:macros',
+        \ 't:targets'
+    \ ]
+\ }
+
+let g:tagbar_type_markdown = {
+    \ 'ctagstype': 'markdown',
+    \ 'kinds': [
+        \ 'h:headings',
+    \ ],
+    \ 'sort': 0
+\ }
+
 " ----> ctrlpvim/ctrlp.vim
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -325,30 +345,8 @@ if executable('rg')
     let g:ctrlp_use_caching = 0
 endif
 
-" ----> majutsushi/tagbar
-nmap <silent> <F8> :TagbarToggle<cr>
-let g:tagbar_ctags_bin = 'ctags'
-let g:tagbar_autofocus = 1
-let g:tagbar_width = 40
-
-let g:tagbar_type_make = {
-    \ 'ctagstype': 'make',
-    \ 'kinds': [
-        \ 'm:macros',
-        \ 't:targets'
-    \ ]
-\ }
-
-let g:tagbar_type_markdown = {
-    \ 'ctagstype': 'markdown',
-    \ 'kinds': [
-        \ 'h:headings',
-    \ ],
-    \ 'sort': 0
-\ }
-
-" ----> rust-lang/rust.vim
-let g:rustfmt_autosave = 1
+" ----> mbbill/undotree
+nnoremap <F5> :UndotreeToggle<cr>
 
 " ----> neoclide/coc.nvim
 let g:coc_global_extensions = [
@@ -535,27 +533,82 @@ highlight clear ALEInfoSign
 highlight clear ALEStyleErrorSign
 highlight clear ALEStyleWarningSign
 
+" ----> fatih/vim-go
+let g:go_code_completion_enabled = 0
+let g:go_def_mapping_enabled = 0
+let g:go_autodetect_gopath = 1
+let g:go_fmt_autosave = 0
+let g:go_fmt_command = 'goimports'
+let g:go_list_type = "quickfix"
+let g:go_addtags_transform = 'camelcase'
+let g:go_highlight_extra_types = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_function_calls = 1
+let g:go_highlight_function_parameters = 1
+let g:go_highlight_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_format_strings = 1
+
+augroup Go
+    autocmd!
+    autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
+    autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
+    autocmd FileType go nmap <leader>gb :<c-u>call <SID>build_go_files()<cr>
+    autocmd FileType go nmap <leader>gt <Plug>(go-test)
+    autocmd FileType go nmap <leader>gf <Plug>(go-test-func)
+    autocmd FileType go nmap <leader>gr <Plug>(go-run)
+    autocmd FileType go nmap <leader>gh <Plug>(go-doc)
+    autocmd FileType go nmap <leader>gc <Plug>(go-coverage-toggle)
+    autocmd FileType go nmap <leader>gi <Plug>(go-info)
+    autocmd FileType go nmap <leader>gd <Plug>(go-def-split)
+    autocmd FileType go nmap <leader>gm <Plug>(go-rename)
+    autocmd FileType go nmap <leader>ge <Plug>(go-iferr)
+    autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+    autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+    autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+    autocmd Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
+augroup END
+
+" build_go_files is a custom function that builds or compiles the test file.
+" It calls :GoBuild if its a Go file, or :GoTestCompile if it's a test file
+function! s:build_go_files() abort
+    let l:file = expand('%')
+    if l:file =~# '^\f\+_test\.go$'
+        call go#test#Test(0, 1)
+    elseif l:file =~# '^\f\+\.go$'
+        call go#cmd#Build(0)
+    endif
+endfunction
+
+" ----> rust-lang/rust.vim
+let g:rustfmt_autosave = 1
+
 " ============> Custom <============
 
 " ----> Color
-if &term =~? '256color'
-    " disable Background Color Erase (BCE) so that color schemes
-    " render properly when inside 256-color tmux and GNU screen.
-    " see also http://sunaku.github.io/vim-256color-bce.html
-    set t_ut=
-endif
+silent! colorscheme base16-materia
 
-set t_Co=256            " enable 256 colors
+" ----> Highlights
+" Highlight some special strings
+highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
+match ToDo /\(TODO\)/
+augroup hilightSpecialStrings
+    autocmd!
+    autocmd WinEnter * match ToDo /\(TODO\)/
+augroup END
 
-if has('termguicolors')
-    set termguicolors   " enable GUI colors for the terminal to get truecolor
-endif
+" Highlight WhiteSpaceEOL ctermbg=darkgreen guibg=lightgreen
+" match WhiteSpaceEOL /\s$/
+" augroup hilightSpecialStrings
+"     autocmd WinEnter * match WhiteSpaceEOL /\s$/
+" augroup END
 
-set background=dark
-
-colorscheme base16-materia
+" Some custom highlights
 highlight Normal guibg=black ctermbg=black
 highlight LineNr guibg=black ctermbg=black
+highlight SignColumn guibg=black ctermbg=black
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
@@ -633,21 +686,6 @@ nnoremap <leader>ls :set list!<cr>
 " Toggle soft-wrap
 nnoremap <leader>wr :set wrap! wrap?<cr>
 
-" ----> Highlights
-" Highlight some special strings
-highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
-match ToDo /\(TODO\)/
-augroup HilightSpecialStrings
-    autocmd!
-    autocmd WinEnter * match ToDo /\(TODO\)/
-augroup END
-
-" highlight WhiteSpaceEOL ctermbg=darkgreen guibg=lightgreen
-" match WhiteSpaceEOL /\s$/
-" augroup HilightSpecialStrings
-"     autocmd WinEnter * match WhiteSpaceEOL /\s$/
-" augroup END
-
 " ----> Tricks
 " Switch to working directory of the open file
 autocmd! BufEnter * lcd %:p:h
@@ -665,22 +703,11 @@ endif
 " Remember cursor position
 autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
-" Close the locationlist window when exiting
-autocmd! QuitPre * if empty(&buftype) | lclose | endif
+" Close the quickfix or locationlist window when exiting
+autocmd! QuitPre * if empty(&buftype) | cclose | lclose | endif
 
-" Shebang
-augroup ShebangForNewFile
-    autocmd!
-    autocmd BufNewFile *.sh  0put =\"#!/usr/bin/env bash\<nl>\<nl>\"|$
-    autocmd BufNewFile *.erl 0put =\"#!/usr/bin/env escript\<nl>\<nl>\"|$
-    autocmd BufNewFile *.js  0put =\"#!/usr/bin/env node\<nl>\<nl>\"|$
-    autocmd BufNewFile *.lua 0put =\"#!/usr/bin/env lua\<nl>\<nl>\"|$
-    autocmd BufNewFile *.rb  0put =\"#!/usr/bin/env ruby\<nl>\<nl>\"|$
-    autocmd BufNewFile *.pl  0put =\"#!/usr/bin/env perl\<nl>\<nl>\"|$
-    autocmd BufNewFile *.php 0put =\"#!/usr/bin/env php\<nl>\<nl>\"|$
-    autocmd BufNewFile *.py  0put =\"#!/usr/bin/env python3\<nl>\<nl>\"|$
-    autocmd BufNewFile *.tex 0put =\"%&plain\<nl>\"|$
-augroup END
+" InsertLeave *   set imdisable   " cancle IME on normal mode
+" InsertEnter *   set noimdisable
 
 " ----> Netrw
 let g:netrw_banner = 1
@@ -689,7 +716,7 @@ let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize = 25
 let g:netrw_list_hide = &wildignore
-function! ToggleNetrw() abort
+function! NetrwToggle() abort
     let i = bufnr("$")
     let wasOpen = 0
     while (i >= 1)
@@ -703,30 +730,32 @@ function! ToggleNetrw() abort
         silent Lexplore
     endif
 endfunction
-noremap <silent> <F3> :call ToggleNetrw()<cr>
+noremap <silent> <F3> :call NetrwToggle()<cr>
 
 " ----> Zen mode
-let s:hidden_all=0
-function! ToggleHideAll() abort
-    if s:hidden_all==0
-        let s:hidden_all=1
+let s:zen_mode=0
+function! ZenModeToggle() abort
+    if s:zen_mode==0
+        let s:zen_mode=1
         set noshowmode
         set noruler
         set laststatus=0
         set noshowcmd
         set nonumber
         syntax off
+        highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
     else
-        let s:hidden_all=0
+        let s:zen_mode=0
         set showmode
         set ruler
         set laststatus=2
         set showcmd
         set number
+        highlight clear Normal
         syntax on
     endif
 endfunction
-nnoremap <silent> <leader>h :call ToggleHideAll()<cr>
+nnoremap <silent> <leader>z :call ZenModeToggle()<cr>
 
 " ----> View changes after the last save
 function! s:DiffWithSaved() abort
@@ -738,34 +767,23 @@ function! s:DiffWithSaved() abort
     exe "normal! ]c"
 endfunction
 command! DiffSaved call s:DiffWithSaved()
-nnoremap <leader>? :DiffSaved<cr>
+nnoremap <leader>d :DiffSaved<cr>
 
-" ----> Toggle Quickfix / Location window
-let g:list_height = 5
-let g:quickfix_open = 0
+" ----> Toggle Quickfix / LocationList window
 function! QuickfixToggle() abort
-    if g:quickfix_open
-        silent! cclose
-        let g:quickfix_open = 0
-        execute g:quickfix_return . 'wincmd w'
+    if len(filter(getwininfo(), 'v:val.quickfix'))
+        cclose
     else
-        let g:quickfix_return = winnr()
-        execute 'silent! copen ' . g:list_height
-        let g:quickfix_open = 1
+        copen 6
     endif
 endfunction
 nnoremap <leader>q :call QuickfixToggle()<cr>
 
-let g:location_open = 0
 function! LocationToggle() abort
-    if g:location_open
-        silent! lclose
-        let g:location_open = 0
-        execute g:location_return . 'wincmd w'
+    if len(filter(getwininfo(), 'v:val.loclist'))
+        lclose
     else
-        let g:location_return = winnr()
-        execute 'silent! lopen ' . g:list_height
-        let g:location_open = 1
+        lopen 6
     endif
 endfunction
 nnoremap <leader>l :call LocationToggle()<cr>
