@@ -19,6 +19,7 @@ set wrap                        " wrap lines longer than the width of the window
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
     set cursorline              " show underline for the cursor's line
+    set cursorlineopt=number
     " set cursorcolumn            " show column line for the cursor's column
 else
     set nocursorline
@@ -33,7 +34,6 @@ set softtabstop=4               " number of spaces that a <tab> counts for while
 set smarttab                    " be smart when use tabs
 
 set autoindent                  " copy indent from current line when starting a new line
-set cindent                     " enables automatic c program indenting
 set breakindent                 " every wrapped line will continue visually indented
 
 if has('multi_byte')
@@ -55,7 +55,7 @@ set lazyredraw                  " don't redraw while executing macros, registers
 set report=0                    " always reporting number of lines changed
 set ttyfast                     " indicates a fast terminal connection
 set ttimeout                    " timeout for key codes
-set ttimeoutlen=100             " wait up to 100ms after esc for special key
+set ttimeoutlen=100             " wait up to 100ms for key codes
 
 set ignorecase                  " ignore case in search patterns.
 set smartcase                   " override the 'ignorecase' option if the search pattern contains upper case characters
@@ -66,7 +66,6 @@ set splitbelow                  " horizontally split below
 set splitright                  " vertically split to the right
 set noequalalways               " all the windows are automatically made the same size after splitting or closing a window
 
-set cedit=<c-y>                 " the key used in command-line mode to open the command-line window
 set pastetoggle=<F4>            " set paste toggle
 
 set background=dark             " try to use colors that look good on a dark background
@@ -75,7 +74,6 @@ if has('termguicolors')
 endif
 
 set noswapfile                  " don't create swapfile for the buffer
-" set nobackup                    " don't make a backup before overwriting a file
 let &backupdir = s:vimdir . '/tmp'
 if !isdirectory(&backupdir)
     call mkdir(&backupdir, 'p', 0755)
@@ -100,12 +98,17 @@ let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quic
 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 
+if has("patch-8.1.1564")
+    set signcolumn=number       " display signs in the 'number' column
+else
+    set signcolumn=yes          " always display signs
+endif
 set comments=                   " clear default comments value, let the filetype handle it
 set include=                    " don't assume I'm editing C; let the filetype set this
 set nrformats-=octal            " treat numbers with a leading zero as decimal, not octal
 set formatoptions+=j            " delete comment leaders when joining lines, if supported
-set signcolumn=number           " display signs in the 'number' column
 set shortmess-=S                " helps to avoid all the hit-enter prompts caused by file messages
+set shortmess+=c                " don't give ins-completion-menu messages
 set laststatus=2                " show status line
 set display=lastline            " as much as possible of the last line in a window will be displayed
 set scrolloff=1                 " minimal number of screen lines to keep above and below the cursor
@@ -134,26 +137,26 @@ endif
 
 set wildmenu                    " show autocomplete for command menu
 set wildmode=longest:full,full  " completion mode that is used for the character specified with 'wildchar'
-set wildignorecase              " ignore case when completing file names and directories
 
-" Ignore the following extensions on file search and completion
-set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.pyc,.pyo,.egg-info,.class
-set wildignore=*.o,*.obj,*~,*.exe,*.a,*.pdb,*.lib "stuff to ignore when tab completing
-set wildignore+=*.so,*.dll,*.swp,*.egg,*.jar,*.class,*.pyc,*.pyo,*.bin,*.dex
-set wildignore+=*.zip,*.7z,*.rar,*.gz,*.tar,*.gzip,*.bz2,*.tgz,*.xz
-set wildignore+=*DS_Store*,*.ipch
-set wildignore+=*.gem
-set wildignore+=*.png,*.jpg,*.gif,*.bmp,*.tga,*.pcx,*.ppm,*.img,*.iso
-set wildignore+=*.so,*.swp,*.zip,*/.Trash/**,*.pdf,*.dmg,*/.rbenv/**
-set wildignore+=*/.nx/**,*.app,*.git,.git
-set wildignore+=*.wav,*.mp3,*.ogg,*.pcm
-set wildignore+=*.mht,*.suo,*.sdf,*.jnlp
-set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf
-set wildignore+=*.mp4,*.avi,*.flv,*.mov,*.mkv,*.swf,*.swc
-set wildignore+=*.ppt,*.pptx,*.docx,*.xlt,*.xls,*.xlsx,*.odt,*.wps
-set wildignore+=*.msi,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
-set wildignore+=*.gba,*.sfc,*.078,*.nds,*.smd,*.smc
-set wildignore+=*.linux2,*.win32,*.darwin,*.freebsd,*.linux,*.android
+set suffixes=                   " get a lower priority when multiple files match a wildcard
+set suffixes+=.bak,~,.o,.h,.info,.swp,.obj,.py[cdow],.egg-info,.class
+
+set wildignorecase              " ignore case when completing file names and directories
+set wildignore=                 " completely ignoring files when expanding wildcards
+set wildignore+=*.o,*.out,*.so,*.dll,*.egg,*.jar,*.class,*.py[cdow],*.obj,*~
+set wildignore+=*.dex,*.a,*.pdb,*.lib,*.gem,*.test,*.swp,*.app
+set wildignore+=*.log,*.sqlite*,*.min.js,*.min.css,*.map,*.tags,*.lock
+set wildignore+=*.png,*.jpg,*.jpeg,*.gif,*.bmp,*.tiff,*.webp,*.ico
+set wildignore+=*.zip,*.[rt]ar,*.[7gx]z,*.gzip,*.bz2,*.tgz,*.[di]mg,*.iso
+set wildignore+=*.avi,*.mp[4v],*.m[4k]v,*.f[4l]v,*.rm,*.rmvb,*.ts,*.wmv
+set wildignore+=*.aac,*.ape,*.flac,*.mp3,*.ogg,*.wav,*.wma,*.webm
+set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf,*.azw*,*.xps
+set wildignore+=*.ppt*,*.doc*,*.xls*,*.od[tspg],*.pages,*.numbers,*.key,*.wps
+set wildignore+=*.msi,*.exe,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
+set wildignore+=*/node_modules/**,*/nginx_runtime/**,*/build/**,*/logs/**
+set wildignore+=*/dist/**,*/tmp/**,*/.Trash/**,*/.rbenv/**
+set wildignore+=.git,*.git,.svn,.idea,.vscode,.vim
+set wildignore+=*DS_Store,*Thumbs.db
 
 " ============> Plugins <============
 let s:coc = expand(s:vimdir . '/coc-settings.json')
@@ -234,7 +237,7 @@ let g:lightline = {
 \ }
 
 function! LightlineFilename() abort
-    let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
+    let filename = expand('%:p:~') !=# '' ? expand('%:p:~') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
 endfunction
@@ -349,6 +352,10 @@ endif
 nnoremap <F5> :UndotreeToggle<cr>
 
 " ----> neoclide/coc.nvim
+if &backup || &writebackup
+    set nobackup
+    set nowritebackup
+endif
 let g:coc_global_extensions = [
     \ 'coc-json',
     \ 'coc-yaml',
@@ -363,7 +370,10 @@ let g:coc_global_extensions = [
     \ 'coc-syntax',
     \ 'coc-rls',
     \ 'coc-git',
-    \ 'coc-vimlsp'
+    \ 'coc-vimlsp',
+    \ 'coc-clangd',
+    \ 'coc-graphql',
+    \ 'coc-cmake'
 \]
 
 highlight clear CocErrorSign
@@ -386,17 +396,19 @@ function! s:check_back_space() abort
 endfunction
 
 " Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
-
-" Use <cr> to confirm completion, `<c-g>u` means break undo chain at current
-" position. Coc only does snippet and additional edit on confirm.
-if exists('*complete_info')
-    inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<c-y>" : "\<c-g>u\<cr>"
+if has('nvim')
+    inoremap <silent><expr> <c-space> coc#refresh()
 else
-    imap <expr> <cr> pumvisible() ? "\<c-y>" : "\<c-g>u\<cr>"
+    inoremap <silent><expr> <c-@> coc#refresh()
 endif
 
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
 " Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
@@ -407,14 +419,16 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<cr>
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 function! s:show_documentation()
-    if (index(['vim','help'], &filetype) >= 0)
-        execute 'h '.expand('<cword>')
-    else
-        call CocAction('doHover')
-    endif
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  elseif (coc#rpc#ready())
+    call CocActionAsync('doHover')
+  else
+    execute '!' . &keywordprg . " " . expand('<cword>')
+  endif
 endfunction
 
 " Highlight the symbol and its references when holding the cursor.
@@ -445,18 +459,28 @@ nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
 
-" Introduce function text object
+" Map function and class text objects
 " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
 xmap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
 omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
 omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
 
-" Use <tab> for selections ranges.
-" NOTE: Requires 'textDocument/selectionRange' support from the language server.
-" coc-tsserver, coc-python are the examples of servers that support it.
-nmap <silent> <tab> <Plug>(coc-range-select)
-xmap <silent> <tab> <Plug>(coc-range-select)
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+" Note coc#float#scroll works on neovim >= 0.4.3 or vim >= 8.2.0750
+nnoremap <nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+nnoremap <nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+inoremap <nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+inoremap <nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+
+" Use CTRL-S for selections ranges.
+" Requires 'textDocument/selectionRange' support of language server.
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
@@ -467,23 +491,28 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
-" Mappings using CoCList:
+" Add (Neo)Vim's native statusline support.
+" NOTE: Please see `:h coc-status` for integrations with external plugins that
+" provide custom statusline: lightline.vim, vim-airline.
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
+" Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent> <space>a  :<c-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent> <space>e  :<c-u>CocList extensions<cr>
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
 " Show commands.
-nnoremap <silent> <space>c  :<c-u>CocList commands<cr>
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent> <space>o  :<c-u>CocList outline<cr>
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent> <space>s  :<c-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent> <space>j  :<c-u>CocNext<cr>
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent> <space>k  :<c-u>CocPrev<cr>
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
-nnoremap <silent> <space>p  :<c-u>CocListResume<cr>
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 " ----> dense-analysis/ale
 let g:ale_disable_lsp = 1
@@ -705,9 +734,6 @@ autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "nor
 
 " Close the quickfix or locationlist window when exiting
 autocmd! QuitPre * if empty(&buftype) | cclose | lclose | endif
-
-" InsertLeave *   set imdisable   " cancle IME on normal mode
-" InsertEnter *   set noimdisable
 
 " ----> Netrw
 let g:netrw_banner = 1

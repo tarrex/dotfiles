@@ -40,34 +40,6 @@
     "python.linting.enabled": true,
     "java.errors.incompleteClasspath.severity": "ignore",
     "languageserver": {
-        "ccls": {
-            "command": "ccls",
-            "filetypes": [
-                "c",
-                "cpp",
-                "objc",
-                "objcpp"
-            ],
-            "rootPatterns": [
-                ".ccls",
-                "compile_commands.json",
-                ".git"
-            ],
-            "initializationOptions": {
-                "cache": {
-                    "directory": "/tmp/ccls"
-                },
-                "clang": {
-                    "resourceDir": "/Library/Developer/CommandLineTools/usr/lib/clang/11.0.0",
-                    "extraArgs": [
-                        "-isystem",
-                        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1",
-                        "-I",
-                        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/"
-                    ]
-                }
-            }
-        },
         "golang": {
             "command": "gopls",
             "filetypes": [
