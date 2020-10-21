@@ -120,12 +120,12 @@ set breakat=                    " line break character ' ', default are ' ^I!@*-
 set linebreak                   " break lines at word boundaries
 set visualbell t_vb=            " no beep or flash is wanted
 
-" set list                        " display tabs
-" set listchars+=extends:>        " unwrapped text to screen right
-" set listchars+=precedes:<       " unwrapped text to screen left
-" set listchars+=tab:>-           " tab characters, preserve width
-" set listchars+=trail:_          " trailing spaces
-" set listchars+=nbsp:+           " non-breaking spaces
+set nolist                      " don't display non-printable characters
+set listchars+=extends:>        " unwrapped text to screen right
+set listchars+=precedes:<       " unwrapped text to screen left
+set listchars+=tab:>-           " tab characters, preserve width
+set listchars+=trail:_          " trailing spaces
+set listchars+=nbsp:+           " non-breaking spaces
 
 set completeopt+=popup,longest,menuone  " list of options for Insert mode completion
 set completepopup=border:off            " used for the properties of the info popup when it is created
@@ -306,7 +306,7 @@ endfunction
 let g:EasyMotion_smartcase = 1
 
 " ----> majutsushi/tagbar
-nmap <silent> <F8> :TagbarToggle<cr>
+noremap <silent> <s-t> :TagbarToggle<cr>
 let g:tagbar_ctags_bin = 'ctags'
 let g:tagbar_autofocus = 1
 let g:tagbar_sort = 0
@@ -350,7 +350,7 @@ if executable('rg')
 endif
 
 " ----> mbbill/undotree
-nnoremap <F5> :UndotreeToggle<cr>
+nnoremap <silent> <s-u> :UndotreeToggle<cr>
 
 " ----> neoclide/coc.nvim
 if &backup || &writebackup
@@ -526,7 +526,6 @@ let g:go_gopls_enabled = 0
 let g:go_echo_command_info = 0
 let g:go_echo_go_info = 0
 let g:go_addtags_transform = 'camelcase'
-let g:go_fold_enable = []
 let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
 let g:go_highlight_function_parameters = 1
@@ -575,12 +574,6 @@ augroup hilightSpecialStrings
     autocmd WinEnter * match ToDo /\(TODO\)/
 augroup END
 
-" Highlight WhiteSpaceEOL ctermbg=darkgreen guibg=lightgreen
-" match WhiteSpaceEOL /\s$/
-" augroup hilightSpecialStrings
-"     autocmd WinEnter * match WhiteSpaceEOL /\s$/
-" augroup END
-
 " Some custom highlights
 highlight Normal guibg=black ctermbg=black
 highlight LineNr guibg=black ctermbg=black
@@ -590,8 +583,7 @@ highlight SignColumn guibg=black ctermbg=black
 let mapleader = ','     " set vim map leader
 let g:mapleader = ','
 
-nnoremap <silent> <leader>n :nohlsearch<cr> " turn off search highlight
-nnoremap <leader>sh :sh<cr>                 " hold vim and run a shell at this directory, exit will return vim
+nnoremap <silent> <space>n :nohlsearch<cr>  " turn off search highlight
 
 nnoremap <leader>tc :tabclose<cr>           " close tab
 nnoremap <leader>tn :tabnext<cr>            " go to next tab
@@ -604,7 +596,7 @@ nnoremap <leader>bd :bdelete<cr>            " close the current buffer
 nnoremap <leader>bl :buffers<cr>            " list buffers
 nnoremap <leader>bg :buffer                 " go to given buffer number
 
-nnoremap <F2> :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
+nnoremap <silent> <leader>s :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
 
 cnoreabbrev W! w!   " easy exit vim
 cnoreabbrev Q! q!
@@ -646,21 +638,21 @@ vnoremap K :m '<-2<cr>gv=gv
 noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
 noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
 
-nnoremap <leader>tm :terminal<cr><c-w>L
+nnoremap <silent> <space>t :terminal<cr><c-w>L
 
 " Hex read
-nmap <leader>hr :%!xxd<cr> :set filetype=xxd<cr>
+nmap <silent> <space>hr :%!xxd<cr> :set filetype=xxd<cr>
 " Hex write
-nmap <leader>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
+nmap <silent> <space>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
 
 " Map w!! to write file with sudo
 cmap w!! w !sudo tee % >/dev/null
 
 " Toggle displaying non-printable characters
-nnoremap <leader>ls :set list!<cr>
+nnoremap <silent> <space>l :set list!<cr>
 
 " Toggle soft-wrap
-nnoremap <leader>wr :set wrap! wrap?<cr>
+nnoremap <silent> <space>w :set wrap! wrap?<cr>
 
 " ----> Tricks
 " Switch to working directory of the open file
@@ -703,35 +695,27 @@ function! NetrwToggle() abort
         silent Lexplore
     endif
 endfunction
-noremap <silent> <F3> :call NetrwToggle()<cr>
+noremap <silent> <space>f :call NetrwToggle()<cr>
 
 " ----> Zen mode
 let s:zen_mode=0
 function! ZenModeToggle() abort
     if s:zen_mode==0
         let s:zen_mode=1
-        set noshowmode
-        set noruler
-        set laststatus=0
-        set noshowcmd
-        set nonumber
+        set nosmd noru nosc nonu ls=0
         syntax off
         highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
     else
         let s:zen_mode=0
-        set showmode
-        set ruler
-        set laststatus=2
-        set showcmd
-        set number
+        set smd ru sc nu ls=2
         highlight clear Normal
         syntax on
     endif
 endfunction
-nnoremap <silent> <leader>z :call ZenModeToggle()<cr>
+nnoremap <silent> <space>z :call ZenModeToggle()<cr>
 
 " ----> View changes after the last save
-function! s:DiffWithSaved() abort
+function! DiffWithSaved() abort
     let filetype=&ft
     diffthis
     vnew | r # | normal! 1Gdd
@@ -739,8 +723,7 @@ function! s:DiffWithSaved() abort
     exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
     exe "normal! ]c"
 endfunction
-command! DiffSaved call s:DiffWithSaved()
-nnoremap <leader>d :DiffSaved<cr>
+nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 
 " ----> Toggle Quickfix / LocationList window
 function! QuickfixToggle() abort
@@ -750,7 +733,7 @@ function! QuickfixToggle() abort
         copen 6
     endif
 endfunction
-nnoremap <leader>q :call QuickfixToggle()<cr>
+nnoremap <silent> <space>, :call QuickfixToggle()<cr>
 
 function! LocationToggle() abort
     if len(filter(getwininfo(), 'v:val.loclist'))
@@ -759,4 +742,4 @@ function! LocationToggle() abort
         lopen 6
     endif
 endfunction
-nnoremap <leader>l :call LocationToggle()<cr>
+nnoremap <silent> <space>. :call LocationToggle()<cr>
