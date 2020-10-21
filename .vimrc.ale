@@ -197,7 +197,7 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'dense-analysis/ale'
-Plug 'fatih/vim-go', {'do': ':GoUpdateBinaries', 'for': 'go'}
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
 
 call plug#end()
@@ -563,56 +563,50 @@ highlight clear ALEStyleErrorSign
 highlight clear ALEStyleWarningSign
 
 " ----> fatih/vim-go
+let g:go_version_warning = 0
 let g:go_code_completion_enabled = 0
-let g:go_def_mapping_enabled = 0
-let g:go_autodetect_gopath = 1
+let g:go_jump_to_error = 0
 let g:go_fmt_autosave = 0
-let g:go_fmt_command = 'goimports'
-let g:go_list_type = "quickfix"
+let g:go_doc_popup_window = 1
+let g:go_def_mapping_enabled = 0
+let g:go_gopls_enabled = 0
+let g:go_echo_command_info = 0
+let g:go_echo_go_info = 0
 let g:go_addtags_transform = 'camelcase'
+let g:go_fold_enable = []
 let g:go_highlight_extra_types = 1
 let g:go_highlight_functions = 1
-let g:go_highlight_function_calls = 1
 let g:go_highlight_function_parameters = 1
+let g:go_highlight_function_calls = 1
 let g:go_highlight_types = 1
 let g:go_highlight_fields = 1
-let g:go_highlight_generate_tags = 1
 let g:go_highlight_build_constraints = 1
-let g:go_highlight_format_strings = 1
-
+let g:go_highlight_generate_tags = 1
+let g:go_highlight_string_spellcheck = 0
+let g:go_highlight_diagnostic_errors = 0
+ let g:go_highlight_diagnostic_warnings = 0
 augroup Go
     autocmd!
     autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
     autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-    autocmd FileType go nmap <leader>gb :<c-u>call <SID>build_go_files()<cr>
-    autocmd FileType go nmap <leader>gt <Plug>(go-test)
-    autocmd FileType go nmap <leader>gf <Plug>(go-test-func)
-    autocmd FileType go nmap <leader>gr <Plug>(go-run)
-    autocmd FileType go nmap <leader>gh <Plug>(go-doc)
-    autocmd FileType go nmap <leader>gc <Plug>(go-coverage-toggle)
-    autocmd FileType go nmap <leader>gi <Plug>(go-info)
-    autocmd FileType go nmap <leader>gd <Plug>(go-def-split)
-    autocmd FileType go nmap <leader>gm <Plug>(go-rename)
-    autocmd FileType go nmap <leader>ge <Plug>(go-iferr)
-    autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
-    autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
-    autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
-    autocmd Filetype go command! -bang AT call go#alternate#Switch(<bang>0, 'tabe')
+    autocmd FileType go nmap <leader>gr :GoRun<cr>
+    autocmd FileType go nmap <leader>gt :GoTestFunc<cr>
+    autocmd FileType go nmap <leader>gc :GoCovergeToggle!<cr>
+    autocmd FileType go nmap <leader>gp :GoChannelPeers<cr>
+    autocmd FileType go nmap <leader>gs :GoSameIdsToggle<cr>
+    autocmd FileType go nmap <leader>gi :GoPointsTo<cr>
+    autocmd FileType go nmap <leader>ta :GoAddTags<cr>
+    autocmd FileType go nmap <leader>tr :GoRemoveTags<cr>
+    autocmd FileType go nmap <leader>gf :GoFillStruct<cr>
+    autocmd FileType go nmap <leader>ge :GoIfErr<cr>
 augroup END
 
-" build_go_files is a custom function that builds or compiles the test file.
-" It calls :GoBuild if its a Go file, or :GoTestCompile if it's a test file
-function! s:build_go_files() abort
-    let l:file = expand('%')
-    if l:file =~# '^\f\+_test\.go$'
-        call go#test#Test(0, 1)
-    elseif l:file =~# '^\f\+\.go$'
-        call go#cmd#Build(0)
-    endif
-endfunction
-
 " ----> rust-lang/rust.vim
-let g:rustfmt_autosave = 1
+augroup Rust
+    autocmd!
+    autocmd FileType rust nmap <leader>rb :Cbuild<cr>
+    autocmd FileType rust nmap <leader>rr :Crun<cr>
+augroup END
 
 " ============> Custom <============
 
