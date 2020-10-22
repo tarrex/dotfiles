@@ -473,29 +473,39 @@ let g:go_highlight_build_constraints = 1
 let g:go_highlight_generate_tags = 1
 let g:go_highlight_string_spellcheck = 0
 let g:go_highlight_diagnostic_errors = 0
- let g:go_highlight_diagnostic_warnings = 0
+let g:go_highlight_diagnostic_warnings = 0
 augroup Go
     autocmd!
     autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
     autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-    autocmd FileType go nmap <leader>go :GoRun<cr>
-    autocmd FileType go nmap <leader>gt :GoTestFunc<cr>
-    autocmd FileType go nmap <leader>gc :GoCovergeToggle!<cr>
-    autocmd FileType go nmap <leader>gp :GoChannelPeers<cr>
-    autocmd FileType go nmap <leader>gs :GoSameIdsToggle<cr>
-    autocmd FileType go nmap <leader>gi :GoImpl<space>
-    autocmd FileType go nmap <leader>ga :GoAddTags<space>
-    autocmd FileType go nmap <leader>gd :GoRemoveTags<space>
-    autocmd FileType go nmap <leader>gk :GoKeyify<cr>
-    autocmd FileType go nmap <leader>gf :GoFillStruct<cr>
-    autocmd FileType go nmap <leader>ge :GoIfErr<cr>
+    autocmd FileType go nmap <space>gr :GoRun<cr>
+    autocmd FileType go nmap <space>gt :GoTestFunc<cr>
+    autocmd FileType go nmap <space>gc :GoCovergeToggle!<cr>
+    autocmd FileType go nmap <space>gl :GoChannelPeers<cr>
+    autocmd FileType go nmap <space>gs :GoSameIdsToggle<cr>
+    autocmd FileType go nmap <space>gp :GoPointsTo<cr>
+    autocmd FileType go nmap <space>gi :GoImpl<space>
+    autocmd FileType go nmap <space>ga :GoAddTags<space>
+    autocmd FileType go nmap <space>gz :GoRemoveTags<space>
+    autocmd FileType go nmap <space>gk :GoKeyify<cr>
+    autocmd FileType go nmap <space>gf :GoFillStruct<cr>
+    autocmd FileType go nmap <space>ge :GoIfErr<cr>
+    autocmd FileType go nmap <space>gd :GoDebugStart<cr>
+    autocmd FileType go nmap <space>gq :GoDebugStop<cr>
 augroup END
+let g:go_debug_windows = {
+    \ 'vars':       'rightbelow 60vnew',
+    \ 'stack':      'rightbelow 10new',
+    \ 'goroutines': 'botright 10new'
+\ }
+let g:go_debug_address = '127.0.0.1:8181'
+let g:go_debug_log_output = 'debugger'
 
 " ----> rust-lang/rust.vim
 augroup Rust
     autocmd!
-    autocmd FileType rust nmap <leader>rb :Cbuild<cr>
-    autocmd FileType rust nmap <leader>rr :Crun<cr>
+    autocmd FileType rust nmap <space>rb :Cbuild<cr>
+    autocmd FileType rust nmap <space>rr :Crun<cr>
 augroup END
 
 " ============> Custom <============
