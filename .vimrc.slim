@@ -118,6 +118,7 @@ set showmatch                   " show the match pairs  can be seen on the scree
 set nomodeline                  " don't allow setting options via buffer content
 set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
 set linebreak                   " break lines at word boundaries
+set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
 
 set nolist                      " don't display non-printable characters
@@ -343,6 +344,12 @@ nnoremap <silent> <space>l :set list!<cr>
 
 " Toggle soft-wrap
 nnoremap <silent> <space>w :set wrap! wrap?<cr>
+
+" Resize window
+noremap <silent><space>- :resize -2<cr>
+noremap <silent><space>= :resize +2<cr>
+noremap <silent><space>[ :vertical resize -2<cr>
+noremap <silent><space>] :vertical resize +2<cr>
 
 " ----> Tricks
 " Switch to working directory of the open file

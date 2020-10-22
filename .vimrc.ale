@@ -118,6 +118,7 @@ set showmatch                   " show the match pairs  can be seen on the scree
 set nomodeline                  " don't allow setting options via buffer content
 set breakat=                    " line break character ' ', default are ' ^I!@*-+;:,./?'
 set linebreak                   " break lines at word boundaries
+set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
 
 set nolist                      " don't display non-printable characters
@@ -558,6 +559,7 @@ highlight clear ALEWarningSign
 " ----> fatih/vim-go
 let g:go_version_warning = 0
 let g:go_code_completion_enabled = 0
+let g:go_updatetime = 0
 let g:go_jump_to_error = 0
 let g:go_fmt_autosave = 0
 let g:go_doc_popup_window = 1
@@ -581,14 +583,15 @@ augroup Go
     autocmd!
     autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
     autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
-    autocmd FileType go nmap <leader>gr :GoRun<cr>
+    autocmd FileType go nmap <leader>go :GoRun<cr>
     autocmd FileType go nmap <leader>gt :GoTestFunc<cr>
     autocmd FileType go nmap <leader>gc :GoCovergeToggle!<cr>
     autocmd FileType go nmap <leader>gp :GoChannelPeers<cr>
     autocmd FileType go nmap <leader>gs :GoSameIdsToggle<cr>
-    autocmd FileType go nmap <leader>gi :GoPointsTo<cr>
-    autocmd FileType go nmap <leader>ta :GoAddTags<cr>
-    autocmd FileType go nmap <leader>tr :GoRemoveTags<cr>
+    autocmd FileType go nmap <leader>gi :GoImpl<space>
+    autocmd FileType go nmap <leader>ga :GoAddTags<space>
+    autocmd FileType go nmap <leader>gd :GoRemoveTags<space>
+    autocmd FileType go nmap <leader>gk :GoKeyify<cr>
     autocmd FileType go nmap <leader>gf :GoFillStruct<cr>
     autocmd FileType go nmap <leader>ge :GoIfErr<cr>
 augroup END
@@ -693,6 +696,12 @@ nnoremap <silent> <space>l :set list!<cr>
 
 " Toggle soft-wrap
 nnoremap <silent> <space>w :set wrap! wrap?<cr>
+
+" Resize window
+noremap <silent><space>- :resize -2<cr>
+noremap <silent><space>= :resize +2<cr>
+noremap <silent><space>[ :vertical resize -2<cr>
+noremap <silent><space>] :vertical resize +2<cr>
 
 " ----> Tricks
 " Switch to working directory of the open file
