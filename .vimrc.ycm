@@ -459,7 +459,9 @@ let g:go_jump_to_error = 0
 let g:go_fmt_autosave = 0
 let g:go_doc_popup_window = 1
 let g:go_def_mapping_enabled = 0
-let g:go_gopls_enabled = 0
+let g:go_list_height = 6
+let g:go_list_type = "quickfix"
+let g:go_alternate_mode = "vsplit"
 let g:go_echo_command_info = 0
 let g:go_echo_go_info = 0
 let g:go_addtags_transform = 'camelcase'
@@ -476,6 +478,8 @@ let g:go_highlight_diagnostic_errors = 0
 let g:go_highlight_diagnostic_warnings = 0
 augroup Go
     autocmd!
+    autocmd FileType go setlocal iskeyword+=.
+    autocmd FileType go nmap <s-d> :GoDoc <c-r>=expand('<cword>')<cr><cr>
     autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
     autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
     autocmd FileType go nmap <space>gr :GoRun<cr>
@@ -483,6 +487,7 @@ augroup Go
     autocmd FileType go nmap <space>gc :GoCovergeToggle!<cr>
     autocmd FileType go nmap <space>gl :GoChannelPeers<cr>
     autocmd FileType go nmap <space>gs :GoSameIdsToggle<cr>
+    autocmd FileType go nmap <space>gn :GoAlternate!<cr>
     autocmd FileType go nmap <space>gp :GoPointsTo<cr>
     autocmd FileType go nmap <space>gi :GoImpl<space>
     autocmd FileType go nmap <space>ga :GoAddTags<space>
