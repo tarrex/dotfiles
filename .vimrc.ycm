@@ -19,12 +19,12 @@ set wrap                        " wrap lines longer than the width of the window
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
     set cursorline              " show underline for the cursor's line
-    set cursorlineopt=number
     " set cursorcolumn            " show column line for the cursor's column
 else
     set nocursorline
     set nocursorcolumn
 endif
+silent! set cursorlineopt=number
 
 set expandtab                   " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                  " round indent to multiple of 'shiftwidth'
@@ -91,14 +91,18 @@ if has('persistent_undo')
 endif
 
 set viminfo='100,:10000,<50,s10,h,!         " viminfo settings
-let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+if has('nvim')
+    let &viminfo.=',n' . s:vimdir . '/nviminfo' " viminfo file location
+else
+    let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+endif
 set history=10000                           " set how many lines of command history vim has to remember
 
 let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quickfix mode
 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 
-if has("patch-8.1.1564")
+if has('patch-8.1.1564')
     set signcolumn=number       " display signs in the 'number' column
 else
     set signcolumn=yes          " always display signs
@@ -128,8 +132,9 @@ set listchars+=tab:>-           " tab characters, preserve width
 set listchars+=trail:_          " trailing spaces
 set listchars+=nbsp:+           " non-breaking spaces
 
-set completeopt+=popup,longest,menuone  " list of options for Insert mode completion
-set completepopup=border:off            " used for the properties of the info popup when it is created
+set completeopt+=longest,menuone        " list of options for insert mode completion
+silent! set completeopt+=popup          " add popup option for insert mode completion if could
+silent! set completepopup=border:off    " used for the properties of the info popup when it is created
 
 set diffopt+=vertical,context:3,foldcolumn:0 " option settings for diff mode
 if &diffopt =~ 'internal'
@@ -355,60 +360,6 @@ let g:ycm_complete_in_strings=1
 let g:ycm_disable_signature_help = 1
 let g:ycm_goto_buffer_command = 'new-or-existing-tab'
 let g:ycm_auto_hover = ''
-let g:ycm_filetype_whitelist = {
-    \ "c":1,
-    \ "cpp":1,
-    \ "objc":1,
-    \ "objcpp":1,
-    \ "python":1,
-    \ "java":1,
-    \ "javascript":1,
-    \ "coffee":1,
-    \ "vim":1,
-    \ "go":1,
-    \ "cs":1,
-    \ "lua":1,
-    \ "perl":1,
-    \ "perl6":1,
-    \ "php":1,
-    \ "ruby":1,
-    \ "rust":1,
-    \ "erlang":1,
-    \ "asm":1,
-    \ "nasm":1,
-    \ "masm":1,
-    \ "tasm":1,
-    \ "asm68k":1,
-    \ "asmh8300":1,
-    \ "asciidoc":1,
-    \ "basic":1,
-    \ "vb":1,
-    \ "make":1,
-    \ "cmake":1,
-    \ "html":1,
-    \ "css":1,
-    \ "less":1,
-    \ "json":1,
-    \ "cson":1,
-    \ "typedscript":1,
-    \ "haskell":1,
-    \ "lhaskell":1,
-    \ "lisp":1,
-    \ "scheme":1,
-    \ "sdl":1,
-    \ "sh":1,
-    \ "zsh":1,
-    \ "bash":1,
-    \ "man":1,
-    \ "markdown":1,
-    \ "matlab":1,
-    \ "maxima":1,
-    \ "dosini":1,
-    \ "conf":1,
-    \ "config":1,
-    \ "zimbu":1,
-    \ "ps1":1,
-    \ }
 
 " ----> dense-analysis/ale
 let g:ale_command_wrapper = 'nice -n5'
@@ -457,11 +408,13 @@ let g:go_code_completion_enabled = 0
 let g:go_updatetime = 0
 let g:go_jump_to_error = 0
 let g:go_fmt_autosave = 0
-let g:go_doc_popup_window = 1
+if has('patch-8.2.0012') || has('nvim')
+    let g:go_doc_popup_window = 1
+endif
 let g:go_def_mapping_enabled = 0
 let g:go_list_height = 6
-let g:go_list_type = "quickfix"
-let g:go_alternate_mode = "vsplit"
+let g:go_list_type = 'quickfix'
+let g:go_alternate_mode = 'vsplit'
 let g:go_echo_command_info = 0
 let g:go_echo_go_info = 0
 let g:go_addtags_transform = 'camelcase'
@@ -641,11 +594,11 @@ let g:netrw_altv = 1
 let g:netrw_winsize = 25
 let g:netrw_list_hide = &wildignore
 function! NetrwToggle() abort
-    let i = bufnr("$")
+    let i = bufnr('$')
     let wasOpen = 0
     while (i >= 1)
-        if (getbufvar(i, "&filetype") == "netrw")
-            silent exe "bwipeout " . i
+        if (getbufvar(i, '&filetype') == 'netrw')
+            silent exe 'bwipeout ' . i
             let wasOpen = 1
         endif
         let i-=1
@@ -679,8 +632,8 @@ function! DiffWithSaved() abort
     diffthis
     vnew | r # | normal! 1Gdd
     diffthis
-    exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
-    exe "normal! ]c"
+    exe 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
+    exe 'normal! ]c'
 endfunction
 nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 

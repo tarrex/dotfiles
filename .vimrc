@@ -19,12 +19,12 @@ set wrap                        " wrap lines longer than the width of the window
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
     set cursorline              " show underline for the cursor's line
-    set cursorlineopt=number
     " set cursorcolumn            " show column line for the cursor's column
 else
     set nocursorline
     set nocursorcolumn
 endif
+silent! set cursorlineopt=number
 
 set expandtab                   " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                  " round indent to multiple of 'shiftwidth'
@@ -91,14 +91,18 @@ if has('persistent_undo')
 endif
 
 set viminfo='100,:10000,<50,s10,h,!         " viminfo settings
-let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+if has('nvim')
+    let &viminfo.=',n' . s:vimdir . '/nviminfo' " viminfo file location
+else
+    let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+endif
 set history=10000                           " set how many lines of command history vim has to remember
 
 let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quickfix mode
 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 
-if has("patch-8.1.1564")
+if has('patch-8.1.1564')
     set signcolumn=number       " display signs in the 'number' column
 else
     set signcolumn=yes          " always display signs
@@ -128,8 +132,9 @@ set listchars+=tab:>-           " tab characters, preserve width
 set listchars+=trail:_          " trailing spaces
 set listchars+=nbsp:+           " non-breaking spaces
 
-set completeopt+=popup,longest,menuone  " list of options for Insert mode completion
-set completepopup=border:off            " used for the properties of the info popup when it is created
+set completeopt+=longest,menuone        " list of options for insert mode completion
+silent! set completeopt+=popup          " add popup option for insert mode completion if could
+silent! set completepopup=border:off    " used for the properties of the info popup when it is created
 
 set diffopt+=vertical,context:3,foldcolumn:0 " option settings for diff mode
 if &diffopt =~ 'internal'
@@ -197,6 +202,7 @@ Plug 'mbbill/undotree'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
 
@@ -277,16 +283,14 @@ function! LightlineFileSize() abort
 endfunction
 
 function! LightlineLinter() abort
-    let info = get(b:, 'coc_diagnostic_info', {})
-    if empty(info) | return '' | endif
-        let msgs = []
-        if get(info, 'error', 0)
-            call add(msgs, 'E' . info['error'])
-        endif
-    if get(info, 'warning', 0)
-        call add(msgs, 'W' . info['warning'])
-    endif
-    return join(msgs, ' ') . ' ' . get(g:, 'coc_status', '')
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? '' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )
 endfunction
 
 function! LightlineGitBranch() abort
@@ -358,6 +362,7 @@ if &backup || &writebackup
     set nobackup
     set nowritebackup
 endif
+let g:coc_disable_startup_warning = 1
 let g:coc_global_extensions = [
     \ 'coc-json',
     \ 'coc-yaml',
@@ -516,17 +521,60 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
+" ----> dense-analysis/ale
+let g:ale_command_wrapper = 'nice -n5'
+let g:ale_daximum_file_size = 10 * 1024 * 1024
+let g:ale_echo_msg_error_str = 'E'
+let g:ale_echo_msg_info_str = 'I'
+let g:ale_echo_msg_warning_str = 'W'
+let g:ale_echo_msg_log_str = 'L'
+let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
+let g:ale_loclist_msg_format = '[%linter%] %code: %%s'
+let g:ale_sign_error = '>>'
+let g:ale_sign_warning = '--'
+let g:ale_sign_info = '~~'
+let g:ale_set_quickfix = 1
+let g:ale_list_window_size = 6
+let g:ale_open_list = 'on_save'
+let g:ale_fix_on_save = 1
+let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'go': ['goimports'],
+    \ 'python': ['black'],
+    \ 'rust': ['rustfmt']
+\}
+let g:ale_lint_delay = 1000
+let g:ale_linters_explicit = 1
+let g:ale_linters = {
+    \ 'c': ['gcc'],
+    \ 'cpp': ['gcc'],
+    \ 'go': ['golint', 'go vet'],
+    \ 'java': ['javac'],
+    \ 'lua': ['luac'],
+    \ 'python': ['flake8', 'pylint'],
+    \ 'rust': ['cargo', 'rls'],
+    \ 'sh': ['shell']
+\ }
+
+nmap <silent> <c-k> <Plug>(ale_previous_wrap)
+nmap <silent> <c-j> <Plug>(ale_next_wrap)
+
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+
 " ----> fatih/vim-go
 let g:go_version_warning = 0
 let g:go_code_completion_enabled = 0
 let g:go_updatetime = 0
 let g:go_jump_to_error = 0
 let g:go_fmt_autosave = 0
-let g:go_doc_popup_window = 1
+if has('patch-8.2.0012') || has('nvim')
+    let g:go_doc_popup_window = 1
+endif
 let g:go_def_mapping_enabled = 0
 let g:go_list_height = 6
-let g:go_list_type = "quickfix"
-let g:go_alternate_mode = "vsplit"
+let g:go_list_type = 'quickfix'
+let g:go_alternate_mode = 'vsplit'
 let g:go_echo_command_info = 0
 let g:go_echo_go_info = 0
 let g:go_addtags_transform = 'camelcase'
@@ -706,11 +754,11 @@ let g:netrw_altv = 1
 let g:netrw_winsize = 25
 let g:netrw_list_hide = &wildignore
 function! NetrwToggle() abort
-    let i = bufnr("$")
+    let i = bufnr('$')
     let wasOpen = 0
     while (i >= 1)
-        if (getbufvar(i, "&filetype") == "netrw")
-            silent exe "bwipeout " . i
+        if (getbufvar(i, '&filetype') == 'netrw')
+            silent exe 'bwipeout ' . i
             let wasOpen = 1
         endif
         let i-=1
@@ -744,8 +792,8 @@ function! DiffWithSaved() abort
     diffthis
     vnew | r # | normal! 1Gdd
     diffthis
-    exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
-    exe "normal! ]c"
+    exe 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
+    exe 'normal! ]c'
 endfunction
 nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 

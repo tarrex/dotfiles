@@ -19,12 +19,12 @@ set wrap                        " wrap lines longer than the width of the window
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
     set cursorline              " show underline for the cursor's line
-    set cursorlineopt=number
     " set cursorcolumn            " show column line for the cursor's column
 else
     set nocursorline
     set nocursorcolumn
 endif
+silent! set cursorlineopt=number
 
 set expandtab                   " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                  " round indent to multiple of 'shiftwidth'
@@ -91,14 +91,18 @@ if has('persistent_undo')
 endif
 
 set viminfo='100,:10000,<50,s10,h,!         " viminfo settings
-let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+if has('nvim')
+    let &viminfo.=',n' . s:vimdir . '/nviminfo' " viminfo file location
+else
+    let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
+endif
 set history=10000                           " set how many lines of command history vim has to remember
 
 let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quickfix mode
 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 
-if has("patch-8.1.1564")
+if has('patch-8.1.1564')
     set signcolumn=number       " display signs in the 'number' column
 else
     set signcolumn=yes          " always display signs
@@ -128,8 +132,9 @@ set listchars+=tab:>-           " tab characters, preserve width
 set listchars+=trail:_          " trailing spaces
 set listchars+=nbsp:+           " non-breaking spaces
 
-set completeopt+=popup,longest,menuone  " list of options for Insert mode completion
-set completepopup=border:off            " used for the properties of the info popup when it is created
+set completeopt+=longest,menuone        " list of options for insert mode completion
+silent! set completeopt+=popup          " add popup option for insert mode completion if could
+silent! set completepopup=border:off    " used for the properties of the info popup when it is created
 
 set diffopt+=vertical,context:3,foldcolumn:0 " option settings for diff mode
 if &diffopt =~ 'internal'
@@ -245,7 +250,7 @@ augroup complete
     autocmd CursorMovedI  if pumvisible() == 0 | pclose | endif
     autocmd InsertLeave  if pumvisible() == 0 | pclose | endif
     autocmd FileType *
-          \ if &omnifunc == "" |
+          \ if &omnifunc == '' |
           \    setlocal omnifunc=syntaxcomplete#Complete |
           \ endif
 augroup end
@@ -379,11 +384,11 @@ let g:netrw_altv = 1
 let g:netrw_winsize = 25
 let g:netrw_list_hide = &wildignore
 function! NetrwToggle() abort
-    let i = bufnr("$")
+    let i = bufnr('$')
     let wasOpen = 0
     while (i >= 1)
-        if (getbufvar(i, "&filetype") == "netrw")
-            silent exe "bwipeout " . i
+        if (getbufvar(i, '&filetype') == 'netrw')
+            silent exe 'bwipeout ' . i
             let wasOpen = 1
         endif
         let i-=1
@@ -417,8 +422,8 @@ function! DiffWithSaved() abort
     diffthis
     vnew | r # | normal! 1Gdd
     diffthis
-    exe "setlocal bt=nofile bh=wipe nobl noswf ro ft=" . filetype
-    exe "normal! ]c"
+    exe 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
+    exe 'normal! ]c'
 endfunction
 nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 
