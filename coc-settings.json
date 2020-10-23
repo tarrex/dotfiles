@@ -39,6 +39,10 @@
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "java.errors.incompleteClasspath.severity": "ignore",
+    "rust-analyzer.diagnostics.enable": false,
+    "rust-analyzer.notifications.cargoTomlNotFound": false,
+    "rust-analyzer.checkOnSave.enable": false,
+    "rust-analyzer.lens.enable": false,
     "languageserver": {
         "golang": {
             "command": "gopls",

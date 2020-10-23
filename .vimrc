@@ -364,23 +364,19 @@ if &backup || &writebackup
 endif
 let g:coc_disable_startup_warning = 1
 let g:coc_global_extensions = [
+    \ 'coc-word',
+    \ 'coc-git',
+    \ 'coc-cmake',
+    \ 'coc-vimlsp',
+    \ 'coc-html',
+    \ 'coc-css',
     \ 'coc-json',
     \ 'coc-yaml',
     \ 'coc-tsserver',
-    \ 'coc-html',
-    \ 'coc-css',
-    \ 'coc-dictionary',
-    \ 'coc-word',
-    \ 'coc-emoji',
     \ 'coc-python',
     \ 'coc-java',
-    \ 'coc-syntax',
-    \ 'coc-rls',
-    \ 'coc-git',
-    \ 'coc-vimlsp',
-    \ 'coc-clangd',
-    \ 'coc-graphql',
-    \ 'coc-cmake'
+    \ 'coc-rust-analyzer',
+    \ 'coc-clangd'
 \]
 
 highlight clear CocErrorSign
