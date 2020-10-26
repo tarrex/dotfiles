@@ -76,7 +76,7 @@ endif
 set noswapfile                  " don't create swapfile for the buffer
 let &backupdir = s:vimdir . '/tmp'
 if !isdirectory(&backupdir)
-    call mkdir(&backupdir, 'p', 0755)
+    silent! call mkdir(&backupdir, 'p', 0755)
     set backup                              " make a backup before overwriting a file
     set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
     set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
@@ -84,7 +84,7 @@ endif
 if has('persistent_undo')
     let &undodir = s:vimdir . '/undodir'    " list of directory names for undo files, separated with commas
     if !isdirectory(&undodir)
-        call mkdir(&undodir, 'p', 0755)
+        silent! call mkdir(&undodir, 'p', 0755)
     endif
     set undofile                            " automatically saves undo history to an undo file
     set undolevels=1000                     " maximum number of changes that can be undone
@@ -192,7 +192,7 @@ endif
 call plug#begin(s:vimdir . '/plugged')
 
 Plug 'chriskempson/base16-vim'
-Plug 'vim-scripts/ScrollColors'
+Plug 'vim-scripts/scrollcolors'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -243,7 +243,7 @@ let g:lightline = {
 \ }
 
 function! LightlineFilename() abort
-    let filename = expand('%:p:~') !=# '' ? expand('%:p:~') : '[No Name]'
+    let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
     let modified = &modified ? ' +' : ''
     return filename . modified
 endfunction
@@ -335,24 +335,14 @@ let g:tagbar_type_markdown = {
 
 " ----> ctrlpvim/ctrlp.vim
 let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_root_markers = ['.svn', '.git']
+let g:ctrlp_use_caching = 0
 let g:ctrlp_show_hidden = 1
-let g:ctrlp_switch_buffer = 0
-let g:ctrlp_working_path_mode = 0
-let g:ctrlp_match_window = 'bottom,order:ttb'
-let g:ctrlp_types = ['fil', 'mru', 'buf']
-let g:ctrlp_root_markers = ['.svn', '.git', '.projections.json', '.travis.yml', 'Cargo.toml', 'go.mod']
-let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
-    \ 'file': '\v\.(exe|so|dll)$',
-    \ 'link': 'some_bad_symbolic_links',
-\ }
 if executable('rg')
-    set grepprg=rg\ --color=never
-    let g:ctrlp_user_command = 'rg %s --files --color=never --glob ""'
-    let g:ctrlp_use_caching = 0
+    let g:ctrlp_user_command = 'rg %s --files --hidden --color=never --glob "!{'.shellescape(&wildignore).'}"'
 endif
+let g:ctrlp_extensions = ['quickfix']
+let g:ctrlp_types = ['fil', 'buf', 'mru', 'quickfix']
 
 " ----> mbbill/undotree
 nnoremap <silent> <s-u> :UndotreeToggle<cr>

@@ -76,7 +76,7 @@ endif
 set noswapfile                  " don't create swapfile for the buffer
 let &backupdir = s:vimdir . '/tmp'
 if !isdirectory(&backupdir)
-    call mkdir(&backupdir, 'p', 0755)
+    silent! call mkdir(&backupdir, 'p', 0755)
     set backup                              " make a backup before overwriting a file
     set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
     set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
@@ -84,7 +84,7 @@ endif
 if has('persistent_undo')
     let &undodir = s:vimdir . '/undodir'    " list of directory names for undo files, separated with commas
     if !isdirectory(&undodir)
-        call mkdir(&undodir, 'p', 0755)
+        silent! call mkdir(&undodir, 'p', 0755)
     endif
     set undofile                            " automatically saves undo history to an undo file
     set undolevels=1000                     " maximum number of changes that can be undone
@@ -175,7 +175,7 @@ let g:currentmode = {
     \ }
 
 " file size
-function! s:filesize() abort
+function! FileSize() abort
     let l:bytes = getfsize(@%)
     if l:bytes <= 0
         return '0B'
@@ -210,7 +210,7 @@ function! s:filesize() abort
 endfunction
 
 " git branch
-function! s:gitbranch()
+function! GitBranch()
     if !executable('git')
         return ''
     endif
@@ -224,25 +224,27 @@ function! s:gitbranch()
 endfunction
 
 " statusline
-function! s:statusline() abort
-    " let mo   = ' %{mode()} '               " buffer mode
-    let mo   = ' %{g:currentmode[mode()]} ' " buffer mode
-    let bnum = '| %n '                      " buffer number
-    let gbr  = s:gitbranch()                " git branch
-    let ro   = '%{&ro!=#""?"| RO ":""}'     " read only flag
-    let fil  = '| %F '                      " tail of filename
-    let md   = '%{&modified?"+":""}'        " modified flag
-    let sep  = ' %= '                       " separator
-    let ff   = '%{&ff} '                    " file format
-    let fe   = '| %{&fenc?&fenc:&enc} '     " file encoding
-    let ft   = '| %{&ft!=#""?&ft:"no ft"} ' " filetype
-    let fs   = '| '.s:filesize().' '        " file size
-    let pct  = '| %3p%% '                   " percent through file
-    let pos  = '| %3l:%-2v '                " cursor column
-    return mo.bnum.gbr.ro.fil.md.sep.ff.fe.ft.fs.pct.pos
+function! Statusline() abort
+    if &previewwindow | return | endif
+    " let mo   = ' %{mode()} '                        " buffer mode
+    let mo   = ' %{g:currentmode[mode()]} '         " buffer mode
+    let pst  = '%{&paste!=#"paste"? "| paste ":""}' " paste state
+    let bnum = '| %n '                              " buffer number
+    let gbr  = GitBranch()                          " git branch
+    let ro   = '%{&ro!=#""?"| RO ":""}'             " read only flag
+    let fil  = '| %t '                              " tail of filename
+    let md   = '%{&modified?"+":""}'                " modified flag
+    let sep  = ' %= '                               " separator
+    let ff   = '%{&ff} '                            " file format
+    let fe   = '| %{&fenc?&fenc:&enc} '             " file encoding
+    let ft   = '| %{&ft!=#""?&ft:"no ft"} '         " filetype
+    let fs   = '| %{FileSize()} '                   " file size
+    let pct  = '| %3p%% '                           " percent through file
+    let pos  = '| %3l:%-2v '                        " cursor column
+    return mo.pst.bnum.gbr.ro.fil.md.sep.ff.fe.ft.fs.pct.pos
 endfunction
 
-let &statusline = s:statusline()
+let &statusline = Statusline()
 
 " complete
 augroup complete
@@ -254,6 +256,15 @@ augroup complete
           \    setlocal omnifunc=syntaxcomplete#Complete |
           \ endif
 augroup end
+
+" auto pair
+inoremap " ""<left>
+inoremap ' ''<left>
+inoremap ( ()<left>
+inoremap [ []<left>
+inoremap { {}<left>
+inoremap {<CR> {<CR>}<ESC>O
+inoremap {;<CR> {<CR>};<ESC>O
 
 " ============> Custom <============
 
