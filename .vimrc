@@ -98,8 +98,6 @@ else
 endif
 set history=10000                           " set how many lines of command history vim has to remember
 
-let &errorfile = s:vimdir . '/error'        " name of the errorfile for the quickfix mode
-
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 
 if has('patch-8.1.1564')
@@ -618,22 +616,20 @@ augroup END
 silent! colorscheme base16-materia
 
 " ----> Highlights
-" Highlight some special strings
-highlight ToDo cterm=bold term=bold ctermbg=yellow ctermfg=black
-match ToDo /\(TODO\)/
-augroup hilightSpecialStrings
-    autocmd!
-    autocmd WinEnter * match ToDo /\(TODO\)/
-augroup END
-
 " Some custom highlights
-highlight Normal guibg=black ctermbg=black
-highlight LineNr guibg=black ctermbg=black
-highlight SignColumn guibg=black ctermbg=black
+function! MyHighlights() abort
+    highlight Normal guibg=black ctermbg=black
+    highlight LineNr guibg=black ctermbg=black
+    highlight SignColumn guibg=black ctermbg=black
+endfunction
+
+augroup Highlights
+    autocmd!
+    autocmd VimEnter,ColorScheme * call MyHighlights()
+augroup END
 
 " ----> Keyboard
 let mapleader = ','     " set vim map leader
-let g:mapleader = ','
 
 nnoremap <silent> <space>n :nohlsearch<cr>  " turn off search highlight
 
@@ -693,12 +689,12 @@ noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
 nnoremap <silent> <space>t :terminal<cr><c-w>L
 
 " Hex read
-nmap <silent> <space>hr :%!xxd<cr> :set filetype=xxd<cr>
+nnoremap <silent> <space>hr :%!xxd<cr> :set filetype=xxd<cr>
 " Hex write
-nmap <silent> <space>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
+nnoremap <silent> <space>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
 
 " Map w!! to write file with sudo
-cmap w!! w !sudo tee % >/dev/null
+cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 
 " Toggle displaying non-printable characters
 nnoremap <silent> <space>l :set list!<cr>
