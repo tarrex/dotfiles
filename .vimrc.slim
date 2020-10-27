@@ -430,18 +430,18 @@ nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 " ----> Toggle Quickfix / LocationList window
 function! QuickfixToggle() abort
     if len(filter(getwininfo(), 'v:val.quickfix'))
-        cclose
+        silent! cclose
     else
-        copen 6
+        silent! copen 6
     endif
 endfunction
 nnoremap <silent> <space>, :call QuickfixToggle()<cr>
 
 function! LocationToggle() abort
     if len(filter(getwininfo(), 'v:val.loclist'))
-        lclose
+        silent! lclose
     else
-        lopen 6
+        silent! lopen 6
     endif
 endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
