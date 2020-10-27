@@ -16,9 +16,8 @@
         "javascript",
         "typescript",
         "json",
-        "graphql",
-        "markdown",
-        "python"
+        "yaml",
+        "markdown"
     ],
     "coc.preferences.rootPatterns": [
         ".vim",
