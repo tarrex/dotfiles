@@ -714,7 +714,7 @@ noremap <silent><space>] :vertical resize +2<cr>
 
 " ----> Tricks
 " Switch to working directory of the open file
-autocmd! BufEnter * lcd %:p:h
+autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
 
 " Trim trailing whitespace on write
 autocmd! BufWritePre * :%s/\s\+$//e
