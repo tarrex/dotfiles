@@ -370,13 +370,6 @@ autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
 " Trim trailing whitespace on write
 autocmd! BufWritePre * :%s/\s\+$//e
 
-" Terminal setting
-if has('terminal') && exists(':terminal') == 2
-    if exists('##TerminalOpen')
-        autocmd! TerminalOpen * setlocal nonumber signcolumn=no
-    endif
-endif
-
 " Remember cursor position
 autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
