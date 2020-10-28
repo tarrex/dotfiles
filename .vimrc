@@ -629,22 +629,21 @@ augroup Highlights
 augroup END
 
 " ----> Keyboard
-let mapleader = ','     " set vim map leader
+let mapleader = ','                     " set vim map leader
 
-nnoremap <silent> <space>n :nohlsearch<cr>  " turn off search highlight
+nnoremap <leader>tc :tabclose<cr>       " close tab
+nnoremap <leader>tn :tabnext<cr>        " go to next tab
+nnoremap <leader>tp :tabprevious<cr>    " go to previous tab
+nnoremap <leader>te :tabnew<cr>         " create new tab
 
-nnoremap <leader>tc :tabclose<cr>           " close tab
-nnoremap <leader>tn :tabnext<cr>            " go to next tab
-nnoremap <leader>tp :tabprevious<cr>        " go to previous tab
-nnoremap <leader>te :tabnew<cr>             " create new tab
+nnoremap <leader>bp :bprevious<cr>      " go to previous buffer
+nnoremap <leader>bn :bnext<cr>          " go to next buffer
+nnoremap <leader>bd :bdelete<cr>        " close the current buffer
+nnoremap <leader>bl :buffers<cr>        " list buffers
+nnoremap <leader>bg :buffer             " go to given buffer number
 
-nnoremap <leader>bp :bprevious<cr>          " go to previous buffer
-nnoremap <leader>bn :bnext<cr>              " go to next buffer
-nnoremap <leader>bd :bdelete<cr>            " close the current buffer
-nnoremap <leader>bl :buffers<cr>            " list buffers
-nnoremap <leader>bg :buffer                 " go to given buffer number
-
-nnoremap <silent> <leader>s :setlocal spell! spelllang=en_us<cr>   " set spell shortcut
+" Toggle spell check for en_us
+nnoremap <silent> <leader>s :setlocal spell! spelllang=en_us<cr>
 
 cnoreabbrev W! w!   " easy exit vim
 cnoreabbrev Q! q!
@@ -686,6 +685,10 @@ vnoremap K :m '<-2<cr>gv=gv
 noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
 noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
 
+" Turn off search highlight
+nnoremap <silent> <space>n :nohlsearch<cr>
+
+" Open terminal on the right
 nnoremap <silent> <space>t :terminal<cr><c-w>L
 
 " Hex read
@@ -729,17 +732,10 @@ let g:netrw_altv = 1
 let g:netrw_winsize = 25
 let g:netrw_list_hide = &wildignore
 function! NetrwToggle() abort
-    let i = bufnr('$')
-    let wasOpen = 0
-    while (i >= 1)
-        if (getbufvar(i, '&filetype') == 'netrw')
-            silent exe 'bwipeout ' . i
-            let wasOpen = 1
-        endif
-        let i-=1
-    endwhile
-    if !wasOpen
-        silent Lexplore
+    if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
+        silent! exe "bd" . g:netrw_buffer | unlet g:netrw_buffer
+    else
+        silent! Lexplore | let g:netrw_buffer=bufnr("%")
     endif
 endfunction
 noremap <silent> <s-f> :call NetrwToggle()<cr>
