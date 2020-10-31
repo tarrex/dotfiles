@@ -152,7 +152,7 @@ set wildignore+=*.dex,*.a,*.pdb,*.lib,*.gem,*.test,*.swp,*.app
 set wildignore+=*.log,*.sqlite*,*.min.js,*.min.css,*.map,*.tags,*.lock
 set wildignore+=*.png,*.jpg,*.jpeg,*.gif,*.bmp,*.tiff,*.webp,*.ico
 set wildignore+=*.zip,*.[rt]ar,*.[7gx]z,*.gzip,*.bz2,*.tgz,*.[di]mg,*.iso
-set wildignore+=*.avi,*.mp[4v],*.m[4k]v,*.f[4l]v,*.rm,*.rmvb,*.ts,*.wmv
+set wildignore+=*.avi,*.mp[4v],*.m[4k]v,*.f[4l]v,*.rm,*.rmvb,*.wmv
 set wildignore+=*.aac,*.ape,*.flac,*.mp3,*.ogg,*.wav,*.wma,*.webm
 set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf,*.azw*,*.xps
 set wildignore+=*.ppt*,*.doc*,*.xls*,*.od[tspg],*.pages,*.numbers,*.key,*.wps
@@ -625,7 +625,7 @@ endfunction
 
 augroup Highlights
     autocmd!
-    autocmd VimEnter,ColorScheme * call MyHighlights()
+    autocmd SourcePost,ColorScheme * call MyHighlights()
 augroup END
 
 " ----> Keyboard
