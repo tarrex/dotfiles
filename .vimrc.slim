@@ -400,18 +400,17 @@ endfunction
 noremap <silent> <s-f> :call NetrwToggle()<cr>
 
 " ----> Zen mode
-let s:zen_mode=0
 function! ZenModeToggle() abort
-    if s:zen_mode==0
-        let s:zen_mode=1
-        set nosmd noru nosc nonu ls=0
-        syntax off
-        highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
-    else
-        let s:zen_mode=0
+    if exists('s:zen_mode')
         set smd ru sc nu ls=2
         highlight clear Normal
         syntax on
+        unlet s:zen_mode
+    else
+        set nosmd noru nosc nonu ls=0
+        syntax off
+        highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
+        let s:zen_mode = 1
     endif
 endfunction
 nnoremap <silent> <space>z :call ZenModeToggle()<cr>
