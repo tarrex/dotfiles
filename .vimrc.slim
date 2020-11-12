@@ -126,7 +126,7 @@ set visualbell t_vb=            " no beep or flash is wanted
 set nolist                      " don't display non-printable characters
 set listchars+=extends:>        " unwrapped text to screen right
 set listchars+=precedes:<       " unwrapped text to screen left
-set listchars+=tab:>-           " tab characters, preserve width
+set listchars+=tab:\|-          " tab characters, preserve width
 set listchars+=trail:_          " trailing spaces
 set listchars+=nbsp:+           " non-breaking spaces
 
@@ -361,10 +361,14 @@ nnoremap <silent> <space>l :set list!<cr>
 nnoremap <silent> <space>w :set wrap! wrap?<cr>
 
 " Resize window
-noremap <silent><space>- :resize -2<cr>
-noremap <silent><space>= :resize +2<cr>
-noremap <silent><space>[ :vertical resize -2<cr>
-noremap <silent><space>] :vertical resize +2<cr>
+noremap <silent> <space>- :resize -2<cr>
+noremap <silent> <space>= :resize +2<cr>
+noremap <silent> <space>[ :vertical resize -2<cr>
+noremap <silent> <space>] :vertical resize +2<cr>
+noremap <silent> <space>/ :wincmd =<cr>
+
+" Rotate tab size
+nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
 
 " ----> Tricks
 " Switch to working directory of the open file
