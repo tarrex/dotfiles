@@ -194,6 +194,7 @@ Plug 'vim-scripts/scrollcolors'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'tpope/vim-fugitive'
 Plug 'majutsushi/tagbar'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'mbbill/undotree'
@@ -216,12 +217,11 @@ let g:lightline = {
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'bufnum' ],
-    \           [ 'gitbranch', 'readonly', 'filename' ] ],
+    \           [ 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'linter', 'fileformat', 'fileencoding', 'filetype', 'filesize' ],
-    \            [ 'tagbar' ],
-    \            [ 'blame' ] ]
+    \            [ 'tagbar' ]]
     \ },
     \ 'inactive': {
     \   'left': [ [ 'filename' ]],
@@ -232,8 +232,6 @@ let g:lightline = {
     \ 'component_function': {
     \   'filename': 'LightlineFilename',
     \   'linter': 'LightlineLinter',
-    \   'gitbranch': 'LightlineGitBranch',
-    \   'blame': 'LightlineGitBlame',
     \   'filesize': 'LightlineFileSize'
     \ },
     \ 'component': {
@@ -290,20 +288,6 @@ function! LightlineLinter() abort
         \ all_non_errors,
         \ all_errors
     \ )
-endfunction
-
-function! LightlineGitBranch() abort
-    let branch = get(g:, 'coc_git_status', '')
-    return len(branch) > 14 ? branch[0:14] . '...' : branch
-endfunction
-
-function! LightlineGitBlame() abort
-    let blame = get(b:, 'coc_git_blame', '')
-    if winwidth(0) > 120 && len(blame) > 0
-        return split(blame, ')')[0] . ')'
-    else
-        return ''
-    endif
 endfunction
 
 " ----> easymotion/vim-easymotion
@@ -437,6 +421,7 @@ augroup CocFormat
     autocmd!
     " Setup formatexpr specified filetype(s).
     autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+    autocmd FileType scss setl iskeyword+=@-@
     " Update signature help on jump placeholder.
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end

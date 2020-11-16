@@ -207,19 +207,6 @@ function! FileSize() abort
     endif
 endfunction
 
-" git branch
-function! GitBranch()
-    if !executable('git')
-        return ''
-    endif
-    let l:dir = expand('%:p:h')
-    let l:gitrevparse = system('git -C '.l:dir.' rev-parse --abbrev-ref HEAD')
-    if !v:shell_error
-        return '| '.trim(l:gitrevparse).' '
-    else
-        return ''
-    endif
-endfunction
 
 " statusline
 function! Statusline() abort
@@ -228,7 +215,6 @@ function! Statusline() abort
     let mo   = ' %{g:currentmode[mode()]} '         " buffer mode
     let pst  = '%{&paste!=#"paste"? "| paste ":""}' " paste state
     let bnum = '| %n '                              " buffer number
-    let gbr  = GitBranch()                          " git branch
     let ro   = '%{&ro!=#""?"| RO ":""}'             " read only flag
     let fil  = '| %t '                              " tail of filename
     let md   = '%{&modified?"+":""}'                " modified flag
@@ -239,7 +225,7 @@ function! Statusline() abort
     let fs   = '| %{FileSize()} '                   " file size
     let pct  = '| %3p%% '                           " percent through file
     let pos  = '| %3l:%-2v '                        " cursor column
-    return mo.pst.bnum.gbr.ro.fil.md.sep.ff.fe.ft.fs.pct.pos
+    return mo.pst.bnum.ro.fil.md.sep.ff.fe.ft.fs.pct.pos
 endfunction
 
 let &statusline = Statusline()
@@ -272,6 +258,9 @@ silent! colorscheme desert
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
+    highlight Normal guibg=black ctermbg=black
+    highlight LineNr guibg=black ctermbg=black
+    highlight SignColumn guibg=black ctermbg=black
     highlight Statusline guifg=gray18 guibg=yellow ctermfg=black ctermbg=yellow
     highlight StatuslineNC guifg=gray18 guibg=yellow ctermfg=black ctermbg=yellow
     highlight StatuslineTerm guifg=gray18 guibg=yellow ctermfg=black ctermbg=yellow
