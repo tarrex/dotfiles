@@ -219,13 +219,13 @@ function! Statusline() abort
     let fil  = '| %t '                              " tail of filename
     let md   = '%{&modified?"+":""}'                " modified flag
     let sep  = ' %= '                               " separator
-    let ff   = '%{&ff} '                            " file format
+    let fs   = '%{FileSize()} '                     " file size
+    let ff   = '| %{&ff} '                          " file format
     let fe   = '| %{&fenc?&fenc:&enc} '             " file encoding
     let ft   = '| %{&ft!=#""?&ft:"no ft"} '         " filetype
-    let fs   = '| %{FileSize()} '                   " file size
     let pct  = '| %3p%% '                           " percent through file
     let pos  = '| %3l:%-2v '                        " cursor column
-    return mo.pst.bnum.ro.fil.md.sep.ff.fe.ft.fs.pct.pos
+    return mo.pst.bnum.ro.fil.md.sep.fs.ff.fe.ft.pct.pos
 endfunction
 
 let &statusline = Statusline()

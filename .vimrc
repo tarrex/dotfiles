@@ -220,7 +220,7 @@ let g:lightline = {
     \           [ 'readonly', 'filename' ] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
-    \            [ 'linter', 'fileformat', 'fileencoding', 'filetype', 'filesize' ],
+    \            [ 'linter', 'filesize', 'fileformat', 'fileencoding', 'filetype' ],
     \            [ 'tagbar' ]]
     \ },
     \ 'inactive': {
