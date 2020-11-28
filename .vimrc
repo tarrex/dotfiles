@@ -204,6 +204,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
 Plug 'rust-lang/rust.vim', {'for': 'rust'}
+Plug 'tarrex/nginx.vim', {'for': 'nginx'}
 
 call plug#end()
 
