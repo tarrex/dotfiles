@@ -4,13 +4,13 @@
 [core]
     editor = vim
     pager = less -FRX
-    excludesFile = ~/.gitignore
+    excludesFile = $XDG_CONFIG_HOME/git/ignore
     whitespace = space-before-tab,-indent-with-non-tab,trailing-space
     trustctime = false
     precomposeunicode = false
     untrackedCache = true
     fileMode = false
-	attributesfile = ~/.gitattributes
+	attributesfile = $XDG_CONFIG_HOME/git/attributes
 [diff]
     tool = vimdiff
 [difftool]
@@ -23,14 +23,12 @@
     ff = false
 [commit]
     gpgSign = false
-    template = ~/.gitmessage
+    template = $XDG_CONFIG_HOME/git/message
 [push]
     default = simple
     followTags = false
 [status]
     showUntrackedFiles = all
-[transfer]
-    fsckobjects = false
 [gist]
     private = yes
 [github]
@@ -86,3 +84,5 @@
     autocorrect = 1
 [apply]
     whitespace = fix
+[http]
+	postBuffer = 524288000

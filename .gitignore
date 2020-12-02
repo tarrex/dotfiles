@@ -1,7 +1,2 @@
 *.DS_Store
 Thumbs.db
-
-*.o
-*.out
-*.py[cod]
-*.class
