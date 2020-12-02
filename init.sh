@@ -1,22 +1,33 @@
 # Personal shell initial file
 
-# avoid duplicated load
+# ========== Pre check ==========
+# avoid init.sh duplicated load
 if [ -z "$_INIT_SH_LOADED" ]; then
     _INIT_SH_LOADED=1
 else
     return
 fi
 
-# return if non-interactive shell
+# return if not running interactively
 case "$-" in
     *i*) ;;
     *) return
 esac
 
-# get os
-OS=$(command uname -s 2> /dev/null)
+# common variable
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
+if [[ ! -d $BASH_CACHE_DIR ]]; then
+    command mkdir -p "$BASH_CACHE_DIR"
+fi
+export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
+if [[ ! -d $ZSH_CACHE_DIR ]]; then
+    command mkdir -p "$ZSH_CACHE_DIR"
+fi
 
-# ========== functions ==========
+# ========== Functions ==========
 # fish like collapse pwd
 function _fish_collapsed_pwd() {
     local pwd="$1"
@@ -79,7 +90,11 @@ function _git_prompt() {
 # return value
 function _retval() {
 	local RETVAL=$?
-	[ $RETVAL -ne 0 ] && echo "$RETVAL"
+	if [ $RETVAL -ne 0 ]; then
+        echo " $RETVAL"
+    else
+        echo ""
+    fi
 }
 
 # colored man pages
@@ -96,127 +111,263 @@ man() {
         command man "$@"
 }
 
-# ========== shell options ==========
+# display shell startup time
+timeshell() {
+    shell=${1-$SHELL}
+    echo "Timing $shell:"
+    for i in $(seq 1 5); do /usr/bin/time $shell -i -c exit; done
+}
+
+# ========== Prompt ==========
 if [ -n "$BASH_VERSION" ]; then
     if [ $UID -eq 0 ]; then
-        export PS1=' \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
+        export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
     else
-        export PS1=' \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
+        export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
     if [ $UID -eq 0 ]; then
-        export PROMPT='%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
+        export PROMPT='%f %F{190}λ%f%F{9}$(_retval)%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
     else
-        export PROMPT='%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
+        export PROMPT='%f %F{190}λ%f%F{9}$(_retval)%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
     fi
-    export RPROMPT="%F{red}%(?..%?)%f"
-    # RPROMPT='[%F{yellow}%?%f]'
+    # export RPROMPT="%F{9}%(?..%?)%f"
 fi
 
+# ========== Shell config ==========
 # BASH
 if [ -n "$BASH_VERSION" ]; then
-    bind '"\e[A": history-search-backward'
-    bind '"\e[B": history-search-forward'
-
-    export HISTCONTROL=ignoredups
-
+    # -----> options
     shopt -s checkwinsize
+    shopt -s extglob
+    shopt -s nullglob
+    shopt -s nocaseglob
     shopt -s nocasematch
+
+    shopt -u failglob
     if [ "${BASH_VERSINFO:-0}" -ge 4 ]; then
         shopt -s autocd
     fi
+
+    # -----> key bindings
+    bind '"\eh": "\C-b"'
+	bind '"\el": "\C-f"'
+	bind '"\ej": "\C-n"'
+	bind '"\ek": "\C-p"'
+	bind '"\eH": "\eb"'
+	bind '"\eL": "\ef"'
+	bind '"\eJ": "\C-a"'
+	bind '"\eK": "\C-e"'
+	bind '"\e;":"ll\n"'
+    bind '"\e[A": history-search-backward'
+    bind '"\e[B": history-search-forward'
+
+    # -----> env
+    export HISTTIMEFORMAT='%F %T '
+    export HISTCONTROL=ignoredups
 fi
 
 # ZSH
 if [ -n "$ZSH_VERSION" ]; then
-    # -----> ZSH options
-    setopt append_history           # append history list to the history file.
-    setopt share_history            # import new commands from the history file also in other zsh-session.
-    setopt extended_history         # save each command's beginning timestamp and the duration to the history file.
-    setopt hist_ignore_all_dups     # if a new command line being added to the history list duplicates an older one, the older command is removed from the list.
-    setopt hist_ignore_space        # remove command lines from the history list when the first character on the line is a space.
-    setopt auto_cd                  # if the command is the name of a directory, perform the cd command to that directory.
-    setopt extended_glob            # in order to use #, ~ and ^ for filename generation grep word.
-    setopt longlistjobs             # display PID when suspending processes as well.
-    setopt notify                   # report the status of backgrounds jobs immediately.
-    setopt hash_list_all            # whenever a command completion is attempted, make sure the entire command path is hashed first.
-    setopt completeinword           # not just at the end.
-    # setopt nohup                    # don't send SIGHUP to background processes when the shell exits.
-    setopt auto_pushd               # make cd push the old directory onto the directory stack.
-    unsetopt beep                   # avoid beeping.
-    setopt pushd_ignore_dups        # don't push the same dir twice.
-    unsetopt glob_dots              # * shouldn't match dotfiles. ever.
-    unsetopt sh_word_split          # use zsh style word splitting
+    # -----> options
+    # general
+    setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
+    setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
+    setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
+    setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
+    unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
 
-    setopt hist_expire_dups_first   # delete duplicates first when HISTFILE size exceeds HISTSIZE
-    setopt hist_verify              # show command with history expansion to user before running it
+    # jobs
+    setopt LONG_LIST_JOBS           # List jobs in the long format by default.
+    setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
+    setopt NOTIFY                   # Report status of background jobs immediately.
+    unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
+    unsetopt HUP                    # Don't kill jobs on shell exit.
+    unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
 
-    setopt pushdminus
+    # completion
+    setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
+    setopt ALWAYS_TO_END            # Move cursor to the end of a completed word.
+    setopt PATH_DIRS                # Perform path search even on command names with slashes.
+    setopt AUTO_MENU                # Show completion menu on a successive tab press.
+    setopt AUTO_LIST                # Automatically list choices on ambiguous completion.
+    setopt AUTO_PARAM_SLASH         # If completed parameter is a directory, add a trailing slash.
+    unsetopt MENU_COMPLETE          # Do not autoselect the first completion entry.
+    unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
+    unsetopt CASE_GLOB              # Make globbing (filename generation) sensitive to case.
 
-    setopt inc_append_history
-    setopt complete_aliases
-    setopt multios
-    setopt prompt_subst
+    # history
+    setopt BANG_HIST                # Treat the '!' character specially during expansion.
+    setopt EXTENDED_HISTORY         # Write the history file in the ':start:elapsed;command' format.
+    setopt SHARE_HISTORY            # Share history between all sessions.
+    setopt HIST_EXPIRE_DUPS_FIRST   # Expire a duplicate event first when trimming history.
+    setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
+    setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
+    setopt HIST_FIND_NO_DUPS        # Do not display a previously found event.
+    setopt HIST_IGNORE_SPACE        # Do not record an event starting with a space.
+    setopt HIST_SAVE_NO_DUPS        # Do not write a duplicate event to the history file.
+    setopt HIST_VERIFY              # Do not execute immediately upon history expansion.
+    unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
 
-    setopt listpacked
-    setopt magic_equal_subst
+    # editor
+    unsetopt BEEP                   # Do not beep on error in line editor.
 
-    setopt interactive_comments
+    # directory
+    setopt AUTO_CD                  # Auto changes to a directory without typing cd.
+    setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
+    setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
+    setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
+    setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
+    setopt CDABLE_VARS              # Change directory to a path stored in a variable.
+    setopt MULTIOS                  # Write to multiple descriptors.
+    unsetopt CLOBBER                # Do not overwrite existing files with > and >>. Use >! and >>! to bypass.
 
-    setopt transient_rprompt
+    # prompt
+    setopt PROMPT_SUBST             # If set, parameter expansion, command substitution and arithmetic expansion are performed in prompts.
 
-    # -----> Completion
-    autoload -Uz compinit && compinit
-    zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-    zstyle ':completion:*' menu select
-    zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
+    # setopt append_history           # append history list to the history file.
+    # setopt hash_list_all            # whenever a command completion is attempted, make sure the entire command path is hashed first.
+    # unsetopt glob_dots              # * shouldn't match dotfiles. ever.
+    # unsetopt sh_word_split          # use zsh style word splitting
+    # unsetopt nomatch
+    # setopt null_glob
+    # setopt pushdminus
+    # setopt inc_append_history
+    # setopt complete_aliases
+    # setopt listpacked
+    # setopt magic_equal_subst
+    # setopt transient_rprompt
+
+    # -----> alias
+    alias d='dirs -v'
+    for index in $(seq 1 9); do alias "$index"="cd +${index}"; unset index; done
+
+    # -----> completion
+    # Load and initialize the completion system ignoring insecure directories with a
+    # cache time of 20 hours, so it should almost always regenerate the first time a
+    # shell is opened each day.
+    autoload -Uz compinit
+    _comp_path="$ZSH_CACHE_DIR/zcompdump"
+    # #q expands globs in conditional expressions
+    # if [[ $_comp_path(#qNmh-20) ]]; then
+    #     # -C (skip function check) implies -i (skip security check).
+    #     compinit -C -d "$_comp_path"
+    # else
+    #     command mkdir -p "$_comp_path:h"
+    #     compinit -i -d "$_comp_path"
+    # fi
+    compinit -C -d "$_comp_path"
+    unset _comp_path
+
+    # use a cache in order to make completion for commands such as dpkg and apt usable.
+    zstyle ':completion::complete:*' use-cache on
+    zstyle ':completion::complete:*' cache-path "$ZSH_CACHE_DIR"
+    unset _CACHE_DIR
+
+    # case-insensitive (all), partial-word, and then substring completion.
+    zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+    # group matches and describe.
+    zstyle ':completion:*:*:*:*:*' menu select
+    zstyle ':completion:*:matches' group 'yes'
+    zstyle ':completion:*:options' description 'yes'
+    zstyle ':completion:*:options' auto-description '%d'
+    zstyle ':completion:*:corrections' format ' %F{93}-- %d (errors: %e) --%f'
+    zstyle ':completion:*:descriptions' format ' %F{2}-- %d --%f'
+    zstyle ':completion:*:messages' format ' %F{8} -- %d --%f'
+    zstyle ':completion:*:warnings' format ' %F{9}-- no matches found --%f'
+    zstyle ':completion:*:default' list-prompt '%S%M matches%s'
+    zstyle ':completion:*' format ' %F{8}-- %d --%f'
+    zstyle ':completion:*' group-name ''
+    zstyle ':completion:*' verbose yes
+
+    # Fuzzy match mistyped completions.
+    zstyle ':completion:*' completer _complete _match _approximate
+    zstyle ':completion:*:match:*' original only
+    zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+    # increase the number of errors based on the length of the typed word. But make
+    # sure to cap (at 7) the max-errors to avoid hanging.
+    zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
+
+    # don't complete unavailable commands.
+    zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+
+    # array completion element sorting.
+    zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
+
+    # directories
+    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+    zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
+    zstyle ':completion:*:*:cd:*:directory-stack' menu yes select
+    zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
+    zstyle ':completion:*' squeeze-slashes true
+
+    # history
+    zstyle ':completion:*:history-words' stop yes
+    zstyle ':completion:*:history-words' remove-all-dups yes
+    zstyle ':completion:*:history-words' list false
+    zstyle ':completion:*:history-words' menu yes
+
+    # environment variables
+    zstyle ':completion::*:(-command-|export):*' fake-parameters ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-}
+
+    # hostname
+    zstyle -e ':completion:*:hosts' hosts 'reply=(
+        ${=${=${=${${(f)"$(cat {/etc/ssh/ssh_,~/.ssh/}known_hosts(|2)(N) 2> /dev/null)"}%%[#| ]*}//\]:[0-9]*/ }//,/ }//\[/ }
+        ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2> /dev/null))"}%%(\#${_etc_host_ignores:+|${(j:|:)~_etc_host_ignores}})*}
+        ${=${${${${(@M)${(f)"$(cat ~/.ssh/config 2> /dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
+    )'
+
+    # don't complete uninteresting users...
+    zstyle ':completion:*:*:*:users' ignored-patterns \
+        adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
+        dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
+        hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
+        mailman mailnull mldonkey mysql nagios \
+        named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
+        operator pcap postfix postgres privoxy pulse pvm quagga radvd \
+        rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*'
+    # ... unless we really want to.
+    zstyle '*' single-ignored show
+
+    # ignore multiple entries.
+    zstyle ':completion:*:(rm|kill|diff):*' ignore-line other
+    zstyle ':completion:*:rm:*' file-patterns '*:all-files'
+
+    # kill
+    zstyle ':completion:*:*:*:*:processes' command 'ps -u $LOGNAME -o pid,user,command -w'
+    zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
+    zstyle ':completion:*:*:kill:*' menu yes select
+    zstyle ':completion:*:*:kill:*' force-list always
+    zstyle ':completion:*:*:kill:*' insert-ids single
+
+    # man
+    zstyle ':completion:*:manuals' separate-sections true
+    zstyle ':completion:*:manuals.(^1*)' insert-sections true
+
+    # ssh/scp/rsync
+    zstyle ':completion:*:(ssh|scp|rsync):*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
+    zstyle ':completion:*:(scp|rsync):*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
+    zstyle ':completion:*:ssh:*' group-order users hosts-domain hosts-host users hosts-ipaddr
+    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
+    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
+    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
+
     zstyle ':completion:*' rehash true
-    zstyle ':completion:*' special-dirs ..                          # provide .. as a completion
+    zstyle ':completion:*' special-dirs ..
 
-
-    # current user process pid
-    zstyle ':completion:*:processes' command 'ps -afu$USER'
-    zstyle ':completion:*:*:*:*:processes' force-list always
-    # provide more processes in completion of programs like killall:
-    zstyle ':completion:*:processes-names' command 'ps c -u ${USER} -o command | uniq'
-
-    # set format for warnings
-    zstyle ':completion:*:warnings' format $'\e[91m -- No Matches Found --\e[0m'
-    # set format for completion descriptions
-    zstyle ':completion:*:descriptions' format $'\e[2m -- %d --\e[0m'
     # start menu completion only if it could find no unambiguous initial string
     zstyle ':completion:*:correct:*' insert-unambiguous true
     zstyle ':completion:*:correct:*' original true
-    zstyle ':completion:*:corrections' format $'\e[93m -- %d (errors: %e) --\e[0m'
 
-    zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
     zstyle ':completion:*:cd:*' ignore-parents parent pwd
-
-    # allow one error for every three characters typed in approximate completer
-    zstyle ':completion:*:approximate:'    max-errors 'reply=( $((($#PREFIX+$#SUFFIX)/3 )) numeric )'
 
     # don't complete backup files as executables
     zstyle ':completion:*:complete:-command-::commands' ignored-patterns '(aptitude-*|*\~)'
 
-    zstyle ':completion:*:matches'         group 'yes'
-    zstyle ':completion:*'                 group-name ''
-
-    zstyle ':completion:*:messages'        format '%d'
-    zstyle ':completion:*:options'         auto-description '%d'
-
-    # describe options in full
-    zstyle ':completion:*:options'         description 'yes'
-
-    # provide verbose completion information
-    zstyle ':completion:*'                 verbose true
-
     # ignore completion functions for commands you don't have:
     zstyle ':completion::(^approximate*):*:functions' ignored-patterns '_*'
-
-    # complete manual by their section
-    zstyle ':completion:*:manuals'    separate-sections true
-    zstyle ':completion:*:manuals.*'  insert-sections   true
-    zstyle ':completion:*:man:*'      menu yes select
 
     # search path for sudo completion
     zstyle ':completion:*:sudo:*' command-path /usr/local/sbin \
@@ -224,20 +375,9 @@ if [ -n "$ZSH_VERSION" ]; then
                                                /usr/sbin       \
                                                /usr/bin        \
                                                /sbin           \
-                                               /bin            \
-                                               /usr/X11R6/bin
+                                               /bin
 
-
-    # some functions, like _apt and _dpkg, are very slow. We can use a cache in order to speed things up
-    _CACHE_DIR=$HOME/.cache/zsh
-    if [[ ! -d $_CACHE_DIR ]]; then
-        command mkdir -p "$_CACHE_DIR"
-    fi
-    zstyle ':completion:*' use-cache on
-    zstyle ':completion:*:complete:*' cache-path "$_CACHE_DIR"
-    unset _CACHE_DIR
-
-    # -----> Key bindings
+    # -----> key bindings
     bindkey -e              # Use Emacs key bindings
 
     # create a zkbd compatible hash;
@@ -311,30 +451,40 @@ if [ -n "$ZSH_VERSION" ]; then
     bindkey '\C-x\C-e' edit-command-line
 fi
 
-# ========== export options ==========
+# ========== Variables ==========
 
-#LSCOLORS
+# LSCOLORS highlight
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
 # History
 export HISTSIZE=100000
 if [ -n "$ZSH_VERSION" ]; then
-    export HISTFILE="$HOME/.zsh_history"
+    export HISTFILE="$ZSH_CACHE_DIR/.zsh_history"
 elif [ -n "$BASH_VERSION" ]; then
-    export HISTFILE="$HOME/.bash_history"
+    export HISTFILE="$BASH_CACHE_DIR/.bash_history"
 else
     export HISTFILE="$HOME/.history"
 fi
 export SAVEHIST=$HISTSIZE
 
-# ENV
+# Editor
 export EDITOR='vim'
-export GIT_EDITOR='vim'
+export VISUAL='vim'
+export GIT_EDITOR=$EDITOR
+
+# Shell
 export SHELL='/bin/zsh'
 
-# Locale
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
+# Language
+if [[ -z "$LANG" ]]; then
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+fi
+
+# Browser
+if [[ "$OSTYPE" == darwin* ]]; then
+    export BROWSER='open'
+fi
 
 # ~/.local/bin
 if [ -d "$HOME/.local/bin" ]; then
@@ -343,7 +493,7 @@ fi
 
 # Golang
 # export GO111MODULE=on
-if [[ $OS == "Linux" ]]; then
+if [[ "$OSTYPE" == linux* ]]; then
     export GOROOT=/usr/local/go
 fi
 if [ -d "$HOME/Projects/Go" ]; then
@@ -356,7 +506,7 @@ fi
 export PYTHON_CONFIGURE_OPTS="--enable-framework"
 
 # Brew
-if [[ $OS == "Darwin" ]]; then
+if [[ "$OSTYPE" == darwin* ]]; then
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
     # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
@@ -374,7 +524,7 @@ if [ -d "$HOME/.cargo" ]; then
 fi
 
 # Java
-if [[ $OS == "Darwin" ]]; then
+if [[ "$OSTYPE" == darwin* ]]; then
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home"
     export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
     export PATH="$JAVA_HOME/bin:$PATH"
@@ -405,19 +555,22 @@ if [ -n "$PATH" ]; then
 fi
 export PATH
 
-# ========== alias options ==========
+# ========== Alias ==========
+# LS
 alias ls='ls -Gh'
 alias ll='ls -Ghl'
 alias la='ls -aGhl'
 
+# Vim
 alias vimrc='vim ~/.vimrc'
 
-alias workbench='tmux -2 new -A -c ~/Workspace/Github -s Workbench'
+# Tmux
+alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
 
+# Golang
 alias gohere='export GOPATH=`pwd`'
-alias gohome='export GOPATH=$GOBASEPATH'
+alias gobase='export GOPATH=$GOBASEPATH'
 
-alias tmux='tmux -2'
 alias serve='python3 -m http.server 8000'
 
 # Tools
@@ -430,6 +583,7 @@ alias randname='curl pseudorandom.name'
 # Cmd
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 alias cmdrank='history | awk '\''{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}'\'' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10'
+alias histat="history 0 | awk '{print \$2}' | sort | uniq -c | sort -n -r | head"
 
 # Proxy
 http_proxy="127.0.0.1:7890"
@@ -439,26 +593,19 @@ alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks
 
 # Typora
 alias typora="open -a typora"
-newDiary() {
-    cd ~/Personal/PersonalDiary/diary/$(date +"%Y")/$(date +"%m")
-    diary="$(date +'%F').md"
-    if [ ! -f $diary ]; then
-        touch $diary
-    fi
-    typora $diary
-}
-alias diary='newDiary'
 
-# ========== source ==========
-if [ -f "$HOME/.local/scripts/z.sh" ]; then
-    . $HOME/.local/scripts/z.sh
-else
+# ========== Scripts ==========
+# z.sh
+if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
     echo "z.sh doesn't exists."
     echo "Downloading z.sh from github ..."
     echo `curl -fLo ~/.local/scripts/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
 fi
+. $HOME/.local/scripts/z.sh
+export _Z_CMD=z
+export _Z_DATA=$XDG_CACHE_HOME/.z
 
-# ========== tools configuration ==========
+# ========== Tools ==========
 # pyenv configuration
 # To use Homebrew's directories rather than ~/.pyenv add to your profile:
 # export PYENV_ROOT=/usr/local/var/pyenv
@@ -467,5 +614,26 @@ if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 
-# ========== final process ==========
-unset OS
+# ========== Final ==========
+# echo "
+# $(tput cuf 25)$(tput setab 1)FBI WARNING$(tput sgr 0)"
+# echo "
+# $(tput cuf 2)Federal Law provides severe civil and criminal penalties for
+# $(tput cuf 2)the unauthorized reproduction, distribution, or exhibition of
+# $(tput cuf 2)copyrighted motion pictures (Title 17, United States Code,
+# $(tput cuf 2)Sections 501 and 508). The Federal Bureau of Investigation
+# $(tput cuf 2)investigates allegations of criminal copyright infringement"
+# echo "$(tput cuf 10)(Title 17, United States Code, Section 506)."
+# echo ""
+
+# ========== Reference ==========
+# https://zhuanlan.zhihu.com/p/50080614
+# https://zhuanlan.zhihu.com/p/51008087
+# https://wiki.archlinux.org/index.php/zsh
+# https://github.com/ohmyzsh/ohmyzsh
+# https://github.com/sorin-ionescu/prezto
+# https://github.com/rupa/z/blob/master/z.sh
+# http://zsh.sourceforge.net/Doc/Release/Options.html#Options
+# https://thevaluable.dev/zsh-install-configure/
+# https://jonasjacek.github.io/colors/
+# https://blog.skk.moe/post/make-oh-my-zsh-fly/
