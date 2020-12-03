@@ -1,33 +1,40 @@
 # Personal shell initial file
 
-# ========== Pre check ==========
-# avoid init.sh duplicated load
-if [ -z "$_INIT_SH_LOADED" ]; then
-    _INIT_SH_LOADED=1
-else
-    return
-fi
-
-# return if not running interactively
+# ============> Prepare <============
+# if not running interactively, don't do anything
 case "$-" in
     *i*) ;;
-    *) return
+      *) return;
 esac
 
 # common variable
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
-export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
-if [[ ! -d $BASH_CACHE_DIR ]]; then
-    command mkdir -p "$BASH_CACHE_DIR"
-fi
-export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
-if [[ ! -d $ZSH_CACHE_DIR ]]; then
-    command mkdir -p "$ZSH_CACHE_DIR"
+
+if [[ -n "$BASH_VERSION" ]]; then
+    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
+    if [[ ! -d $BASH_CACHE_DIR ]]; then
+        command mkdir -p "$BASH_CACHE_DIR"
+    fi
+    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
+    if [[ ! -d $BASH_CONFIG_DIR ]]; then
+        command mkdir -p "$BASH_CONFIG_DIR"
+    fi
 fi
 
-# ========== Functions ==========
+if [[ -n $ZSH_VERSION ]]; then
+    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
+    if [[ ! -d $ZSH_CACHE_DIR ]]; then
+        command mkdir -p "$ZSH_CACHE_DIR"
+    fi
+    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
+    if [[ ! -d $ZSH_CONFIG_DIR ]]; then
+        command mkdir -p "$ZSH_CONFIG_DIR"
+    fi
+fi
+
+# ============> Functions <============
 # fish like collapse pwd
 function _fish_collapsed_pwd() {
     local pwd="$1"
@@ -115,10 +122,10 @@ man() {
 timeshell() {
     shell=${1-$SHELL}
     echo "Timing $shell:"
-    for i in $(seq 1 5); do /usr/bin/time $shell -i -c exit; done
+    for i in $(seq 1 5); do time $shell -i -c exit; done
 }
 
-# ========== Prompt ==========
+# ============> Prompt <============
 if [ -n "$BASH_VERSION" ]; then
     if [ $UID -eq 0 ]; then
         export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
@@ -127,14 +134,14 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 else
     if [ $UID -eq 0 ]; then
-        export PROMPT='%f %F{190}λ%f%F{9}$(_retval)%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
+        export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
     else
-        export PROMPT='%f %F{190}λ%f%F{9}$(_retval)%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
+        export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
     fi
-    # export RPROMPT="%F{9}%(?..%?)%f"
+    export RPROMPT="%F{9}%(?..%?)%f"
 fi
 
-# ========== Shell config ==========
+# ============> Shell config <============
 # BASH
 if [ -n "$BASH_VERSION" ]; then
     # -----> options
@@ -162,81 +169,81 @@ if [ -n "$BASH_VERSION" ]; then
     bind '"\e[A": history-search-backward'
     bind '"\e[B": history-search-forward'
 
-    # -----> env
+    # -----> history
     export HISTTIMEFORMAT='%F %T '
-    export HISTCONTROL=ignoredups
+    export HISTCONTROL=ignoreboth
 fi
 
 # ZSH
 if [ -n "$ZSH_VERSION" ]; then
     # -----> options
-    # general
-    setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
-    setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
-    setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
-    setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
-    unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
+    # Changing Directories
+    setopt AUTO_CD                  # Auto changes to a directory without typing cd.
+    setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
+    setopt CDABLE_VARS              # Change directory to a path stored in a variable.
+    setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
+    setopt PUSHD_MINUS              #Exchanges the meanings of ‘+’ and ‘-’ when used with a number to specify a directory in the stack.
+    setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
+    setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
 
-    # jobs
-    setopt LONG_LIST_JOBS           # List jobs in the long format by default.
-    setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
-    setopt NOTIFY                   # Report status of background jobs immediately.
-    unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
-    unsetopt HUP                    # Don't kill jobs on shell exit.
-    unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
-
-    # completion
-    setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
+    # Completion
     setopt ALWAYS_TO_END            # Move cursor to the end of a completed word.
-    setopt PATH_DIRS                # Perform path search even on command names with slashes.
-    setopt AUTO_MENU                # Show completion menu on a successive tab press.
     setopt AUTO_LIST                # Automatically list choices on ambiguous completion.
+    setopt AUTO_MENU                # Show completion menu on a successive tab press.
     setopt AUTO_PARAM_SLASH         # If completed parameter is a directory, add a trailing slash.
+    setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
+    setopt LIST_PACKED              #Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
     unsetopt MENU_COMPLETE          # Do not autoselect the first completion entry.
-    unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
+
+    # Expansion and Globbing
+    setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
     unsetopt CASE_GLOB              # Make globbing (filename generation) sensitive to case.
 
-    # history
+    # History
     setopt BANG_HIST                # Treat the '!' character specially during expansion.
     setopt EXTENDED_HISTORY         # Write the history file in the ':start:elapsed;command' format.
-    setopt SHARE_HISTORY            # Share history between all sessions.
     setopt HIST_EXPIRE_DUPS_FIRST   # Expire a duplicate event first when trimming history.
-    setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
-    setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
     setopt HIST_FIND_NO_DUPS        # Do not display a previously found event.
+    setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
+    setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
     setopt HIST_IGNORE_SPACE        # Do not record an event starting with a space.
     setopt HIST_SAVE_NO_DUPS        # Do not write a duplicate event to the history file.
     setopt HIST_VERIFY              # Do not execute immediately upon history expansion.
+    setopt SHARE_HISTORY            # Share history between all sessions.
     unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
 
-    # editor
-    unsetopt BEEP                   # Do not beep on error in line editor.
+    # Initialisation
 
-    # directory
-    setopt AUTO_CD                  # Auto changes to a directory without typing cd.
-    setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
-    setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
-    setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
-    setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
-    setopt CDABLE_VARS              # Change directory to a path stored in a variable.
-    setopt MULTIOS                  # Write to multiple descriptors.
+    # Input/Output
+    setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
+    setopt PATH_DIRS                # Perform path search even on command names with slashes.
+    setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
     unsetopt CLOBBER                # Do not overwrite existing files with > and >>. Use >! and >>! to bypass.
+    unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
+    unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
 
-    # prompt
+    # Job Control
+    setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
+    setopt LONG_LIST_JOBS           # List jobs in the long format by default.
+    setopt NOTIFY                   # Report status of background jobs immediately.
+    unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
+    unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
+    unsetopt HUP                    # Don't kill jobs on shell exit.
+
+    # Prompting
     setopt PROMPT_SUBST             # If set, parameter expansion, command substitution and arithmetic expansion are performed in prompts.
+    setopt TRANSIENT_RPROMPT        #Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
 
-    # setopt append_history           # append history list to the history file.
-    # setopt hash_list_all            # whenever a command completion is attempted, make sure the entire command path is hashed first.
-    # unsetopt glob_dots              # * shouldn't match dotfiles. ever.
-    # unsetopt sh_word_split          # use zsh style word splitting
-    # unsetopt nomatch
-    # setopt null_glob
-    # setopt pushdminus
-    # setopt inc_append_history
-    # setopt complete_aliases
-    # setopt listpacked
-    # setopt magic_equal_subst
-    # setopt transient_rprompt
+    # Scripts and Functions
+    setopt MULTIOS                  # Write to multiple descriptors.
+
+    # Shell Emulation
+
+    # Shell State
+
+    # Zle
+    setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
+    unsetopt BEEP                   # Do not beep on error in line editor.
 
     # -----> alias
     alias d='dirs -v'
@@ -451,7 +458,7 @@ if [ -n "$ZSH_VERSION" ]; then
     bindkey '\C-x\C-e' edit-command-line
 fi
 
-# ========== Variables ==========
+# ============> Variables <============
 
 # LSCOLORS highlight
 export LSCOLORS="Gxfxcxdxbxegedabagacad"
@@ -459,9 +466,9 @@ export LSCOLORS="Gxfxcxdxbxegedabagacad"
 # History
 export HISTSIZE=100000
 if [ -n "$ZSH_VERSION" ]; then
-    export HISTFILE="$ZSH_CACHE_DIR/.zsh_history"
+    export HISTFILE="$ZSH_CACHE_DIR/zsh_history"
 elif [ -n "$BASH_VERSION" ]; then
-    export HISTFILE="$BASH_CACHE_DIR/.bash_history"
+    export HISTFILE="$BASH_CACHE_DIR/bash_history"
 else
     export HISTFILE="$HOME/.history"
 fi
@@ -555,11 +562,17 @@ if [ -n "$PATH" ]; then
 fi
 export PATH
 
-# ========== Alias ==========
+# ============> Alias <============
 # LS
-alias ls='ls -Gh'
-alias ll='ls -Ghl'
-alias la='ls -aGhl'
+if [[ "$OSTYPE" == darwin* ]]; then
+    alias ls='ls -Gh'
+    alias ll='ls -Ghl'
+    alias la='ls -aGhl'
+elif [[ "$OSTYPE" == linux* ]]; then
+    alias ls='ls -h --color=auto'
+    alias ll='ls -hl --color=auto'
+    alias la='ls -ahl --color=auto'
+fi
 
 # Vim
 alias vimrc='vim ~/.vimrc'
@@ -594,7 +607,7 @@ alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks
 # Typora
 alias typora="open -a typora"
 
-# ========== Scripts ==========
+# ============> Scripts <============
 # z.sh
 if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
     echo "z.sh doesn't exists."
@@ -602,19 +615,57 @@ if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
     echo `curl -fLo ~/.local/scripts/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
 fi
 . $HOME/.local/scripts/z.sh
+if [[ ! -d $XDG_CACHE_HOME/z ]]; then
+    command mkdir -p $XDG_CACHE_HOME/z
+    command touch $XDG_CACHE_HOME/z/z
+fi
 export _Z_CMD=z
-export _Z_DATA=$XDG_CACHE_HOME/.z
+export _Z_DATA=$XDG_CACHE_HOME/z/z
 
-# ========== Tools ==========
-# pyenv configuration
-# To use Homebrew's directories rather than ~/.pyenv add to your profile:
-# export PYENV_ROOT=/usr/local/var/pyenv
-# To enable shims and autocompletion add to your profile:
-if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init -)"
+# ============> Plugins <============
+# zinit
+if [[ -n "$ZSH_VERSION" ]]; then
+    # zinit custom path
+    declare -A ZINIT
+    ZINIT[HOME_DIR]=$ZSH_CONFIG_DIR/zinit
+    ZINIT[COMPINIT_OPTS]="-C"
+    ZINIT[ZCOMPDUMP_PATH]=$ZSH_CACHE_DIR/zcompdump
+
+    # zinit install
+    if [[ ! -d $ZINIT[HOME_DIR] ]]; then
+        command mkdir -p $ZINIT[HOME_DIR]
+    fi
+    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
+        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+    fi
+    . $ZINIT[HOME_DIR]/bin/zinit.zsh
+
+    # zinit compinit
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
+
+    # zinit plugin
+    zinit ice lucid wait'0' atinit'zpcompinit' depth'1'
+    zinit light zdharma/fast-syntax-highlighting
+
+    zinit ice lucid depth'1'
+    zinit light zdharma/history-search-multi-word
+
+    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
+    zinit light zsh-users/zsh-autosuggestions
+
+    zinit ice lucid wait'0' depth'1'
+    zinit light zsh-users/zsh-completions
+
+    zinit lucid has'docker' for \
+        as'completion' is-snippet \
+        'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker' \
+        \
+        as'completion' is-snippet \
+        'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
 fi
 
-# ========== Final ==========
+# ============> Others <============
 # echo "
 # $(tput cuf 25)$(tput setab 1)FBI WARNING$(tput sgr 0)"
 # echo "
@@ -626,10 +677,11 @@ fi
 # echo "$(tput cuf 10)(Title 17, United States Code, Section 506)."
 # echo ""
 
-# ========== Reference ==========
+# ============> Reference <============
 # https://zhuanlan.zhihu.com/p/50080614
 # https://zhuanlan.zhihu.com/p/51008087
 # https://wiki.archlinux.org/index.php/zsh
+# https://github.com/zdharma/zinit
 # https://github.com/ohmyzsh/ohmyzsh
 # https://github.com/sorin-ionescu/prezto
 # https://github.com/rupa/z/blob/master/z.sh

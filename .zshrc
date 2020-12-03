@@ -1,4 +1,5 @@
 # .zshrc
+
 # -----> performance
 # zmodload zsh/datetime
 # setopt PROMPT_SUBST
