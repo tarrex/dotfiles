@@ -608,19 +608,19 @@ alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks
 alias typora="open -a typora"
 
 # ============> Scripts <============
-# z.sh
-if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
-    echo "z.sh doesn't exists."
-    echo "Downloading z.sh from github ..."
-    echo `curl -fLo ~/.local/scripts/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
-fi
-. $HOME/.local/scripts/z.sh
+# z.sh initialize
 if [[ ! -d $XDG_CACHE_HOME/z ]]; then
     command mkdir -p $XDG_CACHE_HOME/z
     command touch $XDG_CACHE_HOME/z/z
 fi
 export _Z_CMD=z
 export _Z_DATA=$XDG_CACHE_HOME/z/z
+if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
+    echo "z.sh doesn't exists."
+    echo "Downloading z.sh from github ..."
+    echo `curl -fLo ~/.local/scripts/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
+fi
+. $HOME/.local/scripts/z.sh
 
 # ============> Plugins <============
 # zinit
