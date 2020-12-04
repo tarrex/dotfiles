@@ -1,38 +1,11 @@
 # Personal shell initial file
 
-# ============> Prepare <============
+# ============> Check <============
 # if not running interactively, don't do anything
 case "$-" in
     *i*) ;;
-      *) return;
+      *) return;;
 esac
-
-# common variable
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_CACHE_HOME=$HOME/.cache
-export XDG_DATA_HOME=$HOME/.local/share
-
-if [[ -n "$BASH_VERSION" ]]; then
-    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
-    if [[ ! -d $BASH_CACHE_DIR ]]; then
-        command mkdir -p "$BASH_CACHE_DIR"
-    fi
-    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
-    if [[ ! -d $BASH_CONFIG_DIR ]]; then
-        command mkdir -p "$BASH_CONFIG_DIR"
-    fi
-fi
-
-if [[ -n $ZSH_VERSION ]]; then
-    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
-    if [[ ! -d $ZSH_CACHE_DIR ]]; then
-        command mkdir -p "$ZSH_CACHE_DIR"
-    fi
-    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
-    if [[ ! -d $ZSH_CONFIG_DIR ]]; then
-        command mkdir -p "$ZSH_CONFIG_DIR"
-    fi
-fi
 
 # ============> Functions <============
 # fish like collapse pwd
@@ -82,7 +55,7 @@ function _git_prompt() {
         ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
     fi
     local BRANCH=${ref#refs/heads/}
-	if [[ "$BRANCH" != "" ]];then
+	if [[ $BRANCH != "" ]];then
         local STATUS=$(command git status --short 2>&1 | tee)
         if [[ $STATUS != "" ]]; then
 		    echo "($BRANCH*)"
@@ -105,7 +78,7 @@ function _retval() {
 }
 
 # colored man pages
-man() {
+function man() {
     env \
         LESS_TERMCAP_mb=$'\e[1;31m' \
         LESS_TERMCAP_md=$'\e[1;31m' \
@@ -119,21 +92,111 @@ man() {
 }
 
 # display shell startup time
-timeshell() {
-    shell=${1-$SHELL}
+function timeshell() {
+    local shell=${1-$SHELL}
     echo "Timing $shell:"
     for i in $(seq 1 5); do time $shell -i -c exit; done
 }
 
+# display cmd statistics
+function cmdrank() {
+    fc -l 1 \
+        | awk '{ CMD[$2]++; count++; } END { for (a in CMD) print CMD[a] " " CMD[a]*100/count "% " a }' \
+        | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
+}
+
+# display a random quote
+function quote {
+    Q=$(curl -s --connect-timeout 2 "http://www.quotationspage.com/random.php" | iconv -c -f ISO-8859-1 -t UTF-8 | grep -m 1 "dt ")
+
+    TXT=$(echo "$Q" | sed -e 's/<\/dt>.*//g' -e 's/.*html//g' -e 's/^[^a-zA-Z]*//' -e 's/<\/a..*$//g')
+    WHO=$(echo "$Q" | sed -e 's/.*\/quotes\///g' -e 's/<.*//g' -e 's/.*">//g')
+
+    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: “%F{5}${TXT}%f”"
+}
+
+# web search
+function web_search() {
+    typeset -A urls
+    local urls=(
+        google          "https://www.google.com/search?q="
+        bing            "https://www.bing.com/search?q="
+        github          "https://github.com/search?q="
+        baidu           "https://www.baidu.com/s?wd="
+        goodreads       "https://www.goodreads.com/search?q="
+        stackoverflow   "https://stackoverflow.com/search?q="
+        wolframalpha    "https://www.wolframalpha.com/input/?i="
+        archive         "https://web.archive.org/web/*/"
+        scholar         "https://scholar.google.com/scholar?q="
+        doubanbook      "https://search.douban.com/book/subject_search?search_text="
+        weibo           "https://weibo.com/search/weibo/time?q="
+    )
+
+    if [[ -z $urls[$1] ]]; then
+        echo "Search engine '$1' not supported."
+        return 1
+    fi
+
+    if [[ $# -gt 1 ]]; then
+        local escape_str=`echo -n ${(j:+:)@[2,-1]} | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
+        local url="${urls[$1]}${escape_str}"
+
+        case "$OSTYPE" in
+            darwin*)    open $url;;
+            linux*)     nohup xdg-open $url;;
+        esac
+    fi
+}
+
+# fbi warning
+function fbi_warning() {
+    echo "
+    $(tput cuf 25)$(tput setab 1)FBI WARNING$(tput sgr 0)"
+    echo "
+    $(tput cuf 2)Federal Law provides severe civil and criminal penalties for
+    $(tput cuf 2)the unauthorized reproduction, distribution, or exhibition of
+    $(tput cuf 2)copyrighted motion pictures (Title 17, United States Code,
+    $(tput cuf 2)Sections 501 and 508). The Federal Bureau of Investigation
+    $(tput cuf 2)investigates allegations of criminal copyright infringement"
+    echo "$(tput cuf 10)(Title 17, United States Code, Section 506)."
+    echo ""
+}
+
+# ============> Prepare <============
+# common variable
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+
+[[ -d $XDG_CONFIG_HOME ]] || command mkdir -p $XDG_CONFIG_HOME
+[[ -d $XDG_CACHE_HOME ]] || command mkdir -p $XDG_CACHE_HOME
+[[ -d $XDG_DATA_HOME ]] || command mkdir -p $XDG_DATA_HOME
+
+if [[ -n $BASH_VERSION ]]; then
+    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
+    [[ -d $BASH_CACHE_DIR ]] || command mkdir -p $BASH_CACHE_DIR
+
+    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
+    [[ -d $BASH_CONFIG_DIR ]] || command mkdir -p $BASH_CONFIG_DIR
+fi
+
+if [[ -n $ZSH_VERSION ]]; then
+    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
+    [[ -d $ZSH_CACHE_DIR ]] || command mkdir -p $ZSH_CACHE_DIR
+
+    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
+    [[ -d $ZSH_CONFIG_DIR ]] || command mkdir -p $ZSH_CONFIG_DIR
+fi
+
 # ============> Prompt <============
-if [ -n "$BASH_VERSION" ]; then
-    if [ $UID -eq 0 ]; then
+if [[ -n $BASH_VERSION ]]; then
+    if [[ $UID -eq 0 ]]; then
         export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
     else
         export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
-    if [ $UID -eq 0 ]; then
+    if [[ $UID -eq 0 ]]; then
         export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
     else
         export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
@@ -143,7 +206,7 @@ fi
 
 # ============> Shell config <============
 # BASH
-if [ -n "$BASH_VERSION" ]; then
+if [[ -n $BASH_VERSION ]]; then
     # -----> options
     shopt -s checkwinsize
     shopt -s extglob
@@ -152,7 +215,7 @@ if [ -n "$BASH_VERSION" ]; then
     shopt -s nocasematch
 
     shopt -u failglob
-    if [ "${BASH_VERSINFO:-0}" -ge 4 ]; then
+    if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
         shopt -s autocd
     fi
 
@@ -175,7 +238,7 @@ if [ -n "$BASH_VERSION" ]; then
 fi
 
 # ZSH
-if [ -n "$ZSH_VERSION" ]; then
+if [[ -n $ZSH_VERSION ]]; then
     # -----> options
     # Changing Directories
     setopt AUTO_CD                  # Auto changes to a directory without typing cd.
@@ -269,7 +332,6 @@ if [ -n "$ZSH_VERSION" ]; then
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
     zstyle ':completion::complete:*' cache-path "$ZSH_CACHE_DIR"
-    unset _CACHE_DIR
 
     # case-insensitive (all), partial-word, and then substring completion.
     zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
@@ -328,13 +390,14 @@ if [ -n "$ZSH_VERSION" ]; then
 
     # don't complete uninteresting users...
     zstyle ':completion:*:*:*:users' ignored-patterns \
-        adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
-        dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
-        hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
-        mailman mailnull mldonkey mysql nagios \
-        named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
-        operator pcap postfix postgres privoxy pulse pvm quagga radvd \
-        rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*'
+        adm amanda apache at avahi avahi-autoipd beaglidx bin cacti canna \
+        clamav daemon dbus distcache dnsmasq dovecot fax ftp games gdm \
+        gkrellmd gopher hacluster haldaemon halt hsqldb ident junkbust kdm \
+        ldap lp mail mailman mailnull man messagebus  mldonkey mysql nagios \
+        named netdump news nfsnobody nobody nscd ntp nut nx obsrun openvpn \
+        operator pcap polkitd postfix postgres privoxy pulse pvm quagga radvd \
+        rpc rpcuser rpm rtkit scard shutdown squid sshd statd svn sync tftp \
+        usbmux uucp vcsa wwwrun xfs '_*'
     # ... unless we really want to.
     zstyle '*' single-ignored show
 
@@ -368,7 +431,8 @@ if [ -n "$ZSH_VERSION" ]; then
     zstyle ':completion:*:correct:*' insert-unambiguous true
     zstyle ':completion:*:correct:*' original true
 
-    zstyle ':completion:*:cd:*' ignore-parents parent pwd
+    # disable named-directories autocompletion
+    zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
 
     # don't complete backup files as executables
     zstyle ':completion:*:complete:-command-::commands' ignored-patterns '(aptitude-*|*\~)'
@@ -465,9 +529,9 @@ export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
 # History
 export HISTSIZE=100000
-if [ -n "$ZSH_VERSION" ]; then
+if [[ -n $ZSH_VERSION ]]; then
     export HISTFILE="$ZSH_CACHE_DIR/zsh_history"
-elif [ -n "$BASH_VERSION" ]; then
+elif [[ -n $BASH_VERSION ]]; then
     export HISTFILE="$BASH_CACHE_DIR/bash_history"
 else
     export HISTFILE="$HOME/.history"
@@ -478,32 +542,31 @@ export SAVEHIST=$HISTSIZE
 export EDITOR='vim'
 export VISUAL='vim'
 export GIT_EDITOR=$EDITOR
+export PAGER='less -FRX'
 
 # Shell
 export SHELL='/bin/zsh'
 
 # Language
-if [[ -z "$LANG" ]]; then
-    export LANG=en_US.UTF-8
-    export LC_ALL=en_US.UTF-8
-fi
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # Browser
-if [[ "$OSTYPE" == darwin* ]]; then
+if [[ $OSTYPE == darwin* ]]; then
     export BROWSER='open'
 fi
 
 # ~/.local/bin
-if [ -d "$HOME/.local/bin" ]; then
+if [[ -d $HOME/.local/bin ]]; then
     export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # Golang
 # export GO111MODULE=on
-if [[ "$OSTYPE" == linux* ]]; then
+if [[ $OSTYPE == linux* ]]; then
     export GOROOT=/usr/local/go
 fi
-if [ -d "$HOME/Projects/Go" ]; then
+if [[ -d $HOME/Projects/Go ]]; then
     export GOBASEPATH=$HOME/Projects/Go
     export GOPATH=$GOBASEPATH
     export PATH="$GOROOT/bin:$GOBASEPATH/bin:$GOPATH/bin:$PATH"
@@ -513,7 +576,7 @@ fi
 export PYTHON_CONFIGURE_OPTS="--enable-framework"
 
 # Brew
-if [[ "$OSTYPE" == darwin* ]]; then
+if [[ $OSTYPE == darwin* ]]; then
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
     # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
@@ -522,23 +585,23 @@ fi
 
 # Rust
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-if [ -d "$HOME/.rustup/toolchains/stable-x86_64-apple-darwin" ]; then
+if [[ -d $HOME/.rustup/toolchains/stable-x86_64-apple-darwin ]]; then
     export RUSTUP_HOME="$HOME/.rustup/toolchains/stable-x86_64-apple-darwin"
 fi
-if [ -d "$HOME/.cargo" ]; then
+if [[ -d $HOME/.cargo ]]; then
     export CARGO_HOME="$HOME/.cargo"
     export PATH="$CARGO_HOME/bin:$PATH"
 fi
 
 # Java
-if [[ "$OSTYPE" == darwin* ]]; then
+if [[ $OSTYPE == darwin* ]]; then
     export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home"
     export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
     export PATH="$JAVA_HOME/bin:$PATH"
 fi
 
 # LLVM
-if [ -d "/usr/local/opt/llvm/bin" ]; then
+if [[ -d /usr/local/opt/llvm/bin ]]; then
     export PATH="/usr/local/opt/llvm/bin:$PATH"
 fi
 
@@ -547,7 +610,7 @@ export PATH="$HOME/Projects/Common/code2ebook:$PATH"
 
 
 # Remove duplicate path
-if [ -n "$PATH" ]; then
+if [[ -n $PATH ]]; then
     old_PATH=$PATH:; PATH=
     while [ -n "$old_PATH" ]; do
         x=${old_PATH%%:*}
@@ -563,16 +626,21 @@ fi
 export PATH
 
 # ============> Alias <============
-# LS
-if [[ "$OSTYPE" == darwin* ]]; then
+# Common
+if [[ $OSTYPE == darwin* ]]; then
     alias ls='ls -Gh'
     alias ll='ls -Ghl'
     alias la='ls -aGhl'
-elif [[ "$OSTYPE" == linux* ]]; then
+elif [[ $OSTYPE == linux* ]]; then
     alias ls='ls -h --color=auto'
     alias ll='ls -hl --color=auto'
     alias la='ls -ahl --color=auto'
 fi
+
+alias grep='grep --color'
+
+alias dud='du -d 1 -h'
+alias duf='du -sh *'
 
 # Vim
 alias vimrc='vim ~/.vimrc'
@@ -595,8 +663,6 @@ alias randname='curl pseudorandom.name'
 
 # Cmd
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
-alias cmdrank='history | awk '\''{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}'\'' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n10'
-alias histat="history 0 | awk '{print \$2}' | sort | uniq -c | sort -n -r | head"
 
 # Proxy
 http_proxy="127.0.0.1:7890"
@@ -607,25 +673,37 @@ alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks
 # Typora
 alias typora="open -a typora"
 
+# Web search
+alias bing='web_search bing'
+alias google='web_search google'
+alias github='web_search github'
+alias baidu='web_search baidu'
+alias goodreads='web_search goodreads'
+alias sof='web_search stackoverflow'
+alias wolframalpha='web_search wolframalpha'
+alias archive='web_search archive'
+alias scholar='web_search scholar'
+alias doubanbook='web_search doubanbook'
+alias weibo='web_search weibo'
+
 # ============> Scripts <============
 # z.sh initialize
 if [[ ! -d $XDG_CACHE_HOME/z ]]; then
     command mkdir -p $XDG_CACHE_HOME/z
     command touch $XDG_CACHE_HOME/z/z
 fi
-export _Z_CMD=z
-export _Z_DATA=$XDG_CACHE_HOME/z/z
-if [ ! -f "$HOME/.local/scripts/z.sh" ]; then
-    echo "z.sh doesn't exists."
-    echo "Downloading z.sh from github ..."
-    echo `curl -fLo ~/.local/scripts/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
+_Z_CMD=z
+_Z_DATA=$XDG_CACHE_HOME/z/z
+if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
+    echo "$XDG_DATA_HOME/z.sh doesn't exists."
+    echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
+    echo `curl -fLo $XDG_DATA_HOME/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
 fi
-. $HOME/.local/scripts/z.sh
+source $XDG_DATA_HOME/z.sh
 
 # ============> Plugins <============
-# zinit
 if [[ -n "$ZSH_VERSION" ]]; then
-    # zinit custom path
+    # zinit
     declare -A ZINIT
     ZINIT[HOME_DIR]=$ZSH_CONFIG_DIR/zinit
     ZINIT[COMPINIT_OPTS]="-C"
@@ -638,7 +716,7 @@ if [[ -n "$ZSH_VERSION" ]]; then
     if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
         command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
     fi
-    . $ZINIT[HOME_DIR]/bin/zinit.zsh
+    source $ZINIT[HOME_DIR]/bin/zinit.zsh
 
     # zinit compinit
     autoload -Uz _zinit
@@ -665,17 +743,8 @@ if [[ -n "$ZSH_VERSION" ]]; then
         'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
 fi
 
-# ============> Others <============
-# echo "
-# $(tput cuf 25)$(tput setab 1)FBI WARNING$(tput sgr 0)"
-# echo "
-# $(tput cuf 2)Federal Law provides severe civil and criminal penalties for
-# $(tput cuf 2)the unauthorized reproduction, distribution, or exhibition of
-# $(tput cuf 2)copyrighted motion pictures (Title 17, United States Code,
-# $(tput cuf 2)Sections 501 and 508). The Federal Bureau of Investigation
-# $(tput cuf 2)investigates allegations of criminal copyright infringement"
-# echo "$(tput cuf 10)(Title 17, United States Code, Section 506)."
-# echo ""
+# ============> Finally <============
+# fbi_warning
 
 # ============> Reference <============
 # https://zhuanlan.zhihu.com/p/50080614
