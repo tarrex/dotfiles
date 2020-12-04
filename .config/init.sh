@@ -681,10 +681,11 @@ source $XDG_DATA_HOME/z.sh
 # ============> Plugins <============
 if [[ -n "$ZSH_VERSION" ]]; then
     # zinit
-    declare -A ZINIT
-    ZINIT[HOME_DIR]=$ZSH_CONFIG_DIR/zinit
-    ZINIT[COMPINIT_OPTS]="-C"
-    ZINIT[ZCOMPDUMP_PATH]=$ZSH_CACHE_DIR/zcompdump
+    typeset -A ZINIT=(
+        HOME_DIR        $ZSH_CONFIG_DIR/zinit
+        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
+        COMPINIT_OPTS   -C
+    )
 
     # zinit install
     [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
@@ -710,12 +711,20 @@ if [[ -n "$ZSH_VERSION" ]]; then
     zinit ice lucid wait'0' depth'1'
     zinit light zsh-users/zsh-completions
 
-    zinit lucid has'docker' for \
-        as'completion' is-snippet \
-        'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker' \
-        \
-        as'completion' is-snippet \
-        'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+    zinit ice as"program" mv"httpstat.sh -> httpstat" pick"httpstat" atpull'!git reset --hard' depth'1'
+    zinit light b4b4r07/httpstat
+
+    zinit ice lucid has'docker' as'completion'
+    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+
+    zinit ice lucid has'docker-compose' as'completion'
+    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+
+    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+        atclone'kubectl completion zsh >! _kubectl' \
+        atpull'%atclone' src"_kubectl" run-atpull \
+        atload'zicdreplay'
+    zinit light zdharma/null
 fi
 
 # ============> Finally <============
