@@ -233,7 +233,6 @@ if [[ -n $BASH_VERSION ]]; then
     bind '"\e[B": history-search-forward'
 
     # -----> history
-    export HISTTIMEFORMAT='%F %T '
     export HISTCONTROL=ignoreboth
 fi
 
@@ -530,9 +529,9 @@ export LSCOLORS="Gxfxcxdxbxegedabagacad"
 # History
 export HISTSIZE=100000
 if [[ -n $ZSH_VERSION ]]; then
-    export HISTFILE="$ZSH_CACHE_DIR/zsh_history"
+    export HISTFILE="$ZSH_CONFIG_DIR/zsh_history"
 elif [[ -n $BASH_VERSION ]]; then
-    export HISTFILE="$BASH_CACHE_DIR/bash_history"
+    export HISTFILE="$BASH_CONFIG_DIR/bash_history"
 else
     export HISTFILE="$HOME/.history"
 fi
@@ -688,12 +687,12 @@ alias weibo='web_search weibo'
 
 # ============> Scripts <============
 # z.sh initialize
-if [[ ! -d $XDG_CACHE_HOME/z ]]; then
-    command mkdir -p $XDG_CACHE_HOME/z
-    command touch $XDG_CACHE_HOME/z/z
+if [[ ! -d $XDG_CONFIG_HOME/z ]]; then
+    command mkdir -p $XDG_CONFIG_HOME/z
+    command touch $XDG_CONFIG_HOME/z/z
 fi
 _Z_CMD=z
-_Z_DATA=$XDG_CACHE_HOME/z/z
+_Z_DATA=$XDG_CONFIG_HOME/z/z
 if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
     echo "$XDG_DATA_HOME/z.sh doesn't exists."
     echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
