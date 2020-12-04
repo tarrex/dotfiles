@@ -55,22 +55,22 @@ function _git_prompt() {
         ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
     fi
     local BRANCH=${ref#refs/heads/}
-	if [[ $BRANCH != "" ]];then
+    if [[ $BRANCH != "" ]];then
         local STATUS=$(command git status --short 2>&1 | tee)
         if [[ $STATUS != "" ]]; then
-		    echo "($BRANCH*)"
+            echo "($BRANCH*)"
         else
-		    echo "($BRANCH)"
+            echo "($BRANCH)"
         fi
-	else
-		echo ""
-	fi
+    else
+        echo ""
+    fi
 }
 
 # return value
 function _retval() {
-	local RETVAL=$?
-	if [ $RETVAL -ne 0 ]; then
+    local RETVAL=$?
+    if [ $RETVAL -ne 0 ]; then
         echo " $RETVAL"
     else
         echo ""
@@ -211,14 +211,14 @@ if [[ -n $BASH_VERSION ]]; then
 
     # -----> key bindings
     bind '"\eh": "\C-b"'
-	bind '"\el": "\C-f"'
-	bind '"\ej": "\C-n"'
-	bind '"\ek": "\C-p"'
-	bind '"\eH": "\eb"'
-	bind '"\eL": "\ef"'
-	bind '"\eJ": "\C-a"'
-	bind '"\eK": "\C-e"'
-	bind '"\e;":"ll\n"'
+    bind '"\el": "\C-f"'
+    bind '"\ej": "\C-n"'
+    bind '"\ek": "\C-p"'
+    bind '"\eH": "\eb"'
+    bind '"\eL": "\ef"'
+    bind '"\eJ": "\C-a"'
+    bind '"\eK": "\C-e"'
+    bind '"\e;":"ll\n"'
     bind '"\e[A": history-search-backward'
     bind '"\e[B": history-search-forward'
 
@@ -440,20 +440,20 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # create a zkbd compatible hash;
     # to add other keys to this hash, see: man 5 terminfo
-    typeset -g -A key
-
-    key[Home]="${terminfo[khome]}"
-    key[End]="${terminfo[kend]}"
-    key[Insert]="${terminfo[kich1]}"
-    key[Backspace]="${terminfo[kbs]}"
-    key[Delete]="${terminfo[kdch1]}"
-    key[Up]="${terminfo[kcuu1]}"
-    key[Down]="${terminfo[kcud1]}"
-    key[Left]="${terminfo[kcub1]}"
-    key[Right]="${terminfo[kcuf1]}"
-    key[PageUp]="${terminfo[kpp]}"
-    key[PageDown]="${terminfo[knp]}"
-    key[Shift-Tab]="${terminfo[kcbt]}"
+    typeset -g -A key=(
+        Home        ${terminfo[khome]}
+        End         ${terminfo[kend]}
+        Insert      ${terminfo[kich1]}
+        Backspace   ${terminfo[kbs]}
+        Delete      ${terminfo[kdch1]}
+        Up          ${terminfo[kcuu1]}
+        Down        ${terminfo[kcud1]}
+        Left        ${terminfo[kcub1]}
+        Right       ${terminfo[kcuf1]}
+        PageUp      ${terminfo[kpp]}
+        PageDown    ${terminfo[knp]}
+        Shift-Tab   ${terminfo[kcbt]}
+    )
 
     # setup key accordingly
     [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
@@ -472,15 +472,15 @@ if [[ -n $ZSH_VERSION ]]; then
     # Finally, make sure the terminal is in application mode, when zle is
     # active. Only then are the values from $terminfo valid.
     if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
-    	autoload -Uz add-zle-hook-widget
+        autoload -Uz add-zle-hook-widget
         function zle_application_mode_start() {
             echoti smkx
         }
         function zle_application_mode_stop() {
             echoti rmkx
         }
-    	add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
-    	add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+        add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+        add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
     fi
 
     # history search
