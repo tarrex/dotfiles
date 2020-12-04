@@ -14,7 +14,7 @@ filetype indent plugin on       " filetype detection on
 
 set number                      " print the line number in front of each lin
 set ruler                       " show the line and column number of the cursor position, separated by a comma
-set wrap                        " wrap lines longer than the width of the window
+set nowrap                      " wrap lines longer than the width of the window
 
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
@@ -122,6 +122,7 @@ set breakat=                    " line break character ' ', default are ' ^I!@*-
 set linebreak                   " break lines at word boundaries
 set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
+set mouse=a                     " enable the mouse in all five modes
 
 set nolist                      " don't display non-printable characters
 set listchars+=extends:>        " unwrapped text to screen right
