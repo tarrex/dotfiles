@@ -6,6 +6,6 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # User configuration
-if [ -f "$HOME/init.sh" ]; then
-    . $HOME/init.sh
+if [ -f "$HOME/.config/init.sh" ]; then
+    . $HOME/.config/init.sh
 fi

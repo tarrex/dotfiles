@@ -168,24 +168,14 @@ export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
 
-[[ -d $XDG_CONFIG_HOME ]] || command mkdir -p $XDG_CONFIG_HOME
-[[ -d $XDG_CACHE_HOME ]] || command mkdir -p $XDG_CACHE_HOME
-[[ -d $XDG_DATA_HOME ]] || command mkdir -p $XDG_DATA_HOME
-
 if [[ -n $BASH_VERSION ]]; then
     export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
-    [[ -d $BASH_CACHE_DIR ]] || command mkdir -p $BASH_CACHE_DIR
-
     export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
-    [[ -d $BASH_CONFIG_DIR ]] || command mkdir -p $BASH_CONFIG_DIR
 fi
 
 if [[ -n $ZSH_VERSION ]]; then
     export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
-    [[ -d $ZSH_CACHE_DIR ]] || command mkdir -p $ZSH_CACHE_DIR
-
     export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
-    [[ -d $ZSH_CONFIG_DIR ]] || command mkdir -p $ZSH_CONFIG_DIR
 fi
 
 # ============> Prompt <============
@@ -317,15 +307,13 @@ if [[ -n $ZSH_VERSION ]]; then
     # shell is opened each day.
     autoload -Uz compinit
     _comp_path="$ZSH_CACHE_DIR/zcompdump"
-    # #q expands globs in conditional expressions
-    # if [[ $_comp_path(#qNmh-20) ]]; then
-    #     # -C (skip function check) implies -i (skip security check).
-    #     compinit -C -d "$_comp_path"
-    # else
-    #     command mkdir -p "$_comp_path:h"
-    #     compinit -i -d "$_comp_path"
-    # fi
-    compinit -C -d "$_comp_path"
+    if [[ -f $_comp_path ]]; then
+        # -C (skip function check) implies -i (skip security check).
+        compinit -C -d "$_comp_path"
+    else
+        command mkdir -p "$_comp_path:h"
+        compinit -i -d "$_comp_path"
+    fi
     unset _comp_path
 
     # use a cache in order to make completion for commands such as dpkg and apt usable.
@@ -528,13 +516,6 @@ export LSCOLORS="Gxfxcxdxbxegedabagacad"
 
 # History
 export HISTSIZE=100000
-if [[ -n $ZSH_VERSION ]]; then
-    export HISTFILE="$ZSH_CONFIG_DIR/zsh_history"
-elif [[ -n $BASH_VERSION ]]; then
-    export HISTFILE="$BASH_CONFIG_DIR/bash_history"
-else
-    export HISTFILE="$HOME/.history"
-fi
 export SAVEHIST=$HISTSIZE
 
 # Editor
@@ -687,12 +668,9 @@ alias weibo='web_search weibo'
 
 # ============> Scripts <============
 # z.sh initialize
-if [[ ! -d $XDG_CONFIG_HOME/z ]]; then
-    command mkdir -p $XDG_CONFIG_HOME/z
-    command touch $XDG_CONFIG_HOME/z/z
-fi
 _Z_CMD=z
 _Z_DATA=$XDG_CONFIG_HOME/z/z
+[[ -d $_Z_DATA:h ]] || command mkdir -p $_Z_DATA:h
 if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
     echo "$XDG_DATA_HOME/z.sh doesn't exists."
     echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
@@ -709,9 +687,7 @@ if [[ -n "$ZSH_VERSION" ]]; then
     ZINIT[ZCOMPDUMP_PATH]=$ZSH_CACHE_DIR/zcompdump
 
     # zinit install
-    if [[ ! -d $ZINIT[HOME_DIR] ]]; then
-        command mkdir -p $ZINIT[HOME_DIR]
-    fi
+    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
     if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
         command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
     fi
