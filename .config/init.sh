@@ -8,75 +8,6 @@ case "$-" in
 esac
 
 # ============> Functions <============
-# fish like collapse pwd
-function _fish_collapsed_pwd() {
-    local pwd="$1"
-    local home="$HOME"
-    local size=${#home}
-    [[ $# == 0 ]] && pwd="$PWD"
-    [[ -z "$pwd" ]] && return
-    if [[ "$pwd" == "/" ]]; then
-        echo "/"
-        return
-    elif [[ "$pwd" == "$home" ]]; then
-        echo "~"
-        return
-    fi
-    [[ "$pwd" == "$home/"* ]] && pwd="~${pwd:$size}"
-    if [[ -n "$BASH_VERSION" ]]; then
-        local IFS="/"
-        local elements=($pwd)
-        local length=${#elements[@]}
-        for ((i=0;i<length-1;i++)); do
-            local elem=${elements[$i]}
-            if [[ ${#elem} -gt 1 ]]; then
-                elements[$i]=${elem:0:1}
-            fi
-        done
-    else
-        local elements=("${(s:/:)pwd}")
-        local length=${#elements}
-        for i in {1..$((length-1))}; do
-            local elem=${elements[$i]}
-            if [[ ${#elem} > 1 ]]; then
-                elements[$i]=${elem[1]}
-            fi
-        done
-    fi
-    local IFS="/"
-    echo "${elements[*]}"
-}
-
-# get current branch in git repo
-function _git_prompt() {
-    local ref=$(command git symbolic-ref --quiet HEAD 2> /dev/null)
-    if [[ $? != 0 || $ref == "" ]]; then
-        [[ $? == 128 ]] && return
-        ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
-    fi
-    local BRANCH=${ref#refs/heads/}
-    if [[ $BRANCH != "" ]];then
-        local STATUS=$(command git status --short 2>&1 | tee)
-        if [[ $STATUS != "" ]]; then
-            echo "($BRANCH*)"
-        else
-            echo "($BRANCH)"
-        fi
-    else
-        echo ""
-    fi
-}
-
-# return value
-function _retval() {
-    local RETVAL=$?
-    if [ $RETVAL -ne 0 ]; then
-        echo " $RETVAL"
-    else
-        echo ""
-    fi
-}
-
 # colored man pages
 function man() {
     env \
@@ -148,20 +79,6 @@ function web_search() {
     fi
 }
 
-# fbi warning
-function fbi_warning() {
-    echo "
-    $(tput cuf 25)$(tput setab 1)FBI WARNING$(tput sgr 0)"
-    echo "
-    $(tput cuf 2)Federal Law provides severe civil and criminal penalties for
-    $(tput cuf 2)the unauthorized reproduction, distribution, or exhibition of
-    $(tput cuf 2)copyrighted motion pictures (Title 17, United States Code,
-    $(tput cuf 2)Sections 501 and 508). The Federal Bureau of Investigation
-    $(tput cuf 2)investigates allegations of criminal copyright infringement"
-    echo "$(tput cuf 10)(Title 17, United States Code, Section 506)."
-    echo ""
-}
-
 # ============> Prepare <============
 # common variable
 export XDG_CONFIG_HOME=$HOME/.config
@@ -179,19 +96,94 @@ if [[ -n $ZSH_VERSION ]]; then
 fi
 
 # ============> Prompt <============
+# fish like collapse pwd
+function _fish_collapsed_pwd() {
+    local pwd="$1"
+    local home="$HOME"
+    local size=${#home}
+    [[ $# == 0 ]] && pwd="$PWD"
+    [[ -z "$pwd" ]] && return
+    if [[ "$pwd" == "/" ]]; then
+        echo "/"
+        return
+    elif [[ "$pwd" == "$home" ]]; then
+        echo "~"
+        return
+    fi
+    [[ "$pwd" == "$home/"* ]] && pwd="~${pwd:$size}"
+    if [[ -n "$BASH_VERSION" ]]; then
+        local IFS="/"
+        local elements=($pwd)
+        local length=${#elements[@]}
+        for ((i=0;i<length-1;i++)); do
+            local elem=${elements[$i]}
+            if [[ ${#elem} -gt 1 ]]; then
+                elements[$i]=${elem:0:1}
+            fi
+        done
+    else
+        local elements=("${(s:/:)pwd}")
+        local length=${#elements}
+        for i in {1..$((length-1))}; do
+            local elem=${elements[$i]}
+            if [[ ${#elem} > 1 ]]; then
+                elements[$i]=${elem[1]}
+            fi
+        done
+    fi
+    local IFS="/"
+    echo "${elements[*]}"
+}
+
+# get current branch in git repo
+function _git_prompt() {
+    local ref=$(command git symbolic-ref --quiet HEAD 2> /dev/null)
+    if [[ $? != 0 || $ref == "" ]]; then
+        [[ $? == 128 ]] && return
+        ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
+    fi
+    local BRANCH=${ref#refs/heads/}
+    if [[ $BRANCH != "" ]];then
+        local STATUS=$(command git status --short 2>&1 | tee)
+        if [[ $STATUS != "" ]]; then
+            echo "($BRANCH*)"
+        else
+            echo "($BRANCH)"
+        fi
+    else
+        echo ""
+    fi
+}
+
+# return value
+function _retval() {
+    if [[ $? -ne 0 ]]; then
+        if [[ -n $BASH_VERSION ]]; then
+            echo " $(tput setaf 9; tput bold)λ"
+        else
+            echo "%f %B%F{9}λ%f"
+        fi
+    else
+        if [[ -n $BASH_VERSION ]]; then
+            echo " $(tput setaf 190; tput bold)λ"
+        else
+            echo "%f %B%F{190}λ%f"
+        fi
+    fi
+}
+
 if [[ -n $BASH_VERSION ]]; then
     if [[ $UID -eq 0 ]]; then
-        export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
     else
-        export PS1=' \[\e[38;5;190m\]λ\[\e[38;5;9m\]$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
     if [[ $UID -eq 0 ]]; then
-        export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
+        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
     else
-        export PROMPT='%f %F{190}λ%f %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
+        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
     fi
-    export RPROMPT="%F{9}%(?..%?)%f"
 fi
 
 # ============> Shell config <============
@@ -728,7 +720,6 @@ if [[ -n "$ZSH_VERSION" ]]; then
 fi
 
 # ============> Finally <============
-# fbi_warning
 
 # ============> Reference <============
 # https://zhuanlan.zhihu.com/p/50080614
