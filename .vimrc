@@ -123,6 +123,9 @@ set linebreak                   " break lines at word boundaries
 set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
 set mouse=a                     " enable the mouse in all five modes
+if has('clipboard')
+    set clipboard=unnamed       " enable clipboard with system
+endif
 
 set nolist                      " don't display non-printable characters
 set listchars+=extends:>        " unwrapped text to screen right
@@ -340,7 +343,6 @@ endif
 let g:coc_disable_startup_warning = 1
 let g:coc_global_extensions = [
     \ 'coc-word',
-    \ 'coc-git',
     \ 'coc-cmake',
     \ 'coc-vimlsp',
     \ 'coc-html',
