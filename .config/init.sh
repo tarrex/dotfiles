@@ -161,13 +161,13 @@ function _retval() {
         if [[ -n $BASH_VERSION ]]; then
             echo " $(tput setaf 9; tput bold)λ"
         else
-            echo "%f %B%F{9}λ%f"
+            echo "%f %F{9}%Bλ%b%f"
         fi
     else
         if [[ -n $BASH_VERSION ]]; then
             echo " $(tput setaf 190; tput bold)λ"
         else
-            echo "%f %B%F{190}λ%f"
+            echo "%f %F{190}%Bλ%b%f"
         fi
     fi
 }
@@ -195,7 +195,6 @@ if [[ -n $BASH_VERSION ]]; then
     shopt -s nullglob
     shopt -s nocaseglob
     shopt -s nocasematch
-
     shopt -u failglob
     if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
         shopt -s autocd
@@ -624,16 +623,13 @@ alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
 alias gohere='export GOPATH=`pwd`'
 alias gobase='export GOPATH=$GOBASEPATH'
 
-alias serve='python3 -m http.server 8000'
-
 # Tools
 alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
 alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
 alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
 alias ipinfo='curl wtfismyip.com/json'
 alias randname='curl pseudorandom.name'
-
-# Cmd
+alias serve='python3 -m http.server 8000'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 
 # Proxy
