@@ -19,7 +19,7 @@ function man() {
         LESS_TERMCAP_so=$'\e[1;44;33m' \
         LESS_TERMCAP_se=$'\e[0m' \
         PAGER="${commands[less]:-$PAGER}" \
-        command man "$@"
+        man "$@"
 }
 
 # display shell startup time
@@ -288,10 +288,6 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
     unsetopt BEEP                   # Do not beep on error in line editor.
 
-    # -----> alias
-    alias d='dirs -v'
-    for index in $(seq 1 9); do alias "$index"="cd +${index}"; unset index; done
-
     # -----> completion
     # Load and initialize the completion system ignoring insecure directories with a
     # cache time of 20 hours, so it should almost always regenerate the first time a
@@ -555,10 +551,9 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 # Rust
+export RUSTUP_HOME="$HOME/.rustup"
+export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
 export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-if [[ -d $HOME/.rustup/toolchains/stable-x86_64-apple-darwin ]]; then
-    export RUSTUP_HOME="$HOME/.rustup/toolchains/stable-x86_64-apple-darwin"
-fi
 if [[ -d $HOME/.cargo ]]; then
     export CARGO_HOME="$HOME/.cargo"
     export PATH="$CARGO_HOME/bin:$PATH"
