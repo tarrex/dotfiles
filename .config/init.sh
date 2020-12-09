@@ -711,16 +711,3 @@ if [[ -n "$ZSH_VERSION" ]]; then
 fi
 
 # ============> Finally <============
-
-# ============> Reference <============
-# https://zhuanlan.zhihu.com/p/50080614
-# https://zhuanlan.zhihu.com/p/51008087
-# https://wiki.archlinux.org/index.php/zsh
-# https://github.com/zdharma/zinit
-# https://github.com/ohmyzsh/ohmyzsh
-# https://github.com/sorin-ionescu/prezto
-# https://github.com/rupa/z/blob/master/z.sh
-# http://zsh.sourceforge.net/Doc/Release/Options.html#Options
-# https://thevaluable.dev/zsh-install-configure/
-# https://jonasjacek.github.io/colors/
-# https://blog.skk.moe/post/make-oh-my-zsh-fly/
