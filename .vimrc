@@ -193,8 +193,7 @@ endif
 
 call plug#begin(s:vimdir . '/plugged')
 
-Plug 'chriskempson/base16-vim'
-Plug 'vim-scripts/scrollcolors'
+Plug 'sonph/onehalf', {'rtp': 'vim'}
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -218,7 +217,7 @@ let g:lightline = {
     \   'statusline': 1,
     \   'tabline': 0
     \ },
-    \ 'colorscheme': 'materia',
+    \ 'colorscheme': 'default',
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'bufnum' ],
@@ -603,7 +602,7 @@ augroup END
 " ============> Custom <============
 
 " ----> Color
-silent! colorscheme base16-materia
+silent! colorscheme onehalfdark
 
 " ----> Highlights
 " Some custom highlights
@@ -615,7 +614,7 @@ endfunction
 
 augroup Highlights
     autocmd!
-    autocmd SourcePost,ColorScheme * call MyHighlights()
+    autocmd SourcePre,ColorSchemePre * call MyHighlights()
 augroup END
 
 " ----> Keyboard
