@@ -114,6 +114,7 @@ set shortmess+=c                " don't give ins-completion-menu messages
 set laststatus=2                " show status line
 set display=lastline            " as much as possible of the last line in a window will be displayed
 set scrolloff=1                 " minimal number of screen lines to keep above and below the cursor
+set sidescrolloff=1             " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
 set nojoinspaces                " don't insert two spaces after a '.', '?' and '!' with a join command
 set matchpairs=(:),{:},[:],《:》,〈:〉,［:］,（:）,「:」,『:』,‘:’,“:” " characters that form pair, % command jumps to the other
 set showmatch                   " show the match pairs  can be seen on the screen
