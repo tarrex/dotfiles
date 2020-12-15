@@ -135,26 +135,6 @@ function _fish_collapsed_pwd() {
     echo "${elements[*]}"
 }
 
-# get current branch in git repo
-function _git_prompt() {
-    local ref=$(command git symbolic-ref --quiet HEAD 2> /dev/null)
-    if [[ $? != 0 || $ref == "" ]]; then
-        [[ $? == 128 ]] && return
-        ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
-    fi
-    local BRANCH=${ref#refs/heads/}
-    if [[ $BRANCH != "" ]];then
-        local STATUS=$(command git status --short 2>&1 | tee)
-        if [[ $STATUS != "" ]]; then
-            echo "($BRANCH*)"
-        else
-            echo "($BRANCH)"
-        fi
-    else
-        echo ""
-    fi
-}
-
 # return value
 function _retval() {
     if [[ $? -ne 0 ]]; then
@@ -174,15 +154,15 @@ function _retval() {
 
 if [[ -n $BASH_VERSION ]]; then
     if [[ $UID -eq 0 ]]; then
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;124m\]#\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(__git_ps1 "(%s)")\[\e[38;5;124m\]#\[\e[0m\] '
     else
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_git_prompt)\[\e[38;5;83m\]>\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(__git_ps1 "(%s)")\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
     if [[ $UID -eq 0 ]]; then
-        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{124}#%f '
+        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(__git_ps1 "(%s)")%f%F{124}#%f '
     else
-        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_git_prompt)%f%F{83}>%f '
+        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(__git_ps1 "(%s)")%f%F{83}>%f '
     fi
 fi
 
@@ -660,6 +640,14 @@ if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
     echo `curl -fLo $XDG_DATA_HOME/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
 fi
 source $XDG_DATA_HOME/z.sh
+
+# git-prompt.sh initialize
+if [[ ! -f $XDG_DATA_HOME/git-prompt.sh ]];then
+    echo "$XDG_DATA_HOME/git-prompt.sh doesn't exiets."
+    echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git-prompt.sh ..."
+    echo `curl -fLo $XDG_DATA_HOME/git-prompt.sh --create-dirs https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
+fi
+source $XDG_DATA_HOME/git-prompt.sh
 
 # ============> Plugins <============
 if [[ -n "$ZSH_VERSION" ]]; then
