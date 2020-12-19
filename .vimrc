@@ -12,7 +12,7 @@ endif
 syntax on                       " syntax highlighting
 filetype indent plugin on       " filetype detection on
 
-set number                      " print the line number in front of each lin
+set number                      " print the line number in front of each line
 set ruler                       " show the line and column number of the cursor position, separated by a comma
 set nowrap                      " wrap lines longer than the width of the window
 
@@ -194,7 +194,7 @@ endif
 
 call plug#begin(s:vimdir . '/plugged')
 
-Plug 'sonph/onehalf', {'rtp': 'vim'}
+Plug 'nlknguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -497,7 +497,7 @@ nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 " ----> dense-analysis/ale
 let g:ale_command_wrapper = 'nice -n5'
-let g:ale_daximum_file_size = 10 * 1024 * 1024
+let g:ale_maximum_file_size = 10 * 1024 * 1024
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_info_str = 'I'
 let g:ale_echo_msg_warning_str = 'W'
@@ -603,7 +603,7 @@ augroup END
 " ============> Custom <============
 
 " ----> Color
-silent! colorscheme onehalfdark
+silent! colorscheme PaperColor
 
 " ----> Highlights
 " Some custom highlights
@@ -779,3 +779,18 @@ function! LocationToggle() abort
     endif
 endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
+
+" ----> Quick note to file
+function! QuickNote(text) abort
+    let text = substitute(a:text, '^\s*\(.\{-}\)\s*$', '\1', '')
+    if exists('*writefile') && text != ''
+        let filename = get(g:, 'quicknote_file', '~/.vim/quicknote.md')
+        let notehead = get(g:, 'quicknote_head', '- ')
+        let notetime = strftime("[%Y-%m-%d %H:%M:%S]")
+        let realname = expand(filename)
+        call writefile([notehead . notetime . text], realname, 'a')
+        checktime
+        echo notetime . text
+    endif
+endfunction
+command! -nargs=+ Note call QuickNote(<q-args>)
