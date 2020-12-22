@@ -474,6 +474,14 @@ if [[ -n $ZSH_VERSION ]]; then
     autoload -Uz edit-command-line
     zle -N edit-command-line
     bindkey '\C-x\C-e' edit-command-line
+
+    # Quote URLs automatically as you type
+    autoload -Uz url-quote-magic
+    zle -N self-insert url-quote-magic
+
+    # Quote text, including URLs automatically as you paste
+    autoload -Uz bracketed-paste-magic
+    zle -N bracketed-paste bracketed-paste-magic
 fi
 
 # ============> Variables <============
