@@ -61,6 +61,9 @@ set ignorecase                  " ignore case in search patterns.
 set smartcase                   " override the 'ignorecase' option if the search pattern contains upper case characters
 set incsearch                   " real time show the search case
 set hlsearch                    " highlight all search pattern results
+if executable('rg')
+    let &grepprg = 'rg --vimgrep' . (&smartcase ? ' --smart-case' : '') " Program to use for the :grep command
+endif
 
 set splitbelow                  " horizontally split below
 set splitright                  " vertically split to the right
@@ -123,6 +126,7 @@ set breakat=                    " line break character ' ', default are ' ^I!@*-
 set linebreak                   " break lines at word boundaries
 set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
+set ttymouse=xterm2             " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 set mouse=a                     " enable the mouse in all five modes
 if has('clipboard')
     set clipboard=unnamed       " enable clipboard with system
@@ -200,15 +204,16 @@ Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-fugitive'
 Plug 'majutsushi/tagbar'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree'
 Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'dense-analysis/ale'
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': 'go'}
-Plug 'rust-lang/rust.vim', {'for': 'rust'}
-Plug 'tarrex/nginx.vim', {'for': 'nginx'}
+Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go', 'vim-plug']}
+Plug 'rust-lang/rust.vim', {'for': ['rust', 'vim-plug']}
+Plug 'tarrex/nginx.vim', {'for': ['nginx', 'vim-plug']}
 
 call plug#end()
 
@@ -218,7 +223,7 @@ let g:lightline = {
     \   'statusline': 1,
     \   'tabline': 0
     \ },
-    \ 'colorscheme': 'default',
+    \ 'colorscheme': 'powerline',
     \ 'active': {
     \   'left': [ [ 'mode', 'paste' ],
     \           [ 'bufnum' ],
@@ -255,33 +260,13 @@ function! LightlineFileSize() abort
     if l:bytes <= 0
         return '0B'
     endif
-    " let l:units = 'BKMGT'
-    " let l:fsize = ''
-    " let l:idx = 0
-    " while l:bytes > 0 && len(l:units) > 0 && l:idx < 5
-    "     let l:fsize = l:bytes % 1024 . l:units[l:idx] . l:fsize
-    "     let l:idx += 1
-    "     let l:bytes /= 1024
-    " endwhile
-    " return l:fsize
-    if (l:bytes >= 1024)
-        let l:kbytes = l:bytes / 1024
-    endif
-    if exists('l:kbytes') && l:kbytes >= 1024
-        let l:mbytes = l:kbytes / 1024
-    endif
-    if exists('l:mbytes') && l:mbytes >= 1024
-        let l:gbytes = l:mbytes / 1024
-    endif
-    if exists('l:gbytes')
-        return l:gbytes . 'G'
-    elseif exists('l:mbytes')
-        return l:mbytes . 'M'
-    elseif exists('l:kbytes')
-        return l:kbytes . 'K'
-    else
-        return l:bytes . 'B'
-    endif
+    let l:units = ['B', 'K', 'M', 'G']
+    let l:idx = 0
+    while l:bytes >= 1024
+        let l:bytes /= 1024.0
+        let l:idx += 1
+    endwhile
+    return printf('%.1f%s', l:bytes, l:units[l:idx])
 endfunction
 
 function! LightlineLinter() abort
@@ -296,7 +281,40 @@ function! LightlineLinter() abort
 endfunction
 
 " ----> easymotion/vim-easymotion
+let g:EasyMotion_do_mapping = 0
+let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
 let g:EasyMotion_smartcase = 1
+let g:EasyMotion_startofline = 0
+let g:EasyMotion_enter_jump_first = 1
+let g:EasyMotion_space_jump_first = 1
+let g:EasyMotion_grouping=1
+nnoremap <easymotion> <nop>
+nmap S <easymotion>
+nmap <easymotion>j <Plug>(easymotion-s2)
+xmap <easymotion>j <Plug>(easymotion-s2)
+omap z <Plug>(easymotion-s2)
+nmap <easymotion>/ <Plug>(easymotion-sn)
+xmap <easymotion>/ <Plug>(easymotion-sn)
+omap <easymotion>/ <Plug>(easymotion-tn)
+map <easymotion>k <Plug>(easymotion-bd-jk)
+nmap <easymotion>k <Plug>(easymotion-overwin-line)
+map <easymotion>S <Plug>(easymotion-bd-w)
+nmap <easymotion>S <Plug>(easymotion-overwin-w)
+map <easymotion>w <Plug>(easymotion-bd-w)
+nmap <easymotion>w <Plug>(easymotion-overwin-w)
+
+" ----> terryma/vim-multiple-cursors
+let g:multi_cursor_use_default_mapping = 0
+nnoremap <multiple-cursors> <nop>
+nmap M <multiple-cursors>
+let g:multi_cursor_start_word_key = 'M'
+let g:multi_cursor_select_all_word_key = '<Leader>M'
+let g:multi_cursor_start_key = 'gM'
+let g:multi_cursor_select_all_key = 'g<Leader>M'
+let g:multi_cursor_next_key = '<c-n>'
+let g:multi_cursor_prev_key = '<c-p>'
+let g:multi_cursor_skip_key = '<c-x>'
+let g:multi_cursor_quit_key = '<esc>'
 
 " ----> majutsushi/tagbar
 noremap <silent> <s-t> :TagbarToggle<cr>
@@ -321,16 +339,37 @@ let g:tagbar_type_markdown = {
     \ 'sort': 0
 \ }
 
-" ----> ctrlpvim/ctrlp.vim
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_root_markers = ['.svn', '.git']
-let g:ctrlp_use_caching = 0
-let g:ctrlp_show_hidden = 1
+" ----> junegunn/fzf
+let g:fzf_command_prefix = 'FZF'
+let g:fzf_layout = { 'down': '40%' }
+function! s:build_quickfix_list(lines)
+    call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+    copen
+    cc
+endfunction
+let g:fzf_action = {
+    \ 'ctrl-q': function('s:build_quickfix_list'),
+    \ 'ctrl-t': 'tab split',
+    \ 'ctrl-x': 'split',
+    \ 'ctrl-v': 'vsplit',
+    \ 'ctrl-e': 'edit'
+\ }
+let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info'
 if executable('rg')
-    let g:ctrlp_user_command = 'rg %s --files --hidden --color=never --glob "!{'.shellescape(&wildignore).'}"'
+    let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!{'.shellescape(&wildignore).'}"'
 endif
-let g:ctrlp_extensions = ['quickfix']
-let g:ctrlp_types = ['fil', 'buf', 'mru', 'quickfix']
+nnoremap <silent> <space>ff :FZFFiles<cr>
+nnoremap <silent> <space>fb :FZFBuffers<cr>
+nnoremap <silent> <space>fh :FZFHistory<cr>
+nnoremap <silent> <space>fc :FZFHistory:<cr>
+nnoremap <silent> <space>fs :FZFHistory/<cr>
+nnoremap <silent> <space>fg :FZFGFiles?<cr>
+nnoremap <silent> <space>ft :FZFBTags<cr>
+command! -bar -bang FZFMapsN call fzf#vim#maps("n", <bang>0)
+command! -bar -bang FZFMapsI call fzf#vim#maps("i", <bang>0)
+command! -bar -bang FZFMapsX call fzf#vim#maps("x", <bang>0)
+command! -bar -bang FZFMapsO call fzf#vim#maps("o", <bang>0)
+command! -bar -bang FZFMapsV call fzf#vim#maps("v", <bang>0)
 
 " ----> mbbill/undotree
 nnoremap <silent> <s-u> :UndotreeToggle<cr>
@@ -585,11 +624,6 @@ augroup Go
     autocmd FileType go nmap <space>gd :GoDebugStart<cr>
     autocmd FileType go nmap <space>gq :GoDebugStop<cr>
 augroup END
-let g:go_debug_windows = {
-    \ 'vars':       'rightbelow 60vnew',
-    \ 'stack':      'rightbelow 10new',
-    \ 'goroutines': 'botright 10new'
-\ }
 let g:go_debug_address = '127.0.0.1:8181'
 let g:go_debug_log_output = 'debugger'
 
@@ -720,11 +754,11 @@ autocmd! QuitPre * if empty(&buftype) | cclose | lclose | endif
 
 " ----> Netrw
 let g:netrw_banner = 1
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-let g:netrw_winsize = 25
+let g:netrw_liststyle = 1
 let g:netrw_list_hide = &wildignore
+let g:netrw_preview = 0
+let g:netrw_sort_options = 'i'
+let g:netrw_winsize = 25
 function! NetrwToggle() abort
     if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
         silent! exe "bd" . g:netrw_buffer | unlet g:netrw_buffer

@@ -8,6 +8,7 @@
     "diagnostic.warningSign": "--",
     "diagnostic.infoSign": "~~",
     "diagnostic.hintSign": "**",
+    "coc.preferences.enableMarkdown": true,
     "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
@@ -21,13 +22,16 @@
         "markdown"
     ],
     "coc.preferences.rootPatterns": [
-        ".vim",
+        ".root",
         ".git",
+        ".svn",
         ".hg",
-        ".projections.json",
-        ".travis.yml",
+        ".project",
         "Cargo.toml",
-        "go.mod"
+        "go.mod",
+        "Makefile",
+        "tsconfig.js",
+        "jsconfig.js"
     ],
     "coc.preferences.snippets.enable": false,
     "python.pythonPath": "python3",

@@ -61,6 +61,9 @@ set ignorecase                  " ignore case in search patterns.
 set smartcase                   " override the 'ignorecase' option if the search pattern contains upper case characters
 set incsearch                   " real time show the search case
 set hlsearch                    " highlight all search pattern results
+if executable('rg')
+    let &grepprg = 'rg --vimgrep' . (&smartcase ? ' --smart-case' : '') " Program to use for the :grep command
+endif
 
 set splitbelow                  " horizontally split below
 set splitright                  " vertically split to the right
@@ -123,6 +126,7 @@ set breakat=                    " line break character ' ', default are ' ^I!@*-
 set linebreak                   " break lines at word boundaries
 set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
+set ttymouse=xterm2             " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 set mouse=a                     " enable the mouse in all five modes
 if has('clipboard')
     set clipboard=unnamed       " enable clipboard with system
@@ -379,11 +383,11 @@ autocmd! QuitPre * if empty(&buftype) | cclose | lclose | endif
 
 " ----> Netrw
 let g:netrw_banner = 1
-let g:netrw_liststyle = 3
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-let g:netrw_winsize = 25
+let g:netrw_liststyle = 1
 let g:netrw_list_hide = &wildignore
+let g:netrw_preview = 0
+let g:netrw_sort_options = 'i'
+let g:netrw_winsize = 25
 function! NetrwToggle() abort
     if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
         silent! exe "bd" . g:netrw_buffer | unlet g:netrw_buffer
