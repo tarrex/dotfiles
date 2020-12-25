@@ -1,13 +1,4 @@
 {
-    "suggest.autoTrigger": "always",
-    "suggest.maxCompleteItemCount": 20,
-    "suggest.minTriggerInputLength": 2,
-    "diagnostic.enable": false,
-    "diagnostic.displayByAle": true,
-    "diagnostic.errorSign": ">>",
-    "diagnostic.warningSign": "--",
-    "diagnostic.infoSign": "~~",
-    "diagnostic.hintSign": "**",
     "coc.preferences.enableMarkdown": true,
     "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.formatOnType": true,
@@ -34,33 +25,45 @@
         "jsconfig.js"
     ],
     "coc.preferences.snippets.enable": false,
-    "python.pythonPath": "python3",
-    "python.jediEnabled": true,
-    "python.linting.enabled": false,
-    "python.formatting.provider": "none",
-    "java.errors.incompleteClasspath.severity": "ignore",
+
+    "diagnostic.enable": false,
+    "diagnostic.displayByAle": true,
+
+    "suggest.asciiCharactersOnly": true,
+    "suggest.autoTrigger": "always",
+    "suggest.maxCompleteItemCount": 20,
+    "suggest.minTriggerInputLength": 2,
+
+    "yaml.format.enable": true,
+    "yaml.format.singleQuote": true,
+    "yaml.schemas": {
+        "kubernetes": "/*.y?(a)ml"
+    },
+
+    "toml.formatter.reorderKeys": false,
+
+    "prettier.tabWidth": 4,
+    "prettier.singleQuote": true,
+    "prettier.trailingComma": "all",
+    "prettier.ignorePath": ".gitignore",
+
     "rust-analyzer.diagnostics.enable": false,
     "rust-analyzer.notifications.cargoTomlNotFound": false,
     "rust-analyzer.checkOnSave.enable": false,
     "rust-analyzer.lens.enable": false,
+
+    "clangd.semanticHighlighting": true,
+    "clangd.arguments": ["--background-index"],
+
     "languageserver": {
         "golang": {
             "command": "gopls",
-            "filetypes": [
-                "go"
-            ],
-            "rootPatterns": [
-                "go.mod",
-                ".git",
-                "Makefile"
-            ],
+            "filetypes": ["go"],
+            "rootPatterns": ["go.mod", ".git", "Makefile"],
             "initializationOptions": {
                 "usePlaceholders": false,
                 "completeUnimported": true
             }
         }
-    },
-    "yaml.schemas": {
-        "kubernetes": "/*.yaml"
     }
 }

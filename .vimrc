@@ -202,18 +202,24 @@ Plug 'nlknguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'junegunn/vim-easy-align'
+Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle', 'for': 'markdown' }
+Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
 Plug 'majutsushi/tagbar'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'mbbill/undotree'
-Plug 'jiangmiao/auto-pairs'
+Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
+Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 Plug 'dense-analysis/ale'
-Plug 'fatih/vim-go', {'do': ':GoInstallBinaries', 'for': ['go', 'vim-plug']}
-Plug 'rust-lang/rust.vim', {'for': ['rust', 'vim-plug']}
-Plug 'tarrex/nginx.vim', {'for': ['nginx', 'vim-plug']}
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
+Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+Plug 'kovisoft/paredit', { 'for': 'scheme' }
+Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
+Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
+Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 
 call plug#end()
 
@@ -225,34 +231,67 @@ let g:lightline = {
     \ },
     \ 'colorscheme': 'powerline',
     \ 'active': {
-    \   'left': [ [ 'mode', 'paste' ],
+    \   'left': [[ 'mode', 'paste' ],
     \           [ 'bufnum' ],
-    \           [ 'readonly', 'filename' ] ],
-    \   'right': [ [ 'lineinfo' ],
+    \           [ 'readonly', 'filename' ]],
+    \   'right': [[ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'linter', 'filesize', 'fileformat', 'fileencoding', 'filetype' ],
     \            [ 'tagbar' ]]
     \ },
     \ 'inactive': {
-    \   'left': [ [ 'filename' ]],
-    \   'right': [ [ 'lineinfo' ],
+    \   'left': [[ 'mode' ],
+    \           [ 'filename' ]],
+    \   'right': [[ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'filetype' ]]
     \ },
     \ 'component_function': {
+    \   'mode': 'LightLineMode',
     \   'filename': 'LightlineFilename',
     \   'linter': 'LightlineLinter',
-    \   'filesize': 'LightlineFileSize'
+    \   'filesize': 'LightlineFileSize',
+    \   'fileformat': 'LightLineFileFormat',
+    \   'fileencoding': 'LightLineFileEncoding',
+    \   'filetype': 'LightLineFileType'
     \ },
     \ 'component': {
     \   'tagbar': '[%{tagbar#currenttagtype("%s", "")}: %{tagbar#currenttag("%s", "", "f")}]'
     \ }
 \ }
 
+function! LightLineMode() abort
+    let fname = expand('%:t')
+    return fname ==? '__Tagbar__' ? 'Tagbar' :
+        \ (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
+        \ &ft ==? 'qf' ? 'QuickFix' :
+        \ &ft ==? 'netrw' ? 'Netrw' :
+        \ lightline#mode()
+endfunction
+
 function! LightlineFilename() abort
-    let filename = expand('%:t') !=# '' ? expand('%:t') : '[No Name]'
-    let modified = &modified ? ' +' : ''
-    return filename . modified
+    if winwidth(0) < 50
+      let fname = expand('%:t')
+    elseif winwidth(0) > 150
+      let fname = expand('%')
+    else
+      let fname = pathshorten(expand('%'))
+    endif
+    return fname ==? '__Tagbar__' ? '' :
+        \ &ft ==? 'netrw' ? '' :
+        \ ('' !=? fname ? fname : '[No Name]') .
+        \ (&modified ? ' +' : '')
+endfunction
+
+function! LightlineLinter() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return winwidth(0) > 80 ? (l:counts.total == 0 ? '' : printf(
+        \ '%dW %dE',
+        \ all_non_errors,
+        \ all_errors
+    \ )) : ''
 endfunction
 
 function! LightlineFileSize() abort
@@ -266,55 +305,57 @@ function! LightlineFileSize() abort
         let l:bytes /= 1024.0
         let l:idx += 1
     endwhile
-    return printf('%.1f%s', l:bytes, l:units[l:idx])
+    return winwidth(0) > 70 ? printf('%.1f%s', l:bytes, l:units[l:idx]) : ''
 endfunction
 
-function! LightlineLinter() abort
-    let l:counts = ale#statusline#Count(bufnr(''))
-    let l:all_errors = l:counts.error + l:counts.style_error
-    let l:all_non_errors = l:counts.total - l:all_errors
-    return l:counts.total == 0 ? '' : printf(
-        \ '%dW %dE',
-        \ all_non_errors,
-        \ all_errors
-    \ )
+function! LightLineFileFormat() abort
+    return winwidth(0) > 60 ? &fileformat : ''
+endfunction
+
+function! LightLineFileEncoding() abort
+    return winwidth(0) > 50 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightLineFileType() abort
+    return winwidth(0) > 40 ? (&ft !=# '' ? &ft : 'no ft') : ''
 endfunction
 
 " ----> easymotion/vim-easymotion
 let g:EasyMotion_do_mapping = 0
 let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
+let g:EasyMotion_grouping = 1
 let g:EasyMotion_smartcase = 1
 let g:EasyMotion_startofline = 0
 let g:EasyMotion_enter_jump_first = 1
 let g:EasyMotion_space_jump_first = 1
-let g:EasyMotion_grouping=1
 nnoremap <easymotion> <nop>
 nmap S <easymotion>
 nmap <easymotion>j <Plug>(easymotion-s2)
 xmap <easymotion>j <Plug>(easymotion-s2)
-omap z <Plug>(easymotion-s2)
 nmap <easymotion>/ <Plug>(easymotion-sn)
 xmap <easymotion>/ <Plug>(easymotion-sn)
-omap <easymotion>/ <Plug>(easymotion-tn)
-map <easymotion>k <Plug>(easymotion-bd-jk)
+map  <easymotion>k <Plug>(easymotion-bd-jk)
 nmap <easymotion>k <Plug>(easymotion-overwin-line)
-map <easymotion>S <Plug>(easymotion-bd-w)
+map  <easymotion>S <Plug>(easymotion-bd-w)
 nmap <easymotion>S <Plug>(easymotion-overwin-w)
-map <easymotion>w <Plug>(easymotion-bd-w)
+map  <easymotion>w <Plug>(easymotion-bd-w)
 nmap <easymotion>w <Plug>(easymotion-overwin-w)
 
 " ----> terryma/vim-multiple-cursors
 let g:multi_cursor_use_default_mapping = 0
 nnoremap <multiple-cursors> <nop>
-nmap M <multiple-cursors>
-let g:multi_cursor_start_word_key = 'M'
-let g:multi_cursor_select_all_word_key = '<Leader>M'
-let g:multi_cursor_start_key = 'gM'
-let g:multi_cursor_select_all_key = 'g<Leader>M'
+nmap C <multiple-cursors>
+let g:multi_cursor_start_word_key = 'C'
+let g:multi_cursor_select_all_word_key = '<leader>C'
+let g:multi_cursor_start_key = 'gC'
+let g:multi_cursor_select_all_key = 'g<leader>C'
 let g:multi_cursor_next_key = '<c-n>'
 let g:multi_cursor_prev_key = '<c-p>'
 let g:multi_cursor_skip_key = '<c-x>'
 let g:multi_cursor_quit_key = '<esc>'
+
+" ----> dhruvasagar/vim-table-mode
+let g:table_mode_corner = '|'
 
 " ----> majutsushi/tagbar
 noremap <silent> <s-t> :TagbarToggle<cr>
@@ -382,23 +423,20 @@ endif
 let g:coc_disable_startup_warning = 1
 let g:coc_global_extensions = [
     \ 'coc-word',
-    \ 'coc-cmake',
-    \ 'coc-vimlsp',
+    \ 'coc-emoji',
     \ 'coc-html',
     \ 'coc-css',
     \ 'coc-json',
     \ 'coc-yaml',
+    \ 'coc-toml',
     \ 'coc-tsserver',
-    \ 'coc-python',
-    \ 'coc-java',
+    \ 'coc-prettier',
+    \ 'coc-pyright',
     \ 'coc-rust-analyzer',
-    \ 'coc-clangd'
+    \ 'coc-clangd',
+    \ 'coc-vimlsp',
+    \ 'coc-translator'
 \]
-
-highlight clear CocErrorSign
-highlight clear CocWarningSign
-highlight clear CocInfoSign
-highlight clear CocHintSign
 
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
@@ -441,27 +479,19 @@ nmap <silent> gr <Plug>(coc-references)
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
+    if (index(['vim','help'], &filetype) >= 0)
+        execute 'h '.expand('<cword>')
+    elseif (coc#rpc#ready())
+        call CocActionAsync('doHover')
+    else
+        execute '!' . &keywordprg . " " . expand('<cword>')
+    endif
 endfunction
 
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-
-augroup CocFormat
+augroup Coc
     autocmd!
+    " Highlight the symbol and its references when holding the cursor.
+    autocmd CursorHold * silent call CocActionAsync('highlight')
     " Setup formatexpr specified filetype(s).
     autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
     autocmd FileType scss setl iskeyword+=@-@
@@ -469,33 +499,46 @@ augroup CocFormat
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
+nnoremap <coc>   <Nop>
+nmap     ; <coc>
+
+" Symbol renaming.
+nmap <coc>r <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <coc>f  <Plug>(coc-format-selected)
+nmap <coc>f  <Plug>(coc-format-selected)
+
 " Applying codeAction to the selected region.
 " Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
+xmap <coc>as  <Plug>(coc-codeaction-selected)
+nmap <coc>as  <Plug>(coc-codeaction-selected)
 
 " Remap keys for applying codeAction to the current line.
-nmap <leader>ac  <Plug>(coc-codeaction)
+nmap <coc>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
+nmap <coc>qf  <Plug>(coc-fix-current)
 
 " Map function and class text objects
 " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
+xmap <coc>if <Plug>(coc-funcobj-i)
+omap <coc>if <Plug>(coc-funcobj-i)
+xmap <coc>af <Plug>(coc-funcobj-a)
+omap <coc>af <Plug>(coc-funcobj-a)
+xmap <coc>ic <Plug>(coc-classobj-i)
+omap <coc>ic <Plug>(coc-classobj-i)
+xmap <coc>ac <Plug>(coc-classobj-a)
+omap <coc>ac <Plug>(coc-classobj-a)
 
 " Remap <C-f> and <C-b> for scroll float windows/popups.
-" Note coc#float#scroll works on neovim >= 0.4.3 or vim >= 8.2.0750
-nnoremap <nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-nnoremap <nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-inoremap <nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-inoremap <nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+    nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+    inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+    vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+    vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
 
 " Use CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of language server.
@@ -504,35 +547,49 @@ xmap <silent> <C-s> <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
-
 " Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
+command! -nargs=? Fold :call   CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+command! -nargs=0 OR   :call   CocAction('runCommand', 'editor.action.organizeImport')
 
 " Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <coc>d  :<C-u>CocDiagnostics<cr>
+nnoremap <silent><nowait> <coc>D  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <coc>e  :<C-u>CocList extensions<cr>
 " Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <coc>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <coc>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <coc>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <coc>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <coc>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+nnoremap <silent><nowait> <coc>p  :<C-u>CocListResume<CR>
+
+function! s:coc_uninstall_all() abort
+    for e in g:coc_global_extensions
+        execute 'CocUninstall ' . e
+    endfor
+endfunction
+
+command! CocInstallAll CocInstall -sync
+command! CocUninstallAll call s:coc_uninstall_all()
+
+function! s:coc_extension_exist(name) abort
+    let l:extension = get(g:, 'coc_global_extensions', {})
+    return (count(l:extension, a:name) != 0)
+endfunction
+
+" coc-translator
+if s:coc_extension_exist('coc-translator')
+    nmap <coc>t <Plug>(coc-translator-p)
+    vmap <coc>t <Plug>(coc-translator-pv)
+endif
 
 " ----> dense-analysis/ale
 let g:ale_command_wrapper = 'nice -n5'
@@ -623,7 +680,7 @@ augroup Go
     autocmd FileType go nmap <space>ge :GoIfErr<cr>
     autocmd FileType go nmap <space>gd :GoDebugStart<cr>
     autocmd FileType go nmap <space>gq :GoDebugStop<cr>
-augroup END
+augroup end
 let g:go_debug_address = '127.0.0.1:8181'
 let g:go_debug_log_output = 'debugger'
 
@@ -632,9 +689,14 @@ augroup Rust
     autocmd!
     autocmd FileType rust nmap <space>rb :Cbuild<cr>
     autocmd FileType rust nmap <space>rr :Crun<cr>
-augroup END
+augroup end
 
 " ============> Custom <============
+
+" ----> Matchit
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+    runtime! macros/matchit.vim
+endif
 
 " ----> Color
 silent! colorscheme PaperColor
@@ -644,13 +706,14 @@ silent! colorscheme PaperColor
 function! MyHighlights() abort
     highlight Normal guibg=black ctermbg=black
     highlight LineNr guibg=black ctermbg=black
+    highlight VertSplit guifg=black ctermfg=black
     highlight SignColumn guibg=black ctermbg=black
 endfunction
 
 augroup Highlights
     autocmd!
     autocmd SourcePre,ColorSchemePre * call MyHighlights()
-augroup END
+augroup end
 
 " ----> Keyboard
 let mapleader = ','                     " set vim map leader
@@ -741,7 +804,7 @@ nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:"
 
 " ----> Tricks
 " Switch to working directory of the open file
-autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
+" autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
 
 " Trim trailing whitespace on write
 autocmd! BufWritePre * :%s/\s\+$//e

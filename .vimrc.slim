@@ -181,41 +181,34 @@ let g:currentmode = {
     \   "\<C-s>": 'S-BLOCK', 't': 'TERMINAL'
     \ }
 
+" file name
+function! FileName() abort
+    if winwidth(0) < 50
+      let fname = expand('%:t')
+    elseif winwidth(0) > 150
+      let fname = expand('%')
+    else
+      let fname = pathshorten(expand('%'))
+    endif
+    return &ft ==? 'netrw' ? '' :
+        \ ('' !=? fname ? fname : '[No Name]') .
+        \ (&modified ? ' +' : '')
+endfunction
+
 " file size
 function! FileSize() abort
     let l:bytes = getfsize(@%)
     if l:bytes <= 0
         return '0B'
     endif
-    " let l:units = 'BKMGT'
-    " let l:fsize = ''
-    " let l:idx = 0
-    " while l:bytes > 0 && len(l:units) > 0 && l:idx < 5
-    "     let l:fsize = l:bytes % 1024 . l:units[l:idx] . l:fsize
-    "     let l:idx += 1
-    "     let l:bytes /= 1024
-    " endwhile
-    " return l:fsize
-    if (l:bytes >= 1024)
-        let l:kbytes = l:bytes / 1024
-    endif
-    if exists('l:kbytes') && l:kbytes >= 1024
-        let l:mbytes = l:kbytes / 1024
-    endif
-    if exists('l:mbytes') && l:mbytes >= 1024
-        let l:gbytes = l:mbytes / 1024
-    endif
-    if exists('l:gbytes')
-        return l:gbytes . 'G'
-    elseif exists('l:mbytes')
-        return l:mbytes . 'M'
-    elseif exists('l:kbytes')
-        return l:kbytes . 'K'
-    else
-        return l:bytes . 'B'
-    endif
+    let l:units = ['B', 'K', 'M', 'G']
+    let l:idx = 0
+    while l:bytes >= 1024
+        let l:bytes /= 1024.0
+        let l:idx += 1
+    endwhile
+    return printf('%.1f%s', l:bytes, l:units[l:idx])
 endfunction
-
 
 " statusline
 function! Statusline() abort
@@ -225,7 +218,7 @@ function! Statusline() abort
     let pst  = '%{&paste!=#"paste"? "| paste ":""}' " paste state
     let bnum = '| %n '                              " buffer number
     let ro   = '%{&ro!=#""?"| RO ":""}'             " read only flag
-    let fil  = '| %t '                              " tail of filename
+    let fname  = '| %{FileName()} '                 " tail of filename
     let md   = '%{&modified?"+":""}'                " modified flag
     let sep  = ' %= '                               " separator
     let fs   = '%{FileSize()} '                     " file size
@@ -234,7 +227,7 @@ function! Statusline() abort
     let ft   = '| %{&ft!=#""?&ft:"no ft"} '         " filetype
     let pct  = '| %3p%% '                           " percent through file
     let pos  = '| %3l:%-2v '                        " cursor column
-    return mo.pst.bnum.ro.fil.md.sep.fs.ff.fe.ft.pct.pos
+    return mo.pst.bnum.ro.fname.md.sep.fs.ff.fe.ft.pct.pos
 endfunction
 
 let &statusline = Statusline()
@@ -261,6 +254,11 @@ inoremap {;<CR> {<CR>};<ESC>O
 
 " ============> Custom <============
 
+" ----> Matchit
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+    runtime! macros/matchit.vim
+endif
+
 " ----> Color
 silent! colorscheme desert
 
@@ -269,6 +267,7 @@ silent! colorscheme desert
 function! MyHighlights() abort
     highlight Normal guibg=black ctermbg=black
     highlight LineNr guibg=black ctermbg=black
+    highlight VertSplit guifg=black ctermfg=black
     highlight SignColumn guibg=black ctermbg=black
     highlight Statusline guifg=gray18 guibg=yellow ctermfg=black ctermbg=yellow
     highlight StatuslineNC guifg=gray18 guibg=yellow ctermfg=black ctermbg=yellow
@@ -279,7 +278,7 @@ endfunction
 augroup Highlights
     autocmd!
     autocmd SourcePre,ColorSchemePre * call MyHighlights()
-augroup END
+augroup end
 
 " ----> Keyboard
 let mapleader = ','                     " set vim map leader
@@ -370,7 +369,7 @@ nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:"
 
 " ----> Tricks
 " Switch to working directory of the open file
-autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
+" autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
 
 " Trim trailing whitespace on write
 autocmd! BufWritePre * :%s/\s\+$//e
