@@ -29,10 +29,12 @@
     "diagnostic.enable": false,
     "diagnostic.displayByAle": true,
 
-    "suggest.asciiCharactersOnly": true,
+    "suggest.asciiCharactersOnly": false,
     "suggest.autoTrigger": "always",
     "suggest.maxCompleteItemCount": 20,
     "suggest.minTriggerInputLength": 2,
+
+    "html.autoClosingTags": true,
 
     "yaml.format.enable": true,
     "yaml.format.singleQuote": true,

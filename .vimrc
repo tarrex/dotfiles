@@ -2,7 +2,6 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> General <============
-
 let s:vimdir = $HOME . '/.vim'  " vim config directory
 
 if &compatible
@@ -13,6 +12,7 @@ syntax on                       " syntax highlighting
 filetype indent plugin on       " filetype detection on
 
 set number                      " print the line number in front of each line
+set relativenumber              " show the line number relative to the line with the cursor in front of each line
 set ruler                       " show the line and column number of the cursor position, separated by a comma
 set nowrap                      " wrap lines longer than the width of the window
 
@@ -321,15 +321,17 @@ function! LightLineFileType() abort
 endfunction
 
 " ----> easymotion/vim-easymotion
-let g:EasyMotion_do_mapping = 0
-let g:EasyMotion_keys = 'abcdefghijklmnopqrstuvwxyz'
-let g:EasyMotion_grouping = 1
-let g:EasyMotion_smartcase = 1
-let g:EasyMotion_startofline = 0
+let g:EasyMotion_do_mapping       = 0
+let g:EasyMotion_keys             = 'abcdefghijklmnopqrstuvwxyz'
+let g:EasyMotion_grouping         = 1
+let g:EasyMotion_smartcase        = 1
+let g:EasyMotion_startofline      = 0
 let g:EasyMotion_enter_jump_first = 1
 let g:EasyMotion_space_jump_first = 1
+
 nnoremap <easymotion> <nop>
-nmap S <easymotion>
+nmap     S            <easymotion>
+
 nmap <easymotion>j <Plug>(easymotion-s2)
 xmap <easymotion>j <Plug>(easymotion-s2)
 nmap <easymotion>/ <Plug>(easymotion-sn)
@@ -343,26 +345,29 @@ nmap <easymotion>w <Plug>(easymotion-overwin-w)
 
 " ----> terryma/vim-multiple-cursors
 let g:multi_cursor_use_default_mapping = 0
+
 nnoremap <multiple-cursors> <nop>
-nmap C <multiple-cursors>
-let g:multi_cursor_start_word_key = 'C'
+nmap     C                  <multiple-cursors>
+
+let g:multi_cursor_start_word_key      = 'C'
 let g:multi_cursor_select_all_word_key = '<leader>C'
-let g:multi_cursor_start_key = 'gC'
-let g:multi_cursor_select_all_key = 'g<leader>C'
-let g:multi_cursor_next_key = '<c-n>'
-let g:multi_cursor_prev_key = '<c-p>'
-let g:multi_cursor_skip_key = '<c-x>'
-let g:multi_cursor_quit_key = '<esc>'
+let g:multi_cursor_start_key           = 'gC'
+let g:multi_cursor_select_all_key      = 'g<leader>C'
+let g:multi_cursor_next_key            = '<c-n>'
+let g:multi_cursor_prev_key            = '<c-p>'
+let g:multi_cursor_skip_key            = '<c-x>'
+let g:multi_cursor_quit_key            = '<esc>'
 
 " ----> dhruvasagar/vim-table-mode
 let g:table_mode_corner = '|'
 
 " ----> majutsushi/tagbar
 noremap <silent> <s-t> :TagbarToggle<cr>
+
 let g:tagbar_ctags_bin = 'ctags'
 let g:tagbar_autofocus = 1
-let g:tagbar_sort = 0
-let g:tagbar_width = 40
+let g:tagbar_sort      = 0
+let g:tagbar_width     = 40
 
 let g:tagbar_type_make = {
     \ 'ctagstype': 'make',
@@ -382,7 +387,7 @@ let g:tagbar_type_markdown = {
 
 " ----> junegunn/fzf
 let g:fzf_command_prefix = 'FZF'
-let g:fzf_layout = { 'down': '40%' }
+let g:fzf_layout         = { 'down': '40%' }
 function! s:build_quickfix_list(lines)
     call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
     copen
@@ -399,6 +404,7 @@ let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info'
 if executable('rg')
     let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!{'.shellescape(&wildignore).'}"'
 endif
+
 nnoremap <silent> <space>ff :FZFFiles<cr>
 nnoremap <silent> <space>fb :FZFBuffers<cr>
 nnoremap <silent> <space>fh :FZFHistory<cr>
@@ -406,6 +412,7 @@ nnoremap <silent> <space>fc :FZFHistory:<cr>
 nnoremap <silent> <space>fs :FZFHistory/<cr>
 nnoremap <silent> <space>fg :FZFGFiles?<cr>
 nnoremap <silent> <space>ft :FZFBTags<cr>
+
 command! -bar -bang FZFMapsN call fzf#vim#maps("n", <bang>0)
 command! -bar -bang FZFMapsI call fzf#vim#maps("i", <bang>0)
 command! -bar -bang FZFMapsX call fzf#vim#maps("x", <bang>0)
@@ -421,7 +428,7 @@ if &backup || &writebackup
     set nowritebackup
 endif
 let g:coc_disable_startup_warning = 1
-let g:coc_global_extensions = [
+let g:coc_global_extensions       = [
     \ 'coc-word',
     \ 'coc-emoji',
     \ 'coc-html',
@@ -497,27 +504,26 @@ augroup Coc
     autocmd FileType scss setl iskeyword+=@-@
     " Update signature help on jump placeholder.
     autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
+augroup END
 
-nnoremap <coc>   <Nop>
-nmap     ; <coc>
+nnoremap <coc> <Nop>
+nmap     ;     <coc>
 
 " Symbol renaming.
 nmap <coc>r <Plug>(coc-rename)
 
 " Formatting selected code.
-xmap <coc>f  <Plug>(coc-format-selected)
-nmap <coc>f  <Plug>(coc-format-selected)
+xmap <coc>f <Plug>(coc-format-selected)
+nmap <coc>f <Plug>(coc-format-selected)
 
 " Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
-xmap <coc>as  <Plug>(coc-codeaction-selected)
-nmap <coc>as  <Plug>(coc-codeaction-selected)
+xmap <coc>as <Plug>(coc-codeaction-selected)
+nmap <coc>as <Plug>(coc-codeaction-selected)
 
 " Remap keys for applying codeAction to the current line.
-nmap <coc>ac  <Plug>(coc-codeaction)
+nmap <coc>ac <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
-nmap <coc>qf  <Plug>(coc-fix-current)
+nmap <coc>qf <Plug>(coc-fix-current)
 
 " Map function and class text objects
 " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
@@ -554,22 +560,22 @@ command! -nargs=0 OR   :call   CocAction('runCommand', 'editor.action.organizeIm
 
 " Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent><nowait> <coc>d  :<C-u>CocDiagnostics<cr>
-nnoremap <silent><nowait> <coc>D  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <coc>d :<C-u>CocDiagnostics<cr>
+nnoremap <silent><nowait> <coc>D :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent><nowait> <coc>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <coc>e :<C-u>CocList extensions<cr>
 " Show commands.
-nnoremap <silent><nowait> <coc>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <coc>c :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <coc>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <coc>o :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent><nowait> <coc>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <coc>s :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent><nowait> <coc>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <coc>j :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent><nowait> <coc>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <coc>k :<C-u>CocPrev<CR>
 " Resume latest coc list.
-nnoremap <silent><nowait> <coc>p  :<C-u>CocListResume<CR>
+nnoremap <silent><nowait> <coc>p :<C-u>CocListResume<CR>
 
 function! s:coc_uninstall_all() abort
     for e in g:coc_global_extensions
@@ -577,7 +583,7 @@ function! s:coc_uninstall_all() abort
     endfor
 endfunction
 
-command! CocInstallAll CocInstall -sync
+command! CocInstallAll   CocInstall -sync
 command! CocUninstallAll call s:coc_uninstall_all()
 
 function! s:coc_extension_exist(name) abort
@@ -592,30 +598,30 @@ if s:coc_extension_exist('coc-translator')
 endif
 
 " ----> dense-analysis/ale
-let g:ale_command_wrapper = 'nice -n5'
-let g:ale_maximum_file_size = 10 * 1024 * 1024
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_info_str = 'I'
+let g:ale_command_wrapper      = 'nice -n5'
+let g:ale_maximum_file_size    = 10 * 1024 * 1024
+let g:ale_echo_msg_error_str   = 'E'
+let g:ale_echo_msg_info_str    = 'I'
 let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_log_str = 'L'
-let g:ale_echo_msg_format = '%severity%: [%linter%] %s'
-let g:ale_loclist_msg_format = '[%linter%] %code: %%s'
-let g:ale_sign_error = '>>'
-let g:ale_sign_warning = '--'
-let g:ale_sign_info = '~~'
-let g:ale_set_quickfix = 1
-let g:ale_list_window_size = 6
-let g:ale_open_list = 'on_save'
-let g:ale_fix_on_save = 1
-let g:ale_fixers = {
+let g:ale_echo_msg_log_str     = 'L'
+let g:ale_echo_msg_format      = '%severity%: [%linter%] %s'
+let g:ale_loclist_msg_format   = '[%linter%] %code: %%s'
+let g:ale_sign_error           = '>>'
+let g:ale_sign_warning         = '--'
+let g:ale_sign_info            = '~~'
+let g:ale_set_quickfix         = 1
+let g:ale_list_window_size     = 6
+let g:ale_open_list            = 'on_save'
+let g:ale_fix_on_save          = 1
+let g:ale_fixers               = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
     \ 'go': ['goimports'],
     \ 'python': ['black'],
     \ 'rust': ['rustfmt']
 \}
-let g:ale_lint_delay = 1000
-let g:ale_linters_explicit = 1
-let g:ale_linters = {
+let g:ale_lint_delay           = 1000
+let g:ale_linters_explicit     = 1
+let g:ale_linters              = {
     \ 'c': ['gcc'],
     \ 'cpp': ['gcc'],
     \ 'go': ['golint', 'go vet'],
@@ -633,38 +639,43 @@ highlight clear ALEErrorSign
 highlight clear ALEWarningSign
 
 " ----> fatih/vim-go
-let g:go_version_warning = 0
-let g:go_code_completion_enabled = 0
-let g:go_updatetime = 0
-let g:go_jump_to_error = 0
-let g:go_fmt_autosave = 0
+let g:go_version_warning               = 0
+let g:go_code_completion_enabled       = 0
+let g:go_updatetime                    = 0
+let g:go_jump_to_error                 = 0
+let g:go_fmt_autosave                  = 0
 if has('patch-8.2.0012') || has('nvim')
-    let g:go_doc_popup_window = 1
+    let g:go_doc_popup_window          = 1
 endif
-let g:go_def_mapping_enabled = 0
-let g:go_list_height = 6
-let g:go_list_type = 'quickfix'
-let g:go_alternate_mode = 'vsplit'
-let g:go_echo_command_info = 0
-let g:go_echo_go_info = 0
-let g:go_addtags_transform = 'camelcase'
-let g:go_highlight_extra_types = 1
-let g:go_highlight_functions = 1
+let g:go_def_mapping_enabled           = 0
+let g:go_list_height                   = 6
+let g:go_list_type                     = 'quickfix'
+let g:go_alternate_mode                = 'vsplit'
+let g:go_echo_command_info             = 0
+let g:go_echo_go_info                  = 0
+let g:go_addtags_transform             = 'camelcase'
+let g:go_highlight_extra_types         = 1
+let g:go_highlight_functions           = 1
 let g:go_highlight_function_parameters = 1
-let g:go_highlight_function_calls = 1
-let g:go_highlight_types = 1
-let g:go_highlight_fields = 1
-let g:go_highlight_build_constraints = 1
-let g:go_highlight_generate_tags = 1
-let g:go_highlight_string_spellcheck = 0
-let g:go_highlight_diagnostic_errors = 0
+let g:go_highlight_function_calls      = 1
+let g:go_highlight_types               = 1
+let g:go_highlight_fields              = 1
+let g:go_highlight_build_constraints   = 1
+let g:go_highlight_generate_tags       = 1
+let g:go_highlight_string_spellcheck   = 0
+let g:go_highlight_diagnostic_errors   = 0
 let g:go_highlight_diagnostic_warnings = 0
+let g:go_debug_address                 = '127.0.0.1:8181'
+let g:go_debug_log_output              = 'debugger'
+
 augroup Go
     autocmd!
+    " :GoDoc work properly
     autocmd FileType go setlocal iskeyword+=.
-    autocmd FileType go nmap <s-d> :GoDoc <c-r>=expand('<cword>')<cr><cr>
-    autocmd FileType go nmap <c-g> :GoDeclsDir<cr>
-    autocmd FileType go imap <c-g> <esc>:<c-u>GoDeclsDir<cr>
+    " key maps for go
+    autocmd FileType go nmap <s-d>     :GoDoc <c-r>=expand('<cword>')<cr><cr>
+    autocmd FileType go nmap <c-g>     :GoDeclsDir<cr>
+    autocmd FileType go imap <c-g>     <esc>:<c-u>GoDeclsDir<cr>
     autocmd FileType go nmap <space>gr :GoRun<cr>
     autocmd FileType go nmap <space>gt :GoTestFunc<cr>
     autocmd FileType go nmap <space>gc :GoCovergeToggle!<cr>
@@ -680,85 +691,82 @@ augroup Go
     autocmd FileType go nmap <space>ge :GoIfErr<cr>
     autocmd FileType go nmap <space>gd :GoDebugStart<cr>
     autocmd FileType go nmap <space>gq :GoDebugStop<cr>
-augroup end
-let g:go_debug_address = '127.0.0.1:8181'
-let g:go_debug_log_output = 'debugger'
+augroup END
 
 " ----> rust-lang/rust.vim
 augroup Rust
     autocmd!
     autocmd FileType rust nmap <space>rb :Cbuild<cr>
     autocmd FileType rust nmap <space>rr :Crun<cr>
-augroup end
+augroup END
 
 " ============> Custom <============
-
-" ----> Matchit
-if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-    runtime! macros/matchit.vim
-endif
-
 " ----> Color
 silent! colorscheme PaperColor
 
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal guibg=black ctermbg=black
-    highlight LineNr guibg=black ctermbg=black
-    highlight VertSplit guifg=black ctermfg=black
-    highlight SignColumn guibg=black ctermbg=black
+    highlight Normal ctermbg=black guibg=black
+    highlight LineNr ctermbg=black guibg=black
+    highlight VertSplit ctermfg=black guifg=black
+    highlight SignColumn ctermbg=black guibg=black
 endfunction
 
 augroup Highlights
     autocmd!
     autocmd SourcePre,ColorSchemePre * call MyHighlights()
-augroup end
+augroup END
 
-" ----> Keyboard
-let mapleader = ','                     " set vim map leader
+" ----> Key maps
+let mapleader      = ','    " set vim map leader, <leader>
+let maplocalleader = '\'    " set vim local map leader, <localleader>
 
-nnoremap <leader>tc :tabclose<cr>       " close tab
-nnoremap <leader>tn :tabnext<cr>        " go to next tab
-nnoremap <leader>tp :tabprevious<cr>    " go to previous tab
-nnoremap <leader>te :tabnew<cr>         " create new tab
+" Buffer switching
+nnoremap <silent> [b    :bprevious<cr>
+nnoremap <silent> ]b    :bnext<cr>
+nnoremap <silent> [B    :bfirst<cr>
+nnoremap <silent> ]B    :blast<cr>
+nnoremap <silent> <c-q> :bdelete<cr>
 
-nnoremap <leader>bp :bprevious<cr>      " go to previous buffer
-nnoremap <leader>bn :bnext<cr>          " go to next buffer
-nnoremap <leader>bd :bdelete<cr>        " close the current buffer
-nnoremap <leader>bl :buffers<cr>        " list buffers
-nnoremap <leader>bg :buffer             " go to given buffer number
+" Tab switching
+nnoremap <silent> [t :tabprevious<cr>
+nnoremap <silent> ]t :tabnext<cr>
+nnoremap <silent> [T :tabfirst<cr>
+nnoremap <silent> ]T :tablast<cr>
 
-" Toggle spell check for en_us
-nnoremap <silent> <leader>s :setlocal spell! spelllang=en_us<cr>
+" Quickfox switching
+nnoremap <silent> [q :cprevious<cr>
+nnoremap <silent> ]q :cnext<cr>
+nnoremap <silent> [Q :cfirst<cr>
+nnoremap <silent> ]Q :clast<cr>
 
-cnoreabbrev W! w!   " easy exit vim
-cnoreabbrev Q! q!
-cnoreabbrev Qall! qall!
-cnoreabbrev Wq wq
-cnoreabbrev Wa wa
-cnoreabbrev wQ wq
-cnoreabbrev WQ wq
-cnoreabbrev W w
-cnoreabbrev Q q
-cnoreabbrev Qall qall
+" LocationList switching
+nnoremap <silent> [l :lprevious<cr>
+nnoremap <silent> ]l :lnext<cr>
+nnoremap <silent> [L :lfirst<cr>
+nnoremap <silent> ]L :llast<cr>
 
-nnoremap B ^        " move to beginning/end of line
-nnoremap E $
-nnoremap $ <nop>    " $/^ doesn't do anything
-nnoremap ^ <nop>
+" Preview window switching
+nnoremap <silent> [<c-t> :ptprevious<cr>
+nnoremap <silent> ]<c-t> :ptnext<cr>
 
-nnoremap gV `[v`]   " highlight last inserted text
+" Window switching in normal mode
+nnoremap <c-h> <c-w><c-h>
+nnoremap <c-j> <c-w><c-j>
+nnoremap <c-k> <c-w><c-k>
+nnoremap <c-l> <c-w><c-l>
+
+" Window switching in terminal mode
+tnoremap <c-h> <c-w><c-h>
+tnoremap <c-j> <c-w><c-j>
+tnoremap <c-k> <c-w><c-k>
+tnoremap <c-l> <c-w><c-l>
+tnoremap <c-q> <c-w>:q!<cr>
 
 " Vmap for maintain Visual Mode after shifting > and <
 vmap < <gv
 vmap > >gv
-
-noremap gh <c-w>h
-noremap gk <c-w>k
-noremap gl <c-w>l
-noremap gj <c-w>j
-" noremap F gf
 
 " Search will center on the line it's found in
 nnoremap n nzzzv
@@ -769,8 +777,16 @@ vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
 
 " Move vertically by visual line
-noremap <silent> <expr> j (v:count == 0 ? 'gj' : 'j')
-noremap <silent> <expr> k (v:count == 0 ? 'gk' : 'k')
+noremap  <silent> <expr> j v:count ? 'j' : 'gj'
+noremap  <silent> <expr> k v:count ? 'k' : 'gk'
+vnoremap <silent> <expr> j v:count ? 'j' : 'gj'
+vnoremap <silent> <expr> k v:count ? 'k' : 'gk'
+
+" Toggle spell check for en_us
+nnoremap <silent> <leader>s :setlocal spell! spelllang=en_us<cr>
+
+" Switch to working directory of the open file
+nnoremap <leader>cd :<c-u>lcd %:p:h<cr>:pwd<cr>
 
 " Turn off search highlight
 nnoremap <silent> <space>n :nohlsearch<cr>
@@ -792,6 +808,9 @@ nnoremap <silent> <space>l :set list!<cr>
 " Toggle soft-wrap
 nnoremap <silent> <space>w :set wrap! wrap?<cr>
 
+" Rotate tab size
+nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
+
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
 noremap <silent> <space>= :resize +2<cr>
@@ -799,29 +818,48 @@ noremap <silent> <space>[ :vertical resize -2<cr>
 noremap <silent> <space>] :vertical resize +2<cr>
 noremap <silent> <space>/ :wincmd =<cr>
 
-" Rotate tab size
-nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
+" Correct vim exit command
+cnoreabbrev W!      w!
+cnoreabbrev Q!      q!
+cnoreabbrev Qall!   qall!
+cnoreabbrev Wq      wq
+cnoreabbrev Wa      wa
+cnoreabbrev wQ      wq
+cnoreabbrev WQ      wq
+cnoreabbrev W       w
+cnoreabbrev Q       q
+cnoreabbrev Qall    qall
+
+" ----> Vim build
+nnoremap <buffer> <F5> :w!<cr>:make<cr>
+augroup VimBuild
+    autocmd!
+    autocmd FileType go      setl makeprg=go\ run\ %
+    autocmd FileType python  setl makeprg=python3\ %
+    autocmd FileType scheme  setl makeprg=chez\ --script\ %
+augroup END
 
 " ----> Tricks
-" Switch to working directory of the open file
-" autocmd! BufEnter * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
-
-" Trim trailing whitespace on write
-autocmd! BufWritePre * :%s/\s\+$//e
-
-" Remember cursor position
-autocmd! BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-
-" Close the quickfix or locationlist window when exiting
-autocmd! QuitPre * if empty(&buftype) | cclose | lclose | endif
+augroup VimTricks
+    autocmd!
+    " switch to working directory of the open file
+    " autocmd BufEnter    * if expand("%:p:h") !~ '^/tmp' | silent! lcd %:p:h | endif
+    " trim trailing whitespace on write
+    autocmd BufWritePre * :%s/\s\+$//e
+    " remember cursor position
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+    " close the quickfix or locationlist window when exiting
+    autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
+augroup END
 
 " ----> Netrw
-let g:netrw_banner = 1
-let g:netrw_liststyle = 1
-let g:netrw_list_hide = &wildignore
-let g:netrw_preview = 0
+let g:netrw_banner       = 1
+let g:netrw_liststyle    = 1
+let g:netrw_list_hide    = &wildignore
+let g:netrw_preview      = 0
 let g:netrw_sort_options = 'i'
-let g:netrw_winsize = 25
+let g:netrw_winsize      = 25
+
 function! NetrwToggle() abort
     if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
         silent! exe "bd" . g:netrw_buffer | unlet g:netrw_buffer
@@ -830,6 +868,11 @@ function! NetrwToggle() abort
     endif
 endfunction
 noremap <silent> <s-f> :call NetrwToggle()<cr>
+
+" ----> Matchit
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+    runtime! macros/matchit.vim
+endif
 
 " ----> Zen mode
 function! ZenModeToggle() abort
