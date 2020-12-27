@@ -237,7 +237,7 @@ let g:lightline = {
     \   'right': [[ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'linter', 'filesize', 'fileformat', 'fileencoding', 'filetype' ],
-    \            [ 'tagbar' ]]
+    \            [ 'tag' ]]
     \ },
     \ 'inactive': {
     \   'left': [[ 'mode' ],
@@ -249,14 +249,12 @@ let g:lightline = {
     \ 'component_function': {
     \   'mode': 'LightLineMode',
     \   'filename': 'LightlineFilename',
+    \   'tag': 'LightlineTag',
     \   'linter': 'LightlineLinter',
     \   'filesize': 'LightlineFileSize',
     \   'fileformat': 'LightLineFileFormat',
     \   'fileencoding': 'LightLineFileEncoding',
     \   'filetype': 'LightLineFileType'
-    \ },
-    \ 'component': {
-    \   'tagbar': '[%{tagbar#currenttagtype("%s", "")}: %{tagbar#currenttag("%s", "", "f")}]'
     \ }
 \ }
 
@@ -270,6 +268,7 @@ function! LightLineMode() abort
 endfunction
 
 function! LightlineFilename() abort
+    if mode() == 't' | return expand('%') | endif
     if winwidth(0) < 50
       let fname = expand('%:t')
     elseif winwidth(0) > 150
@@ -283,18 +282,31 @@ function! LightlineFilename() abort
         \ (&modified ? ' +' : '')
 endfunction
 
+function! LightlineTag() abort
+    if (winwidth(0) < 90 || mode() == 't') | return '' | endif
+    let l:type = tagbar#currenttagtype('%s', '')
+    let l:tag = tagbar#currenttag('%s', '', 'f')
+    return l:tag == '' ? '' : printf(
+        \ '[%s: %s]',
+        \ l:type,
+        \ l:tag
+    \ )
+endfunction
+
 function! LightlineLinter() abort
+    if (winwidth(0) < 80 || mode() == 't') | return '' | endif
     let l:counts = ale#statusline#Count(bufnr(''))
     let l:all_errors = l:counts.error + l:counts.style_error
     let l:all_non_errors = l:counts.total - l:all_errors
-    return winwidth(0) > 80 ? (l:counts.total == 0 ? '' : printf(
+    return l:counts.total == 0 ? '' : printf(
         \ '%dW %dE',
         \ all_non_errors,
         \ all_errors
-    \ )) : ''
+    \ )
 endfunction
 
 function! LightlineFileSize() abort
+    if (winwidth(0) < 70 || mode() == 't') | return '' | endif
     let l:bytes = getfsize(@%)
     if l:bytes <= 0
         return '0B'
@@ -305,19 +317,22 @@ function! LightlineFileSize() abort
         let l:bytes /= 1024.0
         let l:idx += 1
     endwhile
-    return winwidth(0) > 70 ? printf('%.1f%s', l:bytes, l:units[l:idx]) : ''
+    return printf('%.1f%s', l:bytes, l:units[l:idx])
 endfunction
 
 function! LightLineFileFormat() abort
-    return winwidth(0) > 60 ? &fileformat : ''
+    if (winwidth(0) < 60 || mode() == 't') | return '' | endif
+    return &fileformat
 endfunction
 
 function! LightLineFileEncoding() abort
-    return winwidth(0) > 50 ? (&fenc !=# '' ? &fenc : &enc) : ''
+    if (winwidth(0) < 50 || mode() == 't') | return '' | endif
+    return &fenc !=# '' ? &fenc : &enc
 endfunction
 
 function! LightLineFileType() abort
-    return winwidth(0) > 40 ? (&ft !=# '' ? &ft : 'no ft') : ''
+    if (winwidth(0) < 40 || mode() == 't') | return '' | endif
+    return &ft !=# '' ? &ft : 'no ft'
 endfunction
 
 " ----> easymotion/vim-easymotion
