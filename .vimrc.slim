@@ -444,12 +444,12 @@ endif
 " ----> Zen mode
 function! ZenModeToggle() abort
     if exists('s:zen_mode')
-        set smd ru sc nu ls=2
+        set smd ru sc nu rnu ls=2
         highlight clear Normal
         syntax on
         unlet s:zen_mode
     else
-        set nosmd noru nosc nonu ls=0
+        set nosmd noru nosc nonu nornu ls=0
         syntax off
         highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
         let s:zen_mode = 1

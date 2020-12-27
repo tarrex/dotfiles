@@ -192,7 +192,7 @@ if !filereadable(s:coc) || !filereadable(s:vimplug)
         echo 'Installing Vim-Plug...'
         echo ''
         silent exe '!curl -fLo ' . s:vimplug . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-        autocmd! VimEnter * PlugInstall
+        autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
 endif
 
@@ -206,9 +206,9 @@ Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle', 'for': 'markdown' }
 Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
-Plug 'liuchengxu/vista.vim'
+Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf.vim', { 'on': ['FZFFiles', 'FZFBuffers', 'FZFHistory', 'FZFHistory', 'FZFHistory', 'FZFGFiles', 'FZFBTags'] }
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
@@ -220,6 +220,7 @@ Plug 'kovisoft/paredit', { 'for': 'scheme' }
 Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
+Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 
 call plug#end()
 
@@ -430,6 +431,12 @@ command! -bar -bang FZFMapsV call fzf#vim#maps("v", <bang>0)
 
 " ----> mbbill/undotree
 nnoremap <silent> <s-u> :UndotreeToggle<cr>
+
+" ----> cohama/lexima.vim
+augroup Lexima
+    autocmd!
+    autocmd FileType scheme let b:lexima_disabled = 1
+augroup END
 
 " ----> neoclide/coc.nvim
 if &backup || &writebackup
