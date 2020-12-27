@@ -202,11 +202,11 @@ Plug 'nlknguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'junegunn/vim-easy-align'
+Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
 Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle', 'for': 'markdown' }
 Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
-Plug 'majutsushi/tagbar'
+Plug 'liuchengxu/vista.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
@@ -249,7 +249,6 @@ let g:lightline = {
     \ 'component_function': {
     \   'mode': 'LightLineMode',
     \   'filename': 'LightlineFilename',
-    \   'tag': 'LightlineTag',
     \   'linter': 'LightlineLinter',
     \   'filesize': 'LightlineFileSize',
     \   'fileformat': 'LightLineFileFormat',
@@ -260,7 +259,7 @@ let g:lightline = {
 
 function! LightLineMode() abort
     let fname = expand('%:t')
-    return fname ==? '__Tagbar__' ? 'Tagbar' :
+    return fname ==? '__vista__' ? 'Vista' :
         \ (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
         \ &ft ==? 'qf' ? 'QuickFix' :
         \ &ft ==? 'netrw' ? 'Netrw' :
@@ -276,21 +275,10 @@ function! LightlineFilename() abort
     else
       let fname = pathshorten(expand('%'))
     endif
-    return fname ==? '__Tagbar__' ? '' :
+    return fname ==? '__vista__' ? '' :
         \ &ft ==? 'netrw' ? '' :
         \ ('' !=? fname ? fname : '[No Name]') .
         \ (&modified ? ' +' : '')
-endfunction
-
-function! LightlineTag() abort
-    if (winwidth(0) < 90 || mode() == 't') | return '' | endif
-    let l:type = tagbar#currenttagtype('%s', '')
-    let l:tag = tagbar#currenttag('%s', '', 'f')
-    return l:tag == '' ? '' : printf(
-        \ '[%s: %s]',
-        \ l:type,
-        \ l:tag
-    \ )
 endfunction
 
 function! LightlineLinter() abort
@@ -376,29 +364,35 @@ let g:multi_cursor_quit_key            = '<esc>'
 " ----> dhruvasagar/vim-table-mode
 let g:table_mode_corner = '|'
 
-" ----> majutsushi/tagbar
-noremap <silent> <s-t> :TagbarToggle<cr>
+" ----> liuchengxu/vista.vim
+let g:vista_sidebar_position         = 'vertical botright'
+let g:vista_sidebar_width            = 30
+let g:vista_echo_cursor              = 1
+let g:vista_cursor_delay             = 400
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+    let g:vista_echo_cursor_strategy = 'floating_win'
+else
+    let g:vista_echo_cursor_strategy = 'echo'
+endif
+let g:vista_close_on_jump            = 0
+let g:vista_stay_on_open             = 1
+let g:vista_blink                    = [2, 100]
+let g:vista_icon_indent              = ['╰─▸ ', '├─▸ ']
+let g:vista_default_executive        = 'coc'
+let g:vista#executives               = ['coc', 'ctags']
+let g:vista_ctags_cmd                = {
+      \ 'haskell': 'hasktags -o - -c',
+      \ }
+let g:vista_fzf_preview              = ['right:50%']
+let g:vista_disable_statusline       = 0
+let g:vista#renderer#enable_icon     = 0
+let g:vista_no_mappings              = 0
 
-let g:tagbar_ctags_bin = 'ctags'
-let g:tagbar_autofocus = 1
-let g:tagbar_sort      = 0
-let g:tagbar_width     = 40
-
-let g:tagbar_type_make = {
-    \ 'ctagstype': 'make',
-    \ 'kinds': [
-        \ 'm:macros',
-        \ 't:targets'
-    \ ]
-\ }
-
-let g:tagbar_type_markdown = {
-    \ 'ctagstype': 'markdown',
-    \ 'kinds': [
-        \ 'h:headings',
-    \ ],
-    \ 'sort': 0
-\ }
+augroup Vista
+    autocmd!
+    autocmd FileType *          nmap <s-t> :Vista coc<cr>
+    autocmd FileType markdown   nmap <s-t> :Vista toc<cr>
+augroup END
 
 " ----> junegunn/fzf
 let g:fzf_command_prefix = 'FZF'
@@ -892,12 +886,12 @@ endif
 " ----> Zen mode
 function! ZenModeToggle() abort
     if exists('s:zen_mode')
-        set smd ru sc nu ls=2
+        set smd ru sc nu rnu ls=2
         highlight clear Normal
         syntax on
         unlet s:zen_mode
     else
-        set nosmd noru nosc nonu ls=0
+        set nosmd noru nosc nonu nornu ls=0
         syntax off
         highlight Normal guifg=LightGrey ctermfg=LightGrey guibg=black ctermbg=black
         let s:zen_mode = 1
