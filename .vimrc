@@ -433,9 +433,17 @@ command! -bar -bang FZFMapsV call fzf#vim#maps("v", <bang>0)
 nnoremap <silent> <s-u> :UndotreeToggle<cr>
 
 " ----> cohama/lexima.vim
+function! s:lexima_custom_rules() abort
+    call lexima#add_rule({'char': '$', 'input_after': '$', 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
+    call lexima#add_rule({'char': '$', 'at': '\%#\$', 'leave': 1, 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
+    call lexima#add_rule({'char': '$', 'at': '^\$\%#\$$', 'input_after' : '<CR>$', 'filetype': ['markdown']})
+    call lexima#add_rule({'char': '<BS>', 'at': '\$\%#\$', 'delete': 1, 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
+    call lexima#add_rule({'char': '<BS>', 'at': '^\$\$\%#\n\$\$$', 'input': '<BS><BS>', 'delete': 3, 'filetype' : ['markdown']})
+endfunction
 augroup Lexima
     autocmd!
     autocmd FileType scheme let b:lexima_disabled = 1
+    autocmd VimEnter * call s:lexima_custom_rules()
 augroup END
 
 " ----> neoclide/coc.nvim
