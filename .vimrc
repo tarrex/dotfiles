@@ -200,15 +200,41 @@ call plug#begin(s:vimdir . '/plugged')
 
 Plug 'nlknguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
-Plug 'easymotion/vim-easymotion'
+Plug 'easymotion/vim-easymotion', { 'on': ['<Plug>(easymotion-s2)',
+                                         \ '<Plug>(easymotion-s2)',
+                                         \ '<Plug>(easymotion-sn)',
+                                         \ '<Plug>(easymotion-sn)',
+                                         \ '<Plug>(easymotion-bd-jk)',
+                                         \ '<Plug>(easymotion-overwin-line)',
+                                         \ '<Plug>(easymotion-bd-w)',
+                                         \ '<Plug>(easymotion-overwin-w)',
+                                         \ '<Plug>(easymotion-bd-w)',
+                                         \ '<Plug>(easymotion-overwin-w)'] }
 Plug 'terryma/vim-multiple-cursors'
-Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)', 'EasyAlign'] }
-Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle', 'for': 'markdown' }
+Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)',
+                                       \ 'EasyAlign'] }
+Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
-Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive', { 'on': [ 'G', 'Git', 'Ggrep', 'Glgrep', 'Gclog', 'Gllog',
+                                   \ 'Gcd', 'Glcd', 'Gedit', 'Gsplit', 'Gvsplit',
+                                   \ 'Gtabedit', 'Gpedit', 'Gread', 'Gwrite', 'Gwq',
+                                   \ 'Gdiffsplit', 'Gvdiffsplit', 'Ghdiffsplit', 'GMove',
+                                   \ 'GRename', 'GDelete', 'GRemove', 'GBrowse'] }
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim', { 'on': ['FZFFiles', 'FZFBuffers', 'FZFHistory', 'FZFHistory', 'FZFHistory', 'FZFGFiles', 'FZFBTags'] }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() }, 'on': ['FZFFiles',
+                                                        \ 'FZFBuffers',
+                                                        \ 'FZFHistory',
+                                                        \ 'FZFHistory',
+                                                        \ 'FZFHistory',
+                                                        \ 'FZFGFiles',
+                                                        \ 'FZFBTags'] }
+Plug 'junegunn/fzf.vim', { 'on': ['FZFFiles',
+                                \ 'FZFBuffers',
+                                \ 'FZFHistory',
+                                \ 'FZFHistory',
+                                \ 'FZFHistory',
+                                \ 'FZFGFiles',
+                                \ 'FZFBTags'] }
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
@@ -221,6 +247,7 @@ Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
+Plug '$VIMRUNTIME/pack/dist/opt/matchit'
 
 call plug#end()
 
@@ -892,11 +919,6 @@ function! NetrwToggle() abort
     endif
 endfunction
 noremap <silent> <s-f> :call NetrwToggle()<cr>
-
-" ----> Matchit
-if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-    runtime! macros/matchit.vim
-endif
 
 " ----> Zen mode
 function! ZenModeToggle() abort

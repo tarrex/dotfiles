@@ -259,6 +259,11 @@ inoremap {      {}<left>
 inoremap {<cr>  {<cr>}<esc>O
 inoremap {;<cr> {<cr>};<esc>O
 
+" pack
+if !exists('g:loaded_matchit')
+    packadd matchit
+endif
+
 " ============> Custom <============
 " ----> Color
 silent! colorscheme desert
@@ -435,11 +440,6 @@ function! NetrwToggle() abort
     endif
 endfunction
 noremap <silent> <s-f> :call NetrwToggle()<cr>
-
-" ----> Matchit
-if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-    runtime! macros/matchit.vim
-endif
 
 " ----> Zen mode
 function! ZenModeToggle() abort
