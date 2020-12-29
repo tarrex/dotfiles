@@ -227,14 +227,16 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() }, 'on': ['FZFFiles',
                                                         \ 'FZFHistory',
                                                         \ 'FZFHistory',
                                                         \ 'FZFGFiles',
-                                                        \ 'FZFBTags'] }
+                                                        \ 'FZFBTags',
+                                                        \ 'FZFRg'] }
 Plug 'junegunn/fzf.vim', { 'on': ['FZFFiles',
                                 \ 'FZFBuffers',
                                 \ 'FZFHistory',
                                 \ 'FZFHistory',
                                 \ 'FZFHistory',
                                 \ 'FZFGFiles',
-                                \ 'FZFBTags'] }
+                                \ 'FZFBTags',
+                                \ 'FZFRg'] }
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
@@ -449,6 +451,7 @@ nnoremap <silent> <space>fc :FZFHistory:<cr>
 nnoremap <silent> <space>fs :FZFHistory/<cr>
 nnoremap <silent> <space>fg :FZFGFiles?<cr>
 nnoremap <silent> <space>ft :FZFBTags<cr>
+nnoremap <silent> <space>fr :FZFRg<cr>
 
 command! -bar -bang FZFMapsN call fzf#vim#maps("n", <bang>0)
 command! -bar -bang FZFMapsI call fzf#vim#maps("i", <bang>0)
