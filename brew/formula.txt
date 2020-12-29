@@ -1,12 +1,10 @@
 automake
 bat
-bpytop
 chezscheme
 cloc
 cmake
 emacs
 ffmpeg
-fish
 fzf
 gcc
 gdb
@@ -24,9 +22,9 @@ mtr
 nmap
 opencc
 openjdk
+osx-cpu-temp
 pandoc
 qemu
-ranger
 rename
 ripgrep
 rustup-init

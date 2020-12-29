@@ -9,8 +9,7 @@
         "javascript",
         "typescript",
         "json",
-        "yaml",
-        "markdown"
+        "yaml"
     ],
     "coc.preferences.rootPatterns": [
         ".root",
