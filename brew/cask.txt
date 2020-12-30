@@ -8,6 +8,7 @@ cheatsheet
 clashx
 clion
 dash
+datagrip
 db-browser-for-sqlite
 dingtalk
 docker
