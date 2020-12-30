@@ -70,6 +70,7 @@ set splitright                  " vertically split to the right
 set noequalalways               " all the windows are automatically made the same size after splitting or closing a window
 
 set pastetoggle=<F4>            " set paste toggle
+set termwinkey=<c-w>            " the key that starts a CTRL-W command in a terminal window
 
 set background=dark             " try to use colors that look good on a dark background
 if has('termguicolors')
@@ -200,43 +201,15 @@ call plug#begin(s:vimdir . '/plugged')
 
 Plug 'nlknguyen/papercolor-theme'
 Plug 'itchyny/lightline.vim'
-Plug 'easymotion/vim-easymotion', { 'on': ['<Plug>(easymotion-s2)',
-                                         \ '<Plug>(easymotion-s2)',
-                                         \ '<Plug>(easymotion-sn)',
-                                         \ '<Plug>(easymotion-sn)',
-                                         \ '<Plug>(easymotion-bd-jk)',
-                                         \ '<Plug>(easymotion-overwin-line)',
-                                         \ '<Plug>(easymotion-bd-w)',
-                                         \ '<Plug>(easymotion-overwin-w)',
-                                         \ '<Plug>(easymotion-bd-w)',
-                                         \ '<Plug>(easymotion-overwin-w)'] }
+Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)',
-                                       \ 'EasyAlign'] }
+Plug 'junegunn/vim-easy-align'
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
-Plug 'tpope/vim-fugitive', { 'on': [ 'G', 'Git', 'Ggrep', 'Glgrep', 'Gclog', 'Gllog',
-                                   \ 'Gcd', 'Glcd', 'Gedit', 'Gsplit', 'Gvsplit',
-                                   \ 'Gtabedit', 'Gpedit', 'Gread', 'Gwrite', 'Gwq',
-                                   \ 'Gdiffsplit', 'Gvdiffsplit', 'Ghdiffsplit', 'GMove',
-                                   \ 'GRename', 'GDelete', 'GRemove', 'GBrowse'] }
+Plug 'tpope/vim-fugitive'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() }, 'on': ['FZFFiles',
-                                                        \ 'FZFBuffers',
-                                                        \ 'FZFHistory',
-                                                        \ 'FZFHistory',
-                                                        \ 'FZFHistory',
-                                                        \ 'FZFGFiles',
-                                                        \ 'FZFBTags',
-                                                        \ 'FZFRg'] }
-Plug 'junegunn/fzf.vim', { 'on': ['FZFFiles',
-                                \ 'FZFBuffers',
-                                \ 'FZFHistory',
-                                \ 'FZFHistory',
-                                \ 'FZFHistory',
-                                \ 'FZFGFiles',
-                                \ 'FZFBTags',
-                                \ 'FZFRg'] }
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'cohama/lexima.vim'
 Plug 'tpope/vim-surround'
@@ -600,10 +573,9 @@ if has('nvim-0.4.0') || has('patch-8.2.0750')
     vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 endif
 
-" Use CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
+nmap <silent> <coc>v <Plug>(coc-range-select)
+xmap <silent> <coc>v <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
@@ -686,8 +658,10 @@ let g:ale_linters              = {
     \ 'sh': ['shell']
 \ }
 
-nmap <silent> <c-k> <Plug>(ale_previous_wrap)
-nmap <silent> <c-j> <Plug>(ale_next_wrap)
+nmap <silent> [a <Plug>(ale_previous)
+nmap <silent> ]a <Plug>(ale_next)
+nmap <silent> [A <Plug>(ale_first)
+nmap <silent> ]A <Plug>(ale_last)
 
 highlight clear ALEErrorSign
 highlight clear ALEWarningSign
@@ -788,6 +762,8 @@ nnoremap <silent> [t :tabprevious<cr>
 nnoremap <silent> ]t :tabnext<cr>
 nnoremap <silent> [T :tabfirst<cr>
 nnoremap <silent> ]T :tablast<cr>
+nnoremap <silent> <c-t> :tabnew<cr>
+inoremap <silent> <c-t> <esc>:tabnew<cr>
 
 " Quickfox switching
 nnoremap <silent> [q :cprevious<cr>
@@ -806,17 +782,21 @@ nnoremap <silent> [<c-t> :ptprevious<cr>
 nnoremap <silent> ]<c-t> :ptnext<cr>
 
 " Window switching in normal mode
-nnoremap <c-h> <c-w><c-h>
-nnoremap <c-j> <c-w><c-j>
-nnoremap <c-k> <c-w><c-k>
-nnoremap <c-l> <c-w><c-l>
+nnoremap <c-H> <c-w>h
+nnoremap <c-J> <c-w>j
+nnoremap <c-K> <c-w>k
+nnoremap <c-L> <c-w>l
+inoremap <c-H> <esc><c-w>h
+inoremap <c-J> <esc><c-w>j
+inoremap <c-K> <esc><c-w>k
+inoremap <c-L> <esc><c-w>l
 
 " Window switching in terminal mode
-tnoremap <c-h> <c-w><c-h>
-tnoremap <c-j> <c-w><c-j>
-tnoremap <c-k> <c-w><c-k>
-tnoremap <c-l> <c-w><c-l>
-tnoremap <c-q> <c-w>:q!<cr>
+tnoremap <c-H> <c-w>h
+tnoremap <c-J> <c-w>j
+tnoremap <c-K> <c-w>k
+tnoremap <c-L> <c-w>l
+tnoremap <silent> <c-q> <c-w>:q!<cr>
 
 " Vmap for maintain Visual Mode after shifting > and <
 vmap < <gv
@@ -829,6 +809,10 @@ nnoremap N Nzzzv
 " Move visual block
 vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
+
+" Fast save
+noremap  <silent> <c-s> :update<cr>
+inoremap <silent> <c-s> <esc>:update<cr>
 
 " Move vertically by visual line
 noremap  <silent> <expr> j v:count ? 'j' : 'gj'
@@ -885,7 +869,7 @@ cnoreabbrev Q       q
 cnoreabbrev Qall    qall
 
 " ----> Vim build
-nnoremap <buffer> <F5> :w!<cr>:make<cr>
+nnoremap <buffer> <space>m :w!<cr>:make<cr>
 augroup VimBuild
     autocmd!
     autocmd FileType go      setl makeprg=go\ run\ %
