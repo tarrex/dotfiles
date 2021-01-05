@@ -514,6 +514,16 @@ if [[ $OSTYPE == darwin* ]]; then
     export BROWSER='open'
 fi
 
+# /usr/sbin
+if [[ -d /usr/sbin ]]; then
+    export PATH="/usr/sbin:$PATH"
+fi
+
+# /usr/local/sbin
+if [[ -d /usr/local/sbin ]]; then
+    export PATH="/usr/local/sbin:$PATH"
+fi
+
 # ~/.local/bin
 if [[ -d $HOME/.local/bin ]]; then
     export PATH="$HOME/.local/bin:$PATH"
@@ -538,7 +548,6 @@ if [[ $OSTYPE == darwin* ]]; then
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
     # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
-    export PATH="/usr/local/sbin:$PATH"
 fi
 
 # Rust
@@ -626,6 +635,8 @@ alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks
 
 # Typora
 alias typora="open -a typora"
+alias blog='open -a typora ~/Workspace/Github/blog'
+alias wiki='open -a typora ~/Workspace/Github/wiki'
 
 # Web search
 alias bing='web_search bing'
