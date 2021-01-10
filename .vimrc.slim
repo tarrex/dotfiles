@@ -14,7 +14,7 @@ filetype indent plugin on       " filetype detection on
 set number                      " print the line number in front of each line
 set relativenumber              " show the line number relative to the line with the cursor in front of each line
 set ruler                       " show the line and column number of the cursor position, separated by a comma
-set nowrap                      " wrap lines longer than the width of the window
+set nowrap                      " don't wrap lines longer than the width of the window
 
 let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
@@ -36,13 +36,13 @@ set smarttab                    " be smart when use tabs
 set autoindent                  " copy indent from current line when starting a new line
 set breakindent                 " every wrapped line will continue visually indented
 
-if has('multi_byte')
-    set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,euc-jp,latin1 " list of character encodings considered when starting to edit an existing file
-    set encoding=utf-8          " the character encoding used inside vim
-    set fileencoding=utf-8      " the character encoding for the file of this buffer
-endif
-set fileformat=unix             " gives the <eol> of the current buffer
+set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,euc-jp,latin1 " list of character encodings considered when starting to edit an existing file
+set encoding=utf-8              " the character encoding used inside vim
 set fileformats=unix,dos,mac    " gives the <eol> formats of editing a new buffer or reading a file
+if &modifiable
+    set fileencoding=utf-8      " the character encoding for the file of this buffer
+    set fileformat=unix         " gives the <eol> of the current buffer
+endif
 
 set ambiwidth=double            " use twice the width of ASCII characters for East Asian Width Class Ambiguous
 set delcombine                  " delete each combining character on its own
@@ -73,36 +73,33 @@ set pastetoggle=<F4>            " set paste toggle
 set termwinkey=<c-w>            " the key that starts a CTRL-W command in a terminal window
 
 set background=dark             " try to use colors that look good on a dark background
-if has('termguicolors')
-    set termguicolors           " enable GUI colors for the terminal to get truecolor
-endif
+silent! set termguicolors       " enable GUI colors for the terminal to get truecolor
 
 set noswapfile                  " don't create swapfile for the buffer
 let &backupdir = s:vimdir . '/tmp'
 if !isdirectory(&backupdir)
     silent! call mkdir(&backupdir, 'p', 0755)
-    set backup                              " make a backup before overwriting a file
-    set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
-    set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
-endif
-if has('persistent_undo')
-    let &undodir = s:vimdir . '/undodir'    " list of directory names for undo files, separated with commas
-    if !isdirectory(&undodir)
-        silent! call mkdir(&undodir, 'p', 0755)
-    endif
-    set undofile                            " automatically saves undo history to an undo file
-    set undolevels=1000                     " maximum number of changes that can be undone
+    set backup                                  " make a backup before overwriting a file
+    set backupext=.bak                          " string which is appended to a file name to make the name of the backup file
+    set backupskip+=/etc/cron.*/*               " list of file patterns that do not create backup file
 endif
 
-set viminfo='100,:10000,<50,s10,h,!         " viminfo settings
+let &undodir = s:vimdir . '/undodir'            " list of directory names for undo files, separated with commas
+if !isdirectory(&undodir)
+    silent! call mkdir(&undodir, 'p', 0755)
+    set undofile                                " automatically saves undo history to an undo file
+    set undolevels=1000                         " maximum number of changes that can be undone
+endif
+
+set viminfo='100,:10000,<50,s10,h,!             " viminfo settings
 if has('nvim')
     let &viminfo.=',n' . s:vimdir . '/nviminfo' " viminfo file location
 else
     let &viminfo.=',n' . s:vimdir . '/viminfo'  " viminfo file location
 endif
-set history=10000                           " set how many lines of command history vim has to remember
+set history=10000                               " set how many lines of command history vim has to remember
 
-set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
+set dictionary+=/usr/share/dict/words           " files that are used to lookup words for keyword completion commands
 
 if has('patch-8.1.1564')
     set signcolumn=number       " display signs in the 'number' column
@@ -129,9 +126,7 @@ set updatetime=300              " time delay for swap and cursor hold
 set visualbell t_vb=            " no beep or flash is wanted
 set ttymouse=xterm2             " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 set mouse=a                     " enable the mouse in all five modes
-if has('clipboard')
-    set clipboard=unnamed       " enable clipboard with system
-endif
+silent! set clipboard=unnamed   " enable clipboard with system
 
 set nolist                      " don't display non-printable characters
 set listchars+=extends:>        " unwrapped text to screen right
@@ -140,11 +135,11 @@ set listchars+=tab:\|-          " tab characters, preserve width
 set listchars+=trail:_          " trailing spaces
 set listchars+=nbsp:+           " non-breaking spaces
 
-set completeopt+=longest,menuone        " list of options for insert mode completion
-silent! set completeopt+=popup          " add popup option for insert mode completion if could
-silent! set completepopup=border:off    " used for the properties of the info popup when it is created
+set completeopt+=longest,menuone                " list of options for insert mode completion
+silent! set completeopt+=popup                  " add popup option for insert mode completion if could
+silent! set completepopup=border:off            " used for the properties of the info popup when it is created
 
-set diffopt+=vertical,context:3,foldcolumn:0 " option settings for diff mode
+set diffopt+=vertical,context:3,foldcolumn:0    " option settings for diff mode
 if &diffopt =~ 'internal'
     set diffopt+=indent-heuristic,algorithm:patience
 endif
@@ -355,6 +350,9 @@ nnoremap N Nzzzv
 vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
 
+" Search in selected visual block
+vnoremap / :<C-U>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<CR>
+
 " Fast save
 noremap  <silent> <c-s> :update<cr>
 inoremap <silent> <c-s> <esc>:update<cr>
@@ -394,6 +392,9 @@ nnoremap <silent> <space>w :set wrap! wrap?<cr>
 " Rotate tab size
 nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
 
+" Reselect the text that has just been pasted
+nnoremap <silent> <space>p `[V`]
+
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
 noremap <silent> <space>= :resize +2<cr>
@@ -430,7 +431,7 @@ augroup VimTricks
     " trim trailing whitespace on write
     autocmd BufWritePre * :%s/\s\+$//e
     " remember cursor position
-    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+    autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
     autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
 augroup END
@@ -445,7 +446,7 @@ let g:netrw_winsize      = 25
 
 function! NetrwToggle() abort
     if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
-        silent! exe "bd" . g:netrw_buffer | unlet g:netrw_buffer
+        silent! execute "bd" . g:netrw_buffer | unlet g:netrw_buffer
     else
         silent! Lexplore | let g:netrw_buffer=bufnr("%")
     endif
@@ -474,8 +475,8 @@ function! DiffWithSaved() abort
     diffthis
     vnew | r # | normal! 1Gdd
     diffthis
-    exe 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
-    exe 'normal! ]c'
+    execute 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
+    execute 'normal! ]c'
 endfunction
 nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 
@@ -497,18 +498,3 @@ function! LocationToggle() abort
     endif
 endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
-
-" ----> Quick note to file
-function! QuickNote(text) abort
-    let text = substitute(a:text, '^\s*\(.\{-}\)\s*$', '\1', '')
-    if exists('*writefile') && text != ''
-        let filename = get(g:, 'quicknote_file', '~/.vim/quicknote.md')
-        let notehead = get(g:, 'quicknote_head', '- ')
-        let notetime = strftime("[%Y-%m-%d %H:%M:%S]")
-        let realname = expand(filename)
-        call writefile([notehead . notetime . text], realname, 'a')
-        checktime
-        echo notetime . text
-    endif
-endfunction
-command! -nargs=+ Note call QuickNote(<q-args>)
