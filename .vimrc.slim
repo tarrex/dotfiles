@@ -191,7 +191,7 @@ function! FileSize() abort
     let l:units = ['B', 'K', 'M', 'G']
     let l:idx = 0
     while l:bytes >= 1024
-        let l:bytes /= 1024.0
+        let l:bytes = l:bytes / 1024.0
         let l:idx += 1
     endwhile
     return printf('%.1f%s', l:bytes, l:units[l:idx])
