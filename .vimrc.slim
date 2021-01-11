@@ -20,9 +20,6 @@ let s:bytes = getfsize(@%)
 if s:bytes < 10 * 1024 * 1024   " 10MB
     set cursorline              " show underline for the cursor's line
     " set cursorcolumn            " show column line for the cursor's column
-else
-    set nocursorline
-    set nocursorcolumn
 endif
 silent! set cursorlineopt=number
 
@@ -36,13 +33,13 @@ set smarttab                    " be smart when use tabs
 set autoindent                  " copy indent from current line when starting a new line
 set breakindent                 " every wrapped line will continue visually indented
 
-set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,euc-jp,latin1 " list of character encodings considered when starting to edit an existing file
 set encoding=utf-8              " the character encoding used inside vim
+set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,euc-jp,latin1 " list of character encodings considered when starting to edit an existing file
 set fileformats=unix,dos,mac    " gives the <eol> formats of editing a new buffer or reading a file
-if &modifiable
-    set fileencoding=utf-8      " the character encoding for the file of this buffer
-    set fileformat=unix         " gives the <eol> of the current buffer
-endif
+" if &modifiable
+"     set fileencoding=utf-8      " the character encoding for the file of this buffer
+"     set fileformat=unix         " gives the <eol> of the current buffer
+" endif
 
 set ambiwidth=double            " use twice the width of ASCII characters for East Asian Width Class Ambiguous
 set delcombine                  " delete each combining character on its own
@@ -79,17 +76,17 @@ set noswapfile                  " don't create swapfile for the buffer
 let &backupdir = s:vimdir . '/tmp'
 if !isdirectory(&backupdir)
     silent! call mkdir(&backupdir, 'p', 0755)
-    set backup                                  " make a backup before overwriting a file
-    set backupext=.bak                          " string which is appended to a file name to make the name of the backup file
-    set backupskip+=/etc/cron.*/*               " list of file patterns that do not create backup file
 endif
+set backup                                      " make a backup before overwriting a file
+set backupext=.bak                              " string which is appended to a file name to make the name of the backup file
+set backupskip+=/etc/cron.*/*                   " list of file patterns that do not create backup file
 
 let &undodir = s:vimdir . '/undodir'            " list of directory names for undo files, separated with commas
 if !isdirectory(&undodir)
     silent! call mkdir(&undodir, 'p', 0755)
-    set undofile                                " automatically saves undo history to an undo file
-    set undolevels=1000                         " maximum number of changes that can be undone
 endif
+set undofile                                    " automatically saves undo history to an undo file
+set undolevels=1000                             " maximum number of changes that can be undone
 
 set viminfo='100,:10000,<50,s10,h,!             " viminfo settings
 if has('nvim')
@@ -101,11 +98,7 @@ set history=10000                               " set how many lines of command 
 
 set dictionary+=/usr/share/dict/words           " files that are used to lookup words for keyword completion commands
 
-if has('patch-8.1.1564')
-    set signcolumn=number       " display signs in the 'number' column
-else
-    set signcolumn=yes          " always display signs
-endif
+silent! set signcolumn=number   " display signs in the 'number' column if could else 'auto'
 set comments=                   " clear default comments value, let the filetype handle it
 set include=                    " don't assume I'm editing C; let the filetype set this
 set nrformats-=octal            " treat numbers with a leading zero as decimal, not octal
@@ -128,7 +121,6 @@ set ttymouse=xterm2             " name of the terminal type for which mouse code
 set mouse=a                     " enable the mouse in all five modes
 silent! set clipboard=unnamed   " enable clipboard with system
 
-set nolist                      " don't display non-printable characters
 set listchars+=extends:>        " unwrapped text to screen right
 set listchars+=precedes:<       " unwrapped text to screen left
 set listchars+=tab:\|-          " tab characters, preserve width
