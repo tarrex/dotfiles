@@ -238,18 +238,9 @@ inoremap <expr><PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
 inoremap <expr><TAB>      pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><S-TAB>    pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
-" auto pair
-inoremap "      ""<left>
-inoremap '      ''<left>
-inoremap (      ()<left>
-inoremap [      []<left>
-inoremap {      {}<left>
-inoremap {<cr>  {<cr>}<esc>O
-inoremap {;<cr> {<cr>};<esc>O
-
 " pack
 if !exists('g:loaded_matchit')
-    packadd matchit
+    silent! packadd matchit
 endif
 
 " ============> Custom <============
