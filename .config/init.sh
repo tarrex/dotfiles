@@ -7,7 +7,26 @@ case "$-" in
       *) return;;
 esac
 
-# ============> Functions <============
+# ============> Prepare <============
+# allow mapping Ctrl+S and Ctrl+Q shortcuts
+[[ -r ${TTY:-} && -w ${TTY:-} && $+commands[stty] == 1 ]] && stty -ixon <$TTY >$TTY
+
+# XDG directories
+export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CACHE_HOME=$HOME/.cache
+export XDG_DATA_HOME=$HOME/.local/share
+
+if [[ -n $BASH_VERSION ]]; then
+    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
+    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
+fi
+
+if [[ -n $ZSH_VERSION ]]; then
+    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
+    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
+fi
+
+# ============> Function <============
 # colored man pages
 function man() {
     env \
@@ -47,7 +66,7 @@ function quote {
 }
 
 # web search
-function web_search() {
+function websearch() {
     typeset -A urls
     local urls=(
         google          "https://www.google.com/search?q="
@@ -78,25 +97,6 @@ function web_search() {
         esac
     fi
 }
-
-# ============> Prepare <============
-# allow mapping Ctrl+S and Ctrl+Q shortcuts
-[[ -r ${TTY:-} && -w ${TTY:-} && $+commands[stty] == 1 ]] && stty -ixon <$TTY >$TTY
-
-# common variable
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_CACHE_HOME=$HOME/.cache
-export XDG_DATA_HOME=$HOME/.local/share
-
-if [[ -n $BASH_VERSION ]]; then
-    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
-    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
-fi
-
-if [[ -n $ZSH_VERSION ]]; then
-    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
-    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
-fi
 
 # ============> Prompt <============
 # fish like collapse pwd
@@ -142,37 +142,70 @@ function _fish_collapsed_pwd() {
 function _retval() {
     if [[ $? -ne 0 ]]; then
         if [[ -n $BASH_VERSION ]]; then
-            echo " $(tput setaf 9; tput bold)λ"
+            echo -e " \033[38;5;9mλ"
         else
             echo "%f %F{9}%Bλ%b%f"
         fi
     else
         if [[ -n $BASH_VERSION ]]; then
-            echo " $(tput setaf 190; tput bold)λ"
+            echo -e " \033[38;5;190mλ"
         else
             echo "%f %F{190}%Bλ%b%f"
         fi
     fi
 }
 
+# git branch
+function _gitbranch() {
+    if command -v git &> /dev/null; then
+        echo "$(__git_ps1 '(%s)')"
+    else
+        echo ''
+    fi
+}
+
 if [[ -n $BASH_VERSION ]]; then
     if [[ $UID -eq 0 ]]; then
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(__git_ps1 "(%s)")\[\e[38;5;124m\]#\[\e[0m\] '
+        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;124m\]#\[\e[0m\] '
     else
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(__git_ps1 "(%s)")\[\e[38;5;83m\]>\[\e[0m\] '
+        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
     if [[ $UID -eq 0 ]]; then
-        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(__git_ps1 "(%s)")%f%F{124}#%f '
+        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{124}#%f '
     else
-        export PROMPT='$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(__git_ps1 "(%s)")%f%F{83}>%f '
+        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}>%f '
     fi
 fi
 
-# ============> Shell config <============
+# ============> Script <============
+# z.sh initialize, comment _Z_CMD if you don't want to use it.
+_Z_CMD=z
+if [[ ! -z "$_Z_CMD" ]]; then
+    [[ -d $XDG_CONFIG_HOME/z ]] || command mkdir -p $XDG_CONFIG_HOME/z
+    if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
+        echo "$XDG_DATA_HOME/z.sh doesn't exists."
+        echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $XDG_DATA_HOME/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
+    fi
+    _Z_DATA=$XDG_CONFIG_HOME/z/z
+    source $XDG_DATA_HOME/z.sh
+fi
+
+# git-prompt.sh initialize
+if command -v git &> /dev/null; then
+    if [[ ! -f $XDG_DATA_HOME/git-prompt.sh ]]; then
+        echo "$XDG_DATA_HOME/git-prompt.sh doesn't exiets."
+        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git-prompt.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $XDG_DATA_HOME/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
+    fi
+    source $XDG_DATA_HOME/git-prompt.sh
+fi
+
+# ============> Shell <============
 # BASH
 if [[ -n $BASH_VERSION ]]; then
-    # -----> options
+    # -----> Option
     shopt -s checkwinsize
     shopt -s extglob
     shopt -s nullglob
@@ -183,7 +216,7 @@ if [[ -n $BASH_VERSION ]]; then
         shopt -s autocd
     fi
 
-    # -----> key bindings
+    # -----> Key binding
     bind '"\eh": "\C-b"'
     bind '"\el": "\C-f"'
     bind '"\ej": "\C-n"'
@@ -196,13 +229,13 @@ if [[ -n $BASH_VERSION ]]; then
     bind '"\e[A": history-search-backward'
     bind '"\e[B": history-search-forward'
 
-    # -----> history
+    # -----> History
     export HISTCONTROL=ignoreboth
 fi
 
 # ZSH
 if [[ -n $ZSH_VERSION ]]; then
-    # -----> options
+    # -----> Option
     # Changing Directories
     setopt AUTO_CD                  # Auto changes to a directory without typing cd.
     setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
@@ -271,7 +304,7 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
     unsetopt BEEP                   # Do not beep on error in line editor.
 
-    # -----> completion
+    # -----> Completion
     # Load and initialize the completion system ignoring insecure directories with a
     # cache time of 20 hours, so it should almost always regenerate the first time a
     # shell is opened each day.
@@ -405,7 +438,7 @@ if [[ -n $ZSH_VERSION ]]; then
                                                /sbin           \
                                                /bin
 
-    # -----> key bindings
+    # -----> Key binding
     bindkey -e              # Use Emacs key bindings
 
     # create a zkbd compatible hash;
@@ -483,196 +516,10 @@ if [[ -n $ZSH_VERSION ]]; then
     zle -N self-insert url-quote-magic
 
     # Quote text, including URLs automatically as you paste
-    autoload -Uz bracketed-paste-magic
-    zle -N bracketed-paste bracketed-paste-magic
-fi
+    # autoload -Uz bracketed-paste-magic
+    # zle -N bracketed-paste bracketed-paste-magic
 
-# ============> Variables <============
-
-# LSCOLORS highlight
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
-
-# History
-export HISTSIZE=100000
-export SAVEHIST=$HISTSIZE
-
-# Editor
-export EDITOR='vim'
-export VISUAL='vim'
-export GIT_EDITOR=$EDITOR
-export PAGER='less -FRX'
-
-# Shell
-export SHELL='/bin/zsh'
-
-# Language
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-# Browser
-if [[ $OSTYPE == darwin* ]]; then
-    export BROWSER='open'
-fi
-
-# /usr/sbin
-if [[ -d /usr/sbin ]]; then
-    export PATH="/usr/sbin:$PATH"
-fi
-
-# /usr/local/sbin
-if [[ -d /usr/local/sbin ]]; then
-    export PATH="/usr/local/sbin:$PATH"
-fi
-
-# ~/.local/bin
-if [[ -d $HOME/.local/bin ]]; then
-    export PATH="$HOME/.local/bin:$PATH"
-fi
-
-# Golang
-# export GO111MODULE=on
-if [[ $OSTYPE == linux* ]]; then
-    export GOROOT=/usr/local/go
-fi
-if [[ -d $HOME/Projects/Go ]]; then
-    export GOBASEPATH=$HOME/Projects/Go
-    export GOPATH=$GOBASEPATH
-    export PATH="$GOROOT/bin:$GOBASEPATH/bin:$GOPATH/bin:$PATH"
-fi
-
-# Python
-export PYTHON_CONFIGURE_OPTS="--enable-framework"
-
-# Brew
-if [[ $OSTYPE == darwin* ]]; then
-    export HOMEBREW_NO_ANALYTICS=1
-    export HOMEBREW_NO_AUTO_UPDATE=1
-    # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
-fi
-
-# Rust
-export RUSTUP_HOME="$HOME/.rustup"
-export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
-export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-if [[ -d $HOME/.cargo ]]; then
-    export CARGO_HOME="$HOME/.cargo"
-    export PATH="$CARGO_HOME/bin:$PATH"
-fi
-
-# Java
-if [[ $OSTYPE == darwin* ]]; then
-    export JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home"
-    export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
-    export PATH="$JAVA_HOME/bin:$PATH"
-fi
-
-# LLVM
-if [[ -d /usr/local/opt/llvm/bin ]]; then
-    export PATH="/usr/local/opt/llvm/bin:$PATH"
-fi
-
-# Other
-export PATH="$HOME/Projects/Common/code2ebook:$PATH"
-
-
-# Remove duplicate path
-if [[ -n $PATH ]]; then
-    old_PATH=$PATH:; PATH=
-    while [ -n "$old_PATH" ]; do
-        x=${old_PATH%%:*}
-        case $PATH: in
-           *:"$x":*) ;;
-           *) PATH=$PATH:$x;;
-        esac
-        old_PATH=${old_PATH#*:}
-    done
-    PATH=${PATH#:}
-    unset old_PATH x
-fi
-export PATH
-
-# ============> Alias <============
-# Common
-if [[ $OSTYPE == darwin* ]]; then
-    alias ls='ls -Gh'
-    alias ll='ls -Ghl'
-    alias la='ls -aGhl'
-elif [[ $OSTYPE == linux* ]]; then
-    alias ls='ls -h --color=auto'
-    alias ll='ls -hl --color=auto'
-    alias la='ls -ahl --color=auto'
-fi
-
-alias grep='grep --color'
-
-alias dud='du -d 1 -h'
-alias duf='du -sh *'
-
-# Vim
-alias vimrc='vim ~/.vimrc'
-
-# Tmux
-alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
-
-# Golang
-alias gohere='export GOPATH=`pwd`'
-alias gobase='export GOPATH=$GOBASEPATH'
-
-# Tools
-alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
-alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
-alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
-alias ipinfo='curl wtfismyip.com/json'
-alias randname='curl pseudorandom.name'
-alias serve='python3 -m http.server 8000'
-alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
-
-# Proxy
-http_proxy="127.0.0.1:7890"
-socks5_proxy="127.0.0.1:7890"
-alias httpproxy="http_proxy=http://$http_proxy https_proxy=http://$http_proxy all_proxy=http://$http_proxy "
-alias socks5proxy="http_proxy=socks5://$socks5_proxy https_proxy=socks5://$socks5_proxy all_proxy=socks5://$socks5_proxy "
-
-# Typora
-alias typora="open -a typora"
-alias blog='open -a typora ~/Workspace/Github/blog'
-alias wiki='open -a typora ~/Workspace/Github/wiki'
-
-# Web search
-alias bing='web_search bing'
-alias google='web_search google'
-alias github='web_search github'
-alias baidu='web_search baidu'
-alias goodreads='web_search goodreads'
-alias sof='web_search stackoverflow'
-alias wolframalpha='web_search wolframalpha'
-alias archive='web_search archive'
-alias scholar='web_search scholar'
-alias doubanbook='web_search doubanbook'
-alias weibo='web_search weibo'
-
-# ============> Scripts <============
-# z.sh initialize
-_Z_CMD=z
-_Z_DATA=$XDG_CONFIG_HOME/z/z
-[[ -d $_Z_DATA:h ]] || command mkdir -p $_Z_DATA:h
-if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
-    echo "$XDG_DATA_HOME/z.sh doesn't exists."
-    echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
-    echo `curl -fLo $XDG_DATA_HOME/z.sh --create-dirs https://raw.githubusercontent.com/rupa/z/master/z.sh`
-fi
-source $XDG_DATA_HOME/z.sh
-
-# git-prompt.sh initialize
-if [[ ! -f $XDG_DATA_HOME/git-prompt.sh ]];then
-    echo "$XDG_DATA_HOME/git-prompt.sh doesn't exiets."
-    echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git-prompt.sh ..."
-    echo `curl -fLo $XDG_DATA_HOME/git-prompt.sh --create-dirs https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
-fi
-source $XDG_DATA_HOME/git-prompt.sh
-
-# ============> Plugins <============
-if [[ -n "$ZSH_VERSION" ]]; then
+    # -----> Plugin
     # zinit
     typeset -A ZINIT=(
         HOME_DIR        $ZSH_CONFIG_DIR/zinit
@@ -720,4 +567,162 @@ if [[ -n "$ZSH_VERSION" ]]; then
     zinit light zdharma/null
 fi
 
+# ============> Custom <============
+# LSCOLORS highlight
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+
+# History
+export HISTSIZE=100000
+export SAVEHIST=$HISTSIZE
+
+# Editor
+export EDITOR='vim'
+export VISUAL='vim'
+export GIT_EDITOR=$EDITOR
+export PAGER='less -FRX'
+
+# Language
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+# /usr/sbin
+if [[ -d /usr/sbin ]]; then
+    export PATH="/usr/sbin:$PATH"
+fi
+
+# /usr/local/sbin
+if [[ -d /usr/local/sbin ]]; then
+    export PATH="/usr/local/sbin:$PATH"
+fi
+
+# ~/.local/bin
+if [[ -d $HOME/.local/bin ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# MacOS
+if [[ $OSTYPE == darwin* ]]; then
+    # Open command
+    export BROWSER='open'
+    # Brew
+    if command -v brew &> /dev/null; then
+        export HOMEBREW_NO_ANALYTICS=1
+        export HOMEBREW_NO_AUTO_UPDATE=1
+        # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+    fi
+fi
+
+# Golang
+if command -v go &> /dev/null; then
+    if [[ $OSTYPE == linux* ]]; then
+        export GOROOT=/usr/local/go
+    fi
+    if [[ -d $HOME/Projects/Go ]]; then
+        export GOBASEPATH=$HOME/Projects/Go
+        export GOPATH=$GOBASEPATH
+    fi
+    export PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
+    # export GO111MODULE=on
+
+    alias gohere='export GOPATH=`pwd`'
+    alias gobase='export GOPATH=$GOBASEPATH'
+fi
+
+# Rust
+if command -v rustc &> /dev/null; then
+    export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
+    export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+    if [[ -d $HOME/.rustup ]]; then
+        export RUSTUP_HOME="$HOME/.rustup"
+    fi
+    if [[ -d $HOME/.cargo ]]; then
+        export CARGO_HOME="$HOME/.cargo"
+        export PATH="$CARGO_HOME/bin:$PATH"
+    fi
+fi
+
+# Java
+if command -v java &> /dev/null; then
+    if [[ $OSTYPE == darwin* ]]; then
+        export JAVA_HOME=$(/usr/libexec/java_home)
+        export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
+        export PATH="$JAVA_HOME/bin:$PATH"
+    fi
+fi
+
+# LLVM
+if [[ -d /usr/local/opt/llvm/bin ]]; then
+    export PATH="/usr/local/opt/llvm/bin:$PATH"
+fi
+
+# Common alias
+if [[ $OSTYPE == darwin* ]]; then
+    alias ls='ls -Gh'
+    alias ll='ls -Ghl'
+    alias la='ls -aGhl'
+elif [[ $OSTYPE == linux* ]]; then
+    alias ls='ls -h --color=auto'
+    alias ll='ls -hl --color=auto'
+    alias la='ls -ahl --color=auto'
+fi
+
+alias grep='grep --color'
+
+alias dud='du -d 1 -h'
+alias duf='du -sh *'
+
+# Tools
+alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
+alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
+alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
+alias ipinfo='curl wtfismyip.com/json'
+alias randname='curl pseudorandom.name'
+alias serve='python3 -m http.server 8000'
+alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
+
+# Proxy
+proxy_addr="127.0.0.1:7890"
+alias httpproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr "
+alias socks5proxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr "
+
+# Web search
+alias bing='websearch bing'
+alias google='websearch google'
+alias github='websearch github'
+alias baidu='websearch baidu'
+alias goodreads='websearch goodreads'
+alias sof='websearch stackoverflow'
+alias wolframalpha='websearch wolframalpha'
+alias archive='websearch archive'
+alias scholar='websearch scholar'
+alias doubanbook='websearch doubanbook'
+alias weibo='websearch weibo'
+
+# MacOS
+if [[ $OSTYPE == darwin* ]]; then
+    # Typora
+    alias typora="open -a typora"
+    alias blog='open -a typora ~/Workspace/Github/blog'
+    alias wiki='open -a typora ~/Workspace/Github/wiki'
+fi
+
+# Frequently
+alias vimrc='vim ~/.vimrc'
+alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
+
 # ============> Finally <============
+# Remove duplicate path
+if [[ -n $PATH ]]; then
+    old_PATH=$PATH:; PATH=
+    while [ -n "$old_PATH" ]; do
+        x=${old_PATH%%:*}
+        case $PATH: in
+           *:"$x":*) ;;
+           *) PATH=$PATH:$x;;
+        esac
+        old_PATH=${old_PATH#*:}
+    done
+    PATH=${PATH#:}
+    unset old_PATH x
+fi
+export PATH
