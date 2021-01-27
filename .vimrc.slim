@@ -67,7 +67,7 @@ set splitright                  " vertically split to the right
 set noequalalways               " all the windows are automatically made the same size after splitting or closing a window
 
 set pastetoggle=<F4>            " set paste toggle
-set termwinkey=<c-w>            " the key that starts a CTRL-W command in a terminal window
+silent! set termwinkey=<c-w>    " the key that starts a CTRL-W command in a terminal window
 
 set background=dark             " try to use colors that look good on a dark background
 silent! set termguicolors       " enable GUI colors for the terminal to get truecolor
@@ -254,19 +254,19 @@ function! MyHighlights() abort
     highlight LineNr ctermbg=black guibg=black
     highlight VertSplit ctermfg=black guifg=black
     highlight SignColumn ctermbg=black guibg=black
-    highlight Statusline ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
+    highlight Statusline ctermfg=darkgray ctermbg=yellow guifg=gray18 guibg=yellow
     highlight StatuslineNC ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
     highlight StatuslineTerm ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
     highlight StatuslineTermNC ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
-    highlight Pmenu ctermfg=Black ctermbg=Gray guifg=Black guibg=Gray
-    highlight PmenuSel ctermfg=Black ctermbg=Cyan guifg=Black guibg=Cyan
-    highlight PmenuSbar ctermfg=White ctermbg=DarkGray guifg=White guibg=DarkGray
-    highlight PmenuThumb ctermfg=DarkGray ctermbg=White guifg=DarkGray guibg=White
+    highlight Pmenu ctermfg=black ctermbg=gray guifg=black guibg=gray
+    highlight PmenuSel ctermfg=black ctermbg=cyan guifg=black guibg=cyan
+    highlight PmenuSbar ctermfg=white ctermbg=darkgray guifg=white guibg=darkgray
+    highlight PmenuThumb ctermfg=darkgray ctermbg=white guifg=darkgray guibg=white
 endfunction
 
 augroup Highlights
     autocmd!
-    autocmd SourcePre,ColorSchemePre * call MyHighlights()
+    autocmd BufEnter,ColorScheme * call MyHighlights()
 augroup END
 
 " ----> Key maps
@@ -315,11 +315,13 @@ inoremap <c-K> <esc><c-w>k
 inoremap <c-L> <esc><c-w>l
 
 " Window switching in terminal mode
-tnoremap <c-H> <c-w>h
-tnoremap <c-J> <c-w>j
-tnoremap <c-K> <c-w>k
-tnoremap <c-L> <c-w>l
-tnoremap <silent> <c-q> <c-w>:q!<cr>
+if has('terminal')
+    tnoremap <c-H> <c-w>h
+    tnoremap <c-J> <c-w>j
+    tnoremap <c-K> <c-w>k
+    tnoremap <c-L> <c-w>l
+    tnoremap <silent> <c-q> <c-w>:q!<cr>
+endif
 
 " Vmap for maintain Visual Mode after shifting > and <
 vmap < <gv

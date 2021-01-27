@@ -67,7 +67,7 @@ set splitright                  " vertically split to the right
 set noequalalways               " all the windows are automatically made the same size after splitting or closing a window
 
 set pastetoggle=<F4>            " set paste toggle
-set termwinkey=<c-w>            " the key that starts a CTRL-W command in a terminal window
+silent! set termwinkey=<c-w>    " the key that starts a CTRL-W command in a terminal window
 
 set background=dark             " try to use colors that look good on a dark background
 silent! set termguicolors       " enable GUI colors for the terminal to get truecolor
@@ -761,7 +761,7 @@ endfunction
 
 augroup Highlights
     autocmd!
-    autocmd SourcePre,ColorSchemePre * call MyHighlights()
+    autocmd BufEnter,ColorScheme * call MyHighlights()
 augroup END
 
 " ----> Key maps
@@ -810,11 +810,13 @@ inoremap <c-K> <esc><c-w>k
 inoremap <c-L> <esc><c-w>l
 
 " Window switching in terminal mode
-tnoremap <c-H> <c-w>h
-tnoremap <c-J> <c-w>j
-tnoremap <c-K> <c-w>k
-tnoremap <c-L> <c-w>l
-tnoremap <silent> <c-q> <c-w>:q!<cr>
+if has('terminal')
+    tnoremap <c-H> <c-w>h
+    tnoremap <c-J> <c-w>j
+    tnoremap <c-K> <c-w>k
+    tnoremap <c-L> <c-w>l
+    tnoremap <silent> <c-q> <c-w>:q!<cr>
+endif
 
 " Vmap for maintain Visual Mode after shifting > and <
 vmap < <gv
