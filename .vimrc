@@ -228,7 +228,7 @@ if s:has_plug('lightline.vim')
         \   'statusline': 1,
         \   'tabline': 0
         \ },
-        \ 'colorscheme': 'powerline',
+        \ 'colorscheme': 'solarized',
         \ 'active': {
         \   'left': [[ 'mode', 'paste' ],
         \           [ 'bufnum' ],
@@ -747,22 +747,22 @@ if s:has_plug('rust.vim')
 endif
 
 " ============> Custom <============
-" ----> Color
-silent! colorscheme PaperColor
-
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal ctermbg=black guibg=black
-    highlight LineNr ctermbg=black guibg=black
-    highlight VertSplit ctermfg=black guifg=black
-    highlight SignColumn ctermbg=black guibg=black
+    highlight Normal     ctermbg=0 guibg=#000000
+    highlight LineNr     ctermbg=0 guibg=#000000
+    highlight VertSplit  ctermfg=0 guifg=#000000
+    highlight SignColumn ctermbg=0 guibg=#000000
 endfunction
 
 augroup Highlights
     autocmd!
-    autocmd BufEnter,ColorScheme * call MyHighlights()
+    autocmd ColorScheme * call MyHighlights()
 augroup END
+
+" ----> Color
+silent! colorscheme PaperColor
 
 " ----> Key maps
 let mapleader      = ','    " set vim map leader, <leader>

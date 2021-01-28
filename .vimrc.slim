@@ -206,7 +206,6 @@ function! Statusline() abort
     let bnum  = '| %n '                              " buffer number
     let ro    = '%{&ro!=#""?"| RO ":""}'             " read only flag
     let fname = '| %{FileName()} '                   " tail of filename
-    let md    = '%{&modified?"+":""}'                " modified flag
     let sep   = ' %= '                               " separator
     let fs    = '%{FileSize()} '                     " file size
     let ff    = '| %{&ff} '                          " file format
@@ -214,7 +213,7 @@ function! Statusline() abort
     let ft    = '| %{&ft!=#""?&ft:"no ft"} '         " filetype
     let pct   = '| %3p%% '                           " percent through file
     let pos   = '| %3l:%-2v '                        " cursor column
-    return mo.pst.bnum.ro.fname.md.sep.fs.ff.fe.ft.pct.pos
+    return mo.pst.bnum.ro.fname.sep.fs.ff.fe.ft.pct.pos
 endfunction
 
 let &statusline = Statusline()
@@ -244,30 +243,30 @@ if !exists('g:loaded_matchit')
 endif
 
 " ============> Custom <============
-" ----> Color
-silent! colorscheme desert
-
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal ctermbg=black guibg=black
-    highlight LineNr ctermbg=black guibg=black
-    highlight VertSplit ctermfg=black guifg=black
-    highlight SignColumn ctermbg=black guibg=black
-    highlight Statusline ctermfg=darkgray ctermbg=yellow guifg=gray18 guibg=yellow
-    highlight StatuslineNC ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
-    highlight StatuslineTerm ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
-    highlight StatuslineTermNC ctermfg=black ctermbg=yellow guifg=gray18 guibg=yellow
-    highlight Pmenu ctermfg=black ctermbg=gray guifg=black guibg=gray
-    highlight PmenuSel ctermfg=black ctermbg=cyan guifg=black guibg=cyan
-    highlight PmenuSbar ctermfg=white ctermbg=darkgray guifg=white guibg=darkgray
-    highlight PmenuThumb ctermfg=darkgray ctermbg=white guifg=darkgray guibg=white
+    highlight Normal           ctermbg=0               guibg=#000000
+    highlight LineNr           ctermbg=0   ctermfg=247 guibg=#000000 guifg=#9e9e9e
+    highlight VertSplit                    ctermfg=0                 guifg=#000000
+    highlight SignColumn       ctermbg=0               guibg=#000000
+    highlight StatusLine       ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineNC     ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineTerm   ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineTermNC ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight Pmenu            ctermbg=8   ctermfg=0   guibg=#808080 guifg=#000000
+    highlight PmenuSel         ctermbg=36  ctermfg=0   guibg=#00af87 guifg=#000000
+    highlight PmenuSbar        ctermbg=7   ctermfg=15  guibg=#c0c0c0 guifg=#ffffff
+    highlight PmenuThumb       ctermbg=15  ctermfg=7   guibg=#ffffff guifg=#c0c0c0
 endfunction
 
 augroup Highlights
     autocmd!
-    autocmd BufEnter,ColorScheme * call MyHighlights()
+    autocmd ColorScheme * call MyHighlights()
 augroup END
+
+" ----> Color
+silent! colorscheme PaperColor
 
 " ----> Key maps
 let mapleader      = ','    " set vim map leader, <leader>
