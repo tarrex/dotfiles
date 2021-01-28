@@ -415,6 +415,8 @@ augroup VimTricks
     autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
     autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
+    " auto source $MYVIMRC
+    autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
 augroup END
 
 " ----> Netrw
