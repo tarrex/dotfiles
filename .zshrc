@@ -12,9 +12,7 @@
 # setopt XTRACE
 
 # User configuration
-if [ -f "$HOME/.config/init.sh" ]; then
-    . $HOME/.config/init.sh
-fi
+[[ -f $HOME/.config/init.sh ]] && source $HOME/.config/init.sh
 
 # -----> performance
 # unsetopt XTRACE

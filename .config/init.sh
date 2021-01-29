@@ -206,15 +206,14 @@ fi
 # BASH
 if [[ -n $BASH_VERSION ]]; then
     # -----> Option
-    shopt -s checkwinsize
-    shopt -s extglob
-    shopt -s nullglob
-    shopt -s nocaseglob
-    shopt -s nocasematch
-    shopt -u failglob
     if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
-        shopt -s autocd
+        shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
+        shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
     fi
+    shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
+    shopt -s histappend     # Append to the history file, don't overwrite it
+    shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
+    shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing  buffer for further modification.
 
     # -----> Key binding
     bind '"\eh": "\C-b"'
@@ -231,6 +230,9 @@ if [[ -n $BASH_VERSION ]]; then
 
     # -----> History
     export HISTCONTROL=ignoreboth
+
+    # -----> Completion
+    [[ -f /etc/bash_completion ]] && source /etc/bash_completion
 fi
 
 # ZSH
@@ -241,7 +243,7 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
     setopt CDABLE_VARS              # Change directory to a path stored in a variable.
     setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
-    setopt PUSHD_MINUS              #Exchanges the meanings of ‘+’ and ‘-’ when used with a number to specify a directory in the stack.
+    setopt PUSHD_MINUS              # Exchanges the meanings of ‘+’ and ‘-’ when used with a number to specify a directory in the stack.
     setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
     setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
 
@@ -251,11 +253,15 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt AUTO_MENU                # Show completion menu on a successive tab press.
     setopt AUTO_PARAM_SLASH         # If completed parameter is a directory, add a trailing slash.
     setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
-    setopt LIST_PACKED              #Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
-    unsetopt MENU_COMPLETE          # Do not autoselect the first completion entry.
+    setopt HASH_LIST_ALL            # Whenever a command completion or spelling correction is attempted, make sure the entire command path is hashed first. This makes the first completion slower but avoids false reports of spelling errors.
+    setopt LIST_PACKED              # Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
+    setopt MENU_COMPLETE            # Autoselect the first completion entry.
+    unsetopt LIST_BEEP              # Do not beep on an ambiguous completion.
 
     # Expansion and Globbing
+    setopt BRACE_CCL                # Expand expressions in braces which would not otherwise undergo brace expansion to a lexically ordered list of all the characters.
     setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
+    setopt MAGIC_EQUAL_SUBST        # Make zsh perform filename expansion on the command arguments of the form `var=val`.
     unsetopt CASE_GLOB              # Make globbing (filename generation) sensitive to case.
 
     # History
@@ -266,17 +272,21 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
     setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
     setopt HIST_IGNORE_SPACE        # Do not record an event starting with a space.
+    setopt HIST_REDUCE_BLANKS       # Remove superfluous blanks from each command line being added to the history list.
     setopt HIST_SAVE_NO_DUPS        # Do not write a duplicate event to the history file.
     setopt HIST_VERIFY              # Do not execute immediately upon history expansion.
+    setopt INC_APPEND_HISTORY       # Write to the history file immediately, not when the shell exits.
     setopt SHARE_HISTORY            # Share history between all sessions.
     unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
 
     # Initialisation
 
     # Input/Output
+    setopt CORRECT                  # Try to correct the spelling of commands.
     setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
     setopt PATH_DIRS                # Perform path search even on command names with slashes.
     setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
+    setopt RM_STAR_SILENT           # Do not query the user before executing `rm *` or `rm path/*`.
     unsetopt CLOBBER                # Do not overwrite existing files with > and >>. Use >! and >>! to bypass.
     unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
     unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
@@ -291,7 +301,7 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # Prompting
     setopt PROMPT_SUBST             # If set, parameter expansion, command substitution and arithmetic expansion are performed in prompts.
-    setopt TRANSIENT_RPROMPT        #Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
+    setopt TRANSIENT_RPROMPT        # Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
 
     # Scripts and Functions
     setopt MULTIOS                  # Write to multiple descriptors.
@@ -319,12 +329,16 @@ if [[ -n $ZSH_VERSION ]]; then
     fi
     unset _comp_path
 
+    # Load bash completion function.
+    autoload -Uz bashcompinit
+    bashcompinit
+
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
     zstyle ':completion::complete:*' cache-path "$ZSH_CACHE_DIR"
 
     # case-insensitive (all), partial-word, and then substring completion.
-    zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+    zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
 
     # group matches and describe.
     zstyle ':completion:*:*:*:*:*' menu select
@@ -339,6 +353,7 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle ':completion:*' format ' %F{8}-- %d --%f'
     zstyle ':completion:*' group-name ''
     zstyle ':completion:*' verbose yes
+    zstyle ':completion:*' list-separator '  #'
 
     # Fuzzy match mistyped completions.
     zstyle ':completion:*' completer _complete _match _approximate
@@ -515,10 +530,6 @@ if [[ -n $ZSH_VERSION ]]; then
     autoload -Uz url-quote-magic
     zle -N self-insert url-quote-magic
 
-    # Quote text, including URLs automatically as you paste
-    # autoload -Uz bracketed-paste-magic
-    # zle -N bracketed-paste bracketed-paste-magic
-
     # -----> Plugin
     # zinit
     typeset -A ZINIT=(
@@ -565,6 +576,9 @@ if [[ -n $ZSH_VERSION ]]; then
         atpull'%atclone' src"_kubectl" run-atpull \
         atload'zicdreplay'
     zinit light zdharma/null
+
+    # -----> Command-not-found
+    [[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
 fi
 
 # ============> Custom <============
@@ -653,6 +667,11 @@ fi
 # LLVM
 if [[ -d /usr/local/opt/llvm/bin ]]; then
     export PATH="/usr/local/opt/llvm/bin:$PATH"
+fi
+
+# Node
+if [[ -d /usr/local/node/bin ]]; then
+    export PATH="/usr/local/node/bin:$PATH"
 fi
 
 # Common alias
