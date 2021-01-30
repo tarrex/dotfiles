@@ -1,88 +1,97 @@
 [user]
-    name = tarrex
+    name  = tarrex
     email = tarrexchen@gmail.com
-[core]
-    editor = vim
-    pager = less -FRX
-    excludesFile = ~/.config/git/ignore
-    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
-    trustctime = false
-    precomposeunicode = false
-    untrackedCache = true
-    fileMode = false
-	attributesfile = ~/.config/git/attributes
-[diff]
-    tool = vimdiff
-[difftool]
-    renames = copies
-    prompt = false
-[pull]
-    rebase = true
-[merge]
-    log = true
-    ff = false
-[commit]
-    gpgSign = false
-    template = ~/.config/git/message
-[push]
-    default = simple
-    followTags = false
-[status]
-    showUntrackedFiles = all
-[gist]
-    private = yes
 [github]
     user = tarrex
+[gist]
+    private = yes
+[core]
+    fileMode          = false
+    precomposeunicode = false
+    trustctime        = false
+    untrackedCache    = true
+    compression       = 1
+    excludesFile      = ~/.config/git/ignore
+    attributesfile    = ~/.config/git/attributes
+    editor            = vim
+    pager             = less -FRX
+    whitespace        = space-before-tab,indent-with-non-tab,trailing-space
+[advice]
+    statusHints = false
 [alias]
-    st = status -sb
-    prune = fetch --prune
-    undo = reset --soft HEAD^
-    unstage = reset HEAD --
-    stash-all = stash save --include-untracked
-    rank = shortlog -sn --no-merges
-    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
-    slog = log --stat --graph --date-order --oneline
-    stat = !git --no-pager diff --stat
-    sweep = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
-    serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
-    cloc = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
+    st                    = status -sb
+    prune                 = fetch --prune
+    undo                  = reset --soft HEAD^
+    unstage               = reset HEAD --
+    stash-all             = stash save --include-untracked
+    rank                  = shortlog -sn --no-merges
+    glog                  = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    slog                  = log --stat --graph --date-order --oneline
+    stat                  = !git --no-pager diff --stat
+    sweep                 = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
+    serve                 = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
+    cloc                  = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
     delete-merged-branchs = !git branch --merged | grep -v '*' | xargs -n 1 git branch -d
-[color]
-    diff = auto
-    status = auto
-    branch = auto
-    interactive = auto
-[color "branch"]
-    current = yellow
-    local = green
-    remote = cyan
-    upstream = magenta
-    plain = red
-[color "diff"]
-    context = cyan
-    meta = yellow
-    frag = magenta
-    old = red
-    new = green
-    commit = white
-    whitespace = red reverse
-[color "status"]
-    added = green
-    changed = yellow
-    untracked = red
-[rerere]
-    enabled = 1
-    autoupdate = 1
-[filter "lfs"]
-	process = git-lfs filter-process
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-[status]
-    short = true
-[help]
-    autocorrect = 1
 [apply]
     whitespace = fix
+[blame]
+    coloring = repeatedLines
+    date     = short
+[color]
+    branch      = auto
+    diff        = auto
+    interactive = auto
+    status      = auto
+[color "blame"]
+    repeatedLines = green
+[color "branch"]
+    current  = yellow
+    local    = green
+    remote   = cyan
+    upstream = magenta
+    plain    = red
+[color "diff"]
+    context    = cyan
+    meta       = yellow
+    frag       = magenta
+    old        = red
+    new        = green
+    commit     = white
+    whitespace = red reverse
+[color "status"]
+    added     = green
+    changed   = yellow
+    untracked = red
+[commit]
+    gpgSign  = false
+    template = ~/.config/git/message
+    verbose  = true
+[credential]
+    helper = cache --timeout=14400
+[diff]
+    tool            = vimdiff
+    indentHeuristic = true
+    algorithm       = patience
+[filter "lfs"]
+    process = git-lfs filter-process
+    required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+[help]
+    autocorrect = 10
 [http]
-	postBuffer = 524288000
+    postBuffer = 1048576000
+[merge]
+    log  = true
+    tool = vimdiff
+[pull]
+    rebase = true
+[push]
+    default    = simple
+    followTags = false
+[rerere]
+    enabled    = 1
+    autoupdate = 1
+[status]
+    short              = true
+    showUntrackedFiles = all
