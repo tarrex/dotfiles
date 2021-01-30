@@ -22,7 +22,6 @@ mtr
 nmap
 opencc
 openjdk
-osx-cpu-temp
 pandoc
 qemu
 rename
@@ -31,6 +30,7 @@ rustup-init
 socat
 tcpdump
 tmux
+tokei
 universal-ctags/universal-ctags/universal-ctags
 vim
 wget

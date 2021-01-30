@@ -16,6 +16,7 @@ dropbox
 eudic
 evernote
 ezip
+figma
 firefox
 google-chrome
 intellij-idea
