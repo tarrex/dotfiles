@@ -43,7 +43,7 @@ set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
 if executable('rg')
-    let &grepprg='rg --vimgrep --glob "!{'.shellescape(&wildignore).'}"'    " rg as the program to call when using the Ex commands: `:[l]grep[add]`
+    let &grepprg='rg --vimgrep'         " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
 
@@ -417,6 +417,11 @@ if s:has_plug('fzf.vim')
     if executable('rg')
         let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!{'.shellescape(&wildignore).'}"'
     endif
+    command! -bang -nargs=* FZFRg
+        \ call fzf#vim#grep(
+        \   'rg --column --line-number --no-heading --color=always --smart-case ' .
+        \      '--hidden --glob "!{'.shellescape(&wildignore).'}" -- '.shellescape(<q-args>), 1,
+        \   fzf#vim#with_preview(), <bang>0)
 
     nnoremap <silent> <space>ff :FZFFiles<cr>
     nnoremap <silent> <space>fb :FZFBuffers<cr>
