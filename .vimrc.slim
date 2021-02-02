@@ -122,7 +122,7 @@ if !isdirectory(&backupdir)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-let &undodir = s:vimdir . '/tmp/undo'   " list of directory names for undo files, separated with commas
+let &undodir = s:vimdir . '/tmp/undo//'
 if !isdirectory(&undodir)
     silent! call mkdir(&undodir, 'p', 0700)
 endif
