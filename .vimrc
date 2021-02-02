@@ -711,7 +711,7 @@ if s:has_plug('vim-go')
         " :GoDoc work properly
         autocmd FileType go setlocal iskeyword+=.
         " key maps for go
-        autocmd FileType go nmap <s-k>     :GoDoc <c-r>=expand('<cword>')<cr><cr>
+        autocmd FileType go nmap <space>k  :GoDoc <c-r>=expand('<cword>')<cr><cr>
         autocmd FileType go nmap <c-g>     :GoDeclsDir<cr>
         autocmd FileType go imap <c-g>     <esc>:<c-u>GoDeclsDir<cr>
         autocmd FileType go nmap <space>gr :GoRun<cr>
