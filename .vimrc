@@ -33,6 +33,7 @@ silent! set termguicolors               " enable GUI colors for the terminal to 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
 set shiftwidth=4                        " number of spaces to use for each step of (auto)indent
+set tabstop=4                           " number of spaces that a <tab> in the file counts for
 set softtabstop=4                       " number of spaces that a <tab> counts for while performing editing operations
 set smarttab                            " be smart when use tabs
 set autoindent                          " copy indent from current line when starting a new line
@@ -265,11 +266,11 @@ if s:has_plug('lightline.vim')
     function! LightlineFilename() abort
         if mode() == 't' | return expand('%') | endif
         if winwidth(0) < 50
-          let fname = expand('%:t')
+            let fname = expand('%:t')
         elseif winwidth(0) > 150
-          let fname = expand('%')
+            let fname = expand('%')
         else
-          let fname = pathshorten(expand('%'))
+            let fname = pathshorten(expand('%'))
         endif
         return fname ==? '__vista__' ? '' :
             \ &ft ==? 'qf' ? '' :
