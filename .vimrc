@@ -56,6 +56,7 @@ set autoread                            " auto load the file when changed outsid
 set autowrite                           " auto write file when building or switching
 set backspace=indent,eol,start          " the working of <bs>, <del>, ctrl-w and ctrl-u in insert mode
 set nostartofline                       " cursor is kept in the same column (if possible)
+set nojoinspaces                        " don't insert two spaces after a '.', '?' and '!' with a join command
 set hidden                              " allow buffers to have changes without being displayed
 set lazyredraw                          " don't redraw while executing macros, registers and other commands that have not been typed
 set splitbelow                          " horizontally split below
@@ -90,6 +91,7 @@ silent! set diffopt+=indent-heuristic   " use the indent heuristic for the inter
 silent! set diffopt+=algorithm:patience " use the `patience` diff algorithm
 set formatoptions+=m                    " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                    " when joining lines, don't insert a space between two multibyte characters
+set formatoptions+=j                    " remove a comment leader when joining lines
 set nrformats-=octal                    " treat numbers with a leading zero as decimal, not octal
 set shortmess+=a                        " enable all sort of abbreviations
 set shortmess+=c                        " don't give ins-completion-menu messages
@@ -104,6 +106,7 @@ set listchars+=nbsp:∅                   " non-breaking spaces
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
 let &showbreak = '↪ '                   " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
+set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 
 set dictionary+=/usr/share/dict/words   " files that are used to lookup words for keyword completion commands
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
@@ -905,7 +908,7 @@ augroup END
 augroup VimTricks
     autocmd!
     " trim trailing whitespace on write
-    autocmd BufWritePre * :%s/\s\+$//e
+    autocmd BufWritePre * let b:pos=getpos('.') | %s/\s\+$//e | call setpos('.', b:pos)
     " remember cursor position
     autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
@@ -915,6 +918,7 @@ augroup VimTricks
 augroup END
 
 " ----> Disable some vim built-in plugins
+let g:loaded_2html_plugin    = 1        " tohtml
 let g:loaded_getscriptPlugin = 1        " getscript
 let g:loaded_logiPat         = 1        " logipat
 let g:loaded_vimballPlugin   = 1        " vimball interface
