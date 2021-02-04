@@ -81,6 +81,7 @@ set updatetime=2000                     " time delay for swap and cursor hold
 set comments=                           " clear default comments value, let the filetype handle it
 set commentstring=                      " clear default comment template
 set include=                            " don't assume I'm editing C; let the filetype set this
+set complete+=k                         " scan the files given with the 'dictionary' option
 set completeopt+=longest,menuone        " list of options for insert mode completion
 silent! set completeopt+=popup          " add popup option for insert mode completion if could
 silent! set completepopup=border:off    " used for the properties of the info popup when it is created
