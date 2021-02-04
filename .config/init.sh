@@ -228,9 +228,6 @@ if [[ -n $BASH_VERSION ]]; then
     bind '"\e[A": history-search-backward'
     bind '"\e[B": history-search-forward'
 
-    # -----> History
-    export HISTCONTROL=ignoreboth
-
     # -----> Completion
     [[ -f /etc/bash_completion ]] && source /etc/bash_completion
 fi
@@ -582,10 +579,24 @@ if [[ -n $ZSH_VERSION ]]; then
 fi
 
 # ============> Custom <============
-# LSCOLORS highlight
-export LSCOLORS="Gxfxcxdxbxegedabagacad"
+# ls colors highlight
+if [[ $OSTYPE == linux* ]]; then
+    export LS_COLORS='bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'
+else
+    export LSCOLORS="Gxfxcxdxbxegedabagacad"
+fi
 
 # History
+if [[ -n $BASH_VERSION ]]; then
+    export HISTCONTROL=ignoreboth
+    export HISTIGNORE='ls:ll:la:ls -a:ls -l:ls -al:ls -alh:pwd:clear:cd:cd ..:history'
+    export HISTTIMEFORMAT='%F %T '
+    export HISTFILE=$HOME/.bash_history
+fi
+if [[ -n $ZSH_VERSION ]]; then
+    export HISTORY_IGNORE='(ls|ll|la|ls -a|ls -l|ls -al|ls -alh|pwd|clear|cd|cd ..|history)'
+    export HISTFILE=$HOME/.zsh_history
+fi
 export HISTSIZE=100000
 export SAVEHIST=$HISTSIZE
 
