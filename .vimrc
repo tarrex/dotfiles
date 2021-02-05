@@ -988,3 +988,12 @@ function! LocationToggle() abort
     endif
 endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
+
+" ----> Open current buffer directory in finder or explorer
+if has('win32') || has('win64')
+    nnoremap <leader>e :!start explorer /e,%:p:h \| redraw!<cr>
+    nnoremap <leader>E :execute "!start explorer /e," . shellescape(getcwd(),1) \| redraw!<cr>
+elseif has('mac') || has('macunix') || has('gui_mac')
+    nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
+    nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
+endif
