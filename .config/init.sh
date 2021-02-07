@@ -121,7 +121,11 @@ function _fish_collapsed_pwd() {
         for ((i=0;i<length-1;i++)); do
             local elem=${elements[$i]}
             if [[ ${#elem} -gt 1 ]]; then
-                elements[$i]=${elem:0:1}
+                if [[ ${elem:0:1} == "." || ${elem[1]} == "_" || ${elem[1]} == "-"  ]]; then
+                    elements[$i]=${elem:0:2}
+                else
+                    elements[$i]=${elem:0:1}
+                fi
             fi
         done
     else
@@ -130,7 +134,11 @@ function _fish_collapsed_pwd() {
         for i in {1..$((length-1))}; do
             local elem=${elements[$i]}
             if [[ ${#elem} > 1 ]]; then
-                elements[$i]=${elem[1]}
+                if [[ ${elem[1]} == "." || ${elem[1]} == "_" || ${elem[1]} == "-" ]]; then
+                    elements[$i]=${elem[1,2]}
+                else
+                    elements[$i]=${elem[1]}
+                fi
             fi
         done
     fi
