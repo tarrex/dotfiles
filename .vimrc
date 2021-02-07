@@ -240,6 +240,7 @@ if s:has_plug('lightline.vim')
         \ },
         \ 'inactive': {
         \   'left': [[ 'mode' ],
+        \           [ 'bufnum' ],
         \           [ 'filename' ]],
         \   'right': [[ 'lineinfo' ],
         \            [ 'percent' ],
@@ -296,31 +297,32 @@ if s:has_plug('lightline.vim')
     function! LightlineFileSize() abort
         if (winwidth(0) < 70 || mode() == 't') | return '' | endif
         let l:bytes = getfsize(@%)
-        if l:bytes <= 0
-            return '0B'
-        endif
         let l:units = ['B', 'K', 'M', 'G']
         let l:idx = 0
         while l:bytes >= 1024
             let l:bytes = l:bytes / 1024.0
             let l:idx += 1
         endwhile
-        return printf('%.1f%s', l:bytes, l:units[l:idx])
+        return &ft ==? 'qf' ? '' :
+            \ printf('%.1f%s', l:bytes, l:units[l:idx])
     endfunction
 
     function! LightLineFileFormat() abort
         if (winwidth(0) < 60 || mode() == 't') | return '' | endif
-        return &fileformat
+        return &ft ==? 'qf' ? '' :
+            \ &fileformat
     endfunction
 
     function! LightLineFileEncoding() abort
         if (winwidth(0) < 50 || mode() == 't') | return '' | endif
-        return &fenc !=# '' ? &fenc : &enc
+        return &ft ==? 'qf' ? '' :
+            \ &fenc !=# '' ? &fenc : &enc
     endfunction
 
     function! LightLineFileType() abort
         if (winwidth(0) < 40 || mode() == 't') | return '' | endif
-        return &ft !=# '' ? &ft : 'no ft'
+        return &ft ==? 'qf' ? '' :
+            \ &ft !=# '' ? &ft : 'no ft'
     endfunction
 endif
 
