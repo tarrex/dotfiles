@@ -287,12 +287,12 @@ if [[ -n $ZSH_VERSION ]]; then
     # Initialisation
 
     # Input/Output
-    setopt CORRECT                  # Try to correct the spelling of commands.
     setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
     setopt PATH_DIRS                # Perform path search even on command names with slashes.
     setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
     setopt RM_STAR_SILENT           # Do not query the user before executing `rm *` or `rm path/*`.
     unsetopt CLOBBER                # Do not overwrite existing files with > and >>. Use >! and >>! to bypass.
+    unsetopt CORRECT                # Do not try to correct the spelling of commands.
     unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
     unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
 
