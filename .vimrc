@@ -12,7 +12,6 @@ syntax on                               " syntax highlighting
 filetype indent plugin on               " filetype detection on
 
 set number                              " print the line number in front of each line
-set relativenumber                      " show the line number relative to the line with the cursor in front of each line
 set noruler                             " don't show the line and column number of the cursor position, separated by a comma
 set nowrap                              " don't wrap lines longer than the width of the window
 set nomodeline                          " don't allow setting options via buffer content
@@ -209,7 +208,6 @@ Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 Plug 'kovisoft/paredit', { 'for': 'scheme' }
 Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
-Plug 'chrisbra/csv.vim', { 'for': 'csv' }
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug '$VIMRUNTIME/pack/dist/opt/matchit'
 Plug 'yianwillis/vimcdoc'

@@ -3,13 +3,8 @@
     "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
-        "html",
-        "css",
-        "scss",
         "javascript",
-        "typescript",
-        "json",
-        "yaml"
+        "typescript"
     ],
     "coc.preferences.rootPatterns": [
         ".root",
