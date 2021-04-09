@@ -431,6 +431,12 @@ augroup VimBuild
     autocmd FileType scheme  setl makeprg=chez\ --script\ %
 augroup END
 
+" ----> Filetype
+augroup CustomFileType
+    autocmd!
+    autocmd FileType qf setl nonu nornu
+augroup END
+
 " ----> Tricks
 augroup VimTricks
     autocmd!

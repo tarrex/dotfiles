@@ -160,34 +160,28 @@ set wildignore+=*DS_Store,*Thumbs.db
 " ============> Plugins <============
 let s:vimplug = s:vimdir . '/autoload/plug.vim'
 if empty(glob(s:vimplug))
-    if executable('curl')
-        silent execute '!echo "Installing Vim-Plug..."'
-        silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:vimplug .
-                     \ ' https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-        autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
-    else
+    if !executable('curl')
         echomsg 'You have to install curl or install vim-plug manually!'
         finish
     endif
+    silent execute '!echo "Installing Vim-Plug..."'
+    silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:vimplug .
+                 \ ' https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 let s:coc = s:vimdir . '/coc-settings.json'
 if empty(glob(s:coc))
-    if executable('curl')
+    if executable('yarn') || executable('npm')
         silent execute '!echo "Download coc-settings.json..."'
         silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:coc .
                      \ ' https://raw.githubusercontent.com/tarrex/dotfiles/master/coc-settings.json'
-    else
-        echomsg 'You have to install curl or download coc-settings.json manually!'
-    endif
-    if !executable('yarn') && !executable('npm')
-        echomsg 'You have to install yarn or npm for coc.nvim plugin later!'
     endif
 endif
 
 call plug#begin(s:vimdir . '/plugged')
 
-Plug 'nlknguyen/papercolor-theme'
+Plug 'lifepillar/vim-gruvbox8'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -199,9 +193,13 @@ Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-Plug 'cohama/lexima.vim'
+Plug 'jiangmiao/auto-pairs'
 Plug 'tpope/vim-surround'
-Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+if executable('yarn') || executable('npm')
+    Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+else
+    Plug 'skywind3000/vim-auto-popmenu'
+endif
 Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 Plug 'rust-lang/rust.vim', { 'for': 'rust' }
@@ -209,8 +207,8 @@ Plug 'kovisoft/paredit', { 'for': 'scheme' }
 Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
-Plug '$VIMRUNTIME/pack/dist/opt/matchit'
 Plug 'yianwillis/vimcdoc'
+Plug '$VIMRUNTIME/pack/dist/opt/matchit'
 
 call plug#end()
 
@@ -282,14 +280,18 @@ if s:has_plug('lightline.vim')
 
     function! LightlineLinter() abort
         if (winwidth(0) < 80 || mode() == 't') | return '' | endif
-        let l:counts = ale#statusline#Count(bufnr(''))
-        let l:all_errors = l:counts.error + l:counts.style_error
-        let l:all_non_errors = l:counts.total - l:all_errors
-        return l:counts.total == 0 ? '' : printf(
-            \ '%dW %dE',
-            \ all_non_errors,
-            \ all_errors
-        \ )
+        if s:has_plug('ale')
+            let l:counts = ale#statusline#Count(bufnr(''))
+            let l:all_errors = l:counts.error + l:counts.style_error
+            let l:all_non_errors = l:counts.total - l:all_errors
+            return l:counts.total == 0 ? '' : printf(
+                \ '%dW %dE',
+                \ all_non_errors,
+                \ all_errors
+            \ )
+        else
+            return ''
+        endif
     endfunction
 
     function! LightlineFileSize() abort
@@ -448,22 +450,6 @@ endif
 " ----> mbbill/undotree
 if s:has_plug('undotree')
     nnoremap <silent> <localleader>u :UndotreeToggle<cr>
-endif
-
-" ----> cohama/lexima.vim
-if s:has_plug('lexima.vim')
-    function! s:lexima_custom_rules() abort
-        call lexima#add_rule({'char': '$', 'input_after': '$', 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
-        call lexima#add_rule({'char': '$', 'at': '\%#\$', 'leave': 1, 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
-        call lexima#add_rule({'char': '$', 'at': '^\$\%#\$$', 'input_after' : '<CR>$', 'filetype': ['markdown']})
-        call lexima#add_rule({'char': '<BS>', 'at': '\$\%#\$', 'delete': 1, 'filetype': ['markdown', 'plaintex', 'latex', 'tex']})
-        call lexima#add_rule({'char': '<BS>', 'at': '^\$\$\%#\n\$\$$', 'input': '<BS><BS>', 'delete': 3, 'filetype' : ['markdown']})
-    endfunction
-    augroup Lexima
-        autocmd!
-        autocmd FileType scheme let b:lexima_disabled = 1
-        autocmd VimEnter * call s:lexima_custom_rules()
-    augroup END
 endif
 
 " ----> neoclide/coc.nvim
@@ -642,6 +628,11 @@ if s:has_plug('coc.nvim')
     endif
 endif
 
+" ----> skywind3000/vim-auto-popmenu
+if s:has_plug('vim-auto-popmenu')
+    let g:apc_enable_ft = { '*': 1 }
+endif
+
 " ----> dense-analysis/ale
 if s:has_plug('ale')
     let g:ale_command_wrapper      = 'nice -n5'
@@ -665,6 +656,7 @@ if s:has_plug('ale')
         \ 'rust': ['rustfmt']
     \}
     let g:ale_lint_delay           = 1000
+    let g:ale_lint_on_enter        = 0
     let g:ale_linters_explicit     = 1
     let g:ale_linters              = {
         \ 'c': ['gcc'],
@@ -752,6 +744,33 @@ if s:has_plug('rust.vim')
     augroup END
 endif
 
+" ----> ycm-core/youcompleteme
+if isdirectory(s:vimdir . '/youcompleteme') && 0 " disabled
+    set rtp+=~/.vim/youcompleteme
+    let g:ycm_add_preview_to_completeopt                    = 0
+    let g:ycm_show_diagnostics_ui                           = 0
+    let g:ycm_server_log_level                              = 'info'
+    let g:ycm_min_num_identifier_candidate_chars            = 2
+    let g:ycm_collect_identifiers_from_comments_and_strings = 1
+    let g:ycm_complete_in_strings                           = 1
+    let g:ycm_key_invoke_completion                         = '<c-z>'
+    let g:ycm_disable_signature_help                        = 1
+    let g:ycm_auto_hover                                    = ''
+
+    if exists('+completepopup')
+        set completepopup=align:menu,border:off,highlight:WildMenu
+        set completepopup=align:menu,border:off,highlight:QuickPreview
+        set completeopt+=popup
+    endif
+
+    let g:ycm_semantic_triggers =  {
+        \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+        \ 'cs,lua,javascript': ['re!\w{2}'],
+    \ }
+    let g:ycm_goto_buffer_command = 'new-or-existing-tab'
+    nmap <leader>D <plug>(YCMHover)
+endif
+
 " ============> Custom <============
 " ----> Highlights
 " Some custom highlights
@@ -768,7 +787,7 @@ augroup Highlights
 augroup END
 
 " ----> Color
-silent! colorscheme PaperColor
+silent! colorscheme gruvbox8_hard
 
 " ----> Key maps
 let g:mapleader      = ','              " set vim map leader, <leader>
@@ -905,6 +924,12 @@ augroup VimBuild
     autocmd FileType go      setl makeprg=go\ run\ %
     autocmd FileType python  setl makeprg=python3\ %
     autocmd FileType scheme  setl makeprg=chez\ --script\ %
+augroup END
+
+" ----> Filetype
+augroup CustomFileType
+    autocmd!
+    autocmd FileType qf setl nonu nornu
 augroup END
 
 " ----> Tricks
