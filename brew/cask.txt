@@ -12,6 +12,7 @@ datagrip
 db-browser-for-sqlite
 dingtalk
 docker
+dosbox
 dropbox
 eudic
 evernote
@@ -34,11 +35,11 @@ sublime-text
 suspicious-package
 tabula
 telegram
+tencent-meeting
 thunder
 thunderbird
 tor-browser
 typora
-understand
 virtualbox
 virtualbox-extension-pack
 visual-studio-code
