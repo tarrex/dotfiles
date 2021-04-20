@@ -1,9 +1,26 @@
 " Tarrex's vimrc
 "       ------ Enjoy vim, enjoy coding.
 
-" ============> General <============
-let s:vimdir = $HOME . '/.vim'          " vim config directory
+" ============> Prepare <============
+let s:env          = {}
+let s:env.windows  = has('win16') || has('win32') || has('win64')
+let s:env.cygwin   = has('win32unix')
+let s:env.mac      = !s:env.windows && !s:env.cygwin
+                    \ && (has('mac') || has('macunix') || has('gui_macvim')
+                    \ || (!executable('xdg-open')
+                    \ && system('uname') =~? '^darwin'))
+let s:env.linux    = !s:env.mac && has('unix')
+let s:env.starting = has('vim_starting')
+let s:env.gui      = has('gui_running')
+let s:env.hostname = hostname()
 
+if s:env.windows
+    let s:vimdir = $HOME . '/vimfiles'
+else
+    let s:vimdir = $HOME . '/.vim'
+endif
+
+" ============> General <============
 if &compatible
     set nocompatible                    " be iMproved, required
 endif
@@ -114,22 +131,22 @@ set dictionary+=/usr/share/dict/words   " files that are used to lookup words fo
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set tags=./tags;                        " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
 set noswapfile                          " don't create swapfile for the buffer
-" let &directory = s:vimdir . '/tmp/swap//'
+" let &directory = s:vimdir . '/tmp/swap'
 " if !isdirectory(&directory)
-"     silent! call mkdir(&directory, 'p', 0700)
+"     silent call mkdir(&directory, 'p', 0700)
 " endif
 set backup                              " make a backup before overwriting a file
 set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
 set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
-let &backupdir = s:vimdir . '/tmp/backup//'
+let &backupdir = s:vimdir . '/tmp/backup'
 if !isdirectory(&backupdir)
-    silent! call mkdir(&backupdir, 'p', 0700)
+    silent call mkdir(&backupdir, 'p', 0700)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-let &undodir = s:vimdir . '/tmp/undo//'
+let &undodir = s:vimdir . '/tmp/undo'
 if !isdirectory(&undodir)
-    silent! call mkdir(&undodir, 'p', 0700)
+    silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
 if has('nvim')
@@ -199,20 +216,21 @@ endfunction
 " statusline
 function! Statusline() abort
     if &previewwindow | return | endif
-    " let mo    = ' %{mode()} '                        " buffer mode
-    let mo    = ' %{g:currentmode[mode()]} '         " buffer mode
-    let pst   = '%{&paste!=#"paste"? "| paste ":""}' " paste state
-    let bnum  = '| %n '                              " buffer number
-    let ro    = '%{&ro!=#""?"| RO ":""}'             " read only flag
-    let fname = '| %{FileName()} '                   " tail of filename
-    let sep   = ' %= '                               " separator
-    let fs    = '%{FileSize()} '                     " file size
-    let ff    = '| %{&ff} '                          " file format
-    let fe    = '| %{&fenc?&fenc:&enc} '             " file encoding
-    let ft    = '| %{&ft!=#""?&ft:"no ft"} '         " filetype
-    let pct   = '| %3p%% '                           " percent through file
-    let pos   = '| %3l:%-2v '                        " cursor column
-    return mo.pst.bnum.ro.fname.sep.fs.ff.fe.ft.pct.pos
+    let line  = ''
+    " let line .= ' %{mode()} '                        " buffer mode
+    let line .= ' %{g:currentmode[mode()]} '         " buffer mode
+    let line .= '%{&paste!=#"paste"? "| paste ":""}' " paste state
+    let line .= '| %n '                              " buffer number
+    let line .= '%{&ro!=#""?"| RO ":""}'             " read only flag
+    let line .= '| %{FileName()} '                   " tail of filename
+    let line .= ' %= '                               " separator
+    let line .= '%{FileSize()} '                     " file size
+    let line .= '| %{&ff} '                          " file format
+    let line .= '| %{&fenc?&fenc:&enc} '             " file encoding
+    let line .= '| %{&ft!=#""?&ft:"no ft"} '         " filetype
+    let line .= '| %3p%% '                           " percent through file
+    let line .= '| %3l:%-2v '                        " cursor column
+    return line
 endfunction
 
 let &statusline = Statusline()
@@ -272,10 +290,19 @@ endif
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal           ctermbg=0               guibg=#000000
-    highlight LineNr           ctermbg=0   ctermfg=247 guibg=#000000 guifg=#9e9e9e
-    highlight VertSplit                    ctermfg=0                 guifg=#000000
-    highlight SignColumn       ctermbg=0               guibg=#000000
+    highlight Normal        ctermbg=NONE guibg=NONE
+    highlight NonText       ctermbg=NONE guibg=NONE
+    highlight CursorLineNr  ctermbg=NONE guibg=NONE
+    highlight LineNr        ctermbg=NONE guibg=NONE
+    highlight CursorLine    ctermbg=NONE guibg=NONE
+    highlight SpecialKey    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
+    highlight Folded        ctermbg=NONE guibg=NONE
+    highlight FoldColumn    ctermbg=NONE guibg=NONE
+    highlight DiffAdd       ctermbg=NONE guibg=NONE
+    highlight DiffChange    ctermbg=NONE guibg=NONE
+    highlight DiffDelete    ctermbg=NONE guibg=NONE
+
     highlight StatusLine       ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
     highlight StatuslineNC     ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
     highlight StatuslineTerm   ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
@@ -322,6 +349,12 @@ nnoremap <silent> [T :tabfirst<cr>
 nnoremap <silent> ]T :tablast<cr>
 nnoremap <silent> <c-t> :tabnew<cr>
 inoremap <silent> <c-t> <esc>:tabnew<cr>
+nnoremap <silent> tt :<c-u>call MoveToTab()<cr>
+function! MoveToTab() abort
+    tab split | tabprevious
+    if winnr('$') > 1 | close | elseif bufnr('$') > 1 | buffer # | endif
+    tabnext
+endfunction
 
 " Quickfox switching
 nnoremap <silent> [q :cprevious<cr>
@@ -371,7 +404,7 @@ vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
 
 " Search in selected visual block
-vnoremap / :<C-U>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<CR>
+vnoremap / :<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<cr>
 
 " Fast save
 noremap  <silent> <c-s> :update<cr>
@@ -403,8 +436,14 @@ cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 " Rotate tab size
 nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
 
+" Toggle current cursor position to top / center / bottom
+noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz'
+
 " Reselect the text that has just been pasted
 nnoremap <silent> <space>p `[V`]
+
+" Send output of previous global command to a new window
+nnoremap <silent> <space>s :redir @a<cr>:g//<cr>:redir END<cr>:new<cr>:put! a<cr><cr>
 
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
@@ -449,6 +488,11 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
 augroup END
+
+" ----> Commands
+command! RemoveBlankLine silent! g/^$/d | nohlsearch | normal! ``
+command! -bar RTP echo substitute(&runtimepath, ',', "\n", 'g')
+command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
 
 " ----> Disable some vim built-in plugins
 let g:loaded_2html_plugin    = 1        " tohtml
@@ -521,10 +565,22 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if has('win32') || has('win64')
+if s:env.windows
     nnoremap <leader>e :!start explorer /e,%:p:h \| redraw!<cr>
     nnoremap <leader>E :execute "!start explorer /e," . shellescape(getcwd(),1) \| redraw!<cr>
-elseif has('mac') || has('macunix') || has('gui_mac')
+elseif s:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
 endif
+
+" ----> Echo start time when starting
+if has('reltime')
+    let s:startuptime = reltime()
+    augroup StartupTime
+        autocmd!
+        autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
+                            \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
+    augroup END
+endif
+
+set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed

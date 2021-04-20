@@ -1,9 +1,26 @@
 " Tarrex's vimrc
 "       ------ Enjoy vim, enjoy coding.
 
-" ============> General <============
-let s:vimdir = $HOME . '/.vim'          " vim config directory
+" ============> Prepare <============
+let s:env          = {}
+let s:env.windows  = has('win16') || has('win32') || has('win64')
+let s:env.cygwin   = has('win32unix')
+let s:env.mac      = !s:env.windows && !s:env.cygwin
+                    \ && (has('mac') || has('macunix') || has('gui_macvim')
+                    \ || (!executable('xdg-open')
+                    \ && system('uname') =~? '^darwin'))
+let s:env.linux    = !s:env.mac && has('unix')
+let s:env.starting = has('vim_starting')
+let s:env.gui      = has('gui_running')
+let s:env.hostname = hostname()
 
+if s:env.windows
+    let s:vimdir = $HOME . '/vimfiles'
+else
+    let s:vimdir = $HOME . '/.vim'
+endif
+
+" ============> General <============
 if &compatible
     set nocompatible                    " be iMproved, required
 endif
@@ -114,22 +131,22 @@ set dictionary+=/usr/share/dict/words   " files that are used to lookup words fo
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set tags=./tags;                        " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
 set noswapfile                          " don't create swapfile for the buffer
-" let &directory = s:vimdir . '/tmp/swap//'
+" let &directory = s:vimdir . '/tmp/swap'
 " if !isdirectory(&directory)
-"     silent! call mkdir(&directory, 'p', 0700)
+"     silent call mkdir(&directory, 'p', 0700)
 " endif
 set backup                              " make a backup before overwriting a file
 set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
 set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
-let &backupdir = s:vimdir . '/tmp/backup//'
+let &backupdir = s:vimdir . '/tmp/backup'
 if !isdirectory(&backupdir)
-    silent! call mkdir(&backupdir, 'p', 0700)
+    silent call mkdir(&backupdir, 'p', 0700)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-let &undodir = s:vimdir . '/tmp/undo//'
+let &undodir = s:vimdir . '/tmp/undo'
 if !isdirectory(&undodir)
-    silent! call mkdir(&undodir, 'p', 0700)
+    silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
 if has('nvim')
@@ -182,6 +199,7 @@ endif
 call plug#begin(s:vimdir . '/plugged')
 
 Plug 'lifepillar/vim-gruvbox8'
+" Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -193,22 +211,26 @@ Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-Plug 'jiangmiao/auto-pairs'
+Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 if executable('yarn') || executable('npm')
     Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 else
     Plug 'skywind3000/vim-auto-popmenu'
 endif
+Plug 'sirver/ultisnips'
+Plug 'honza/vim-snippets'
 Plug 'dense-analysis/ale'
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
-Plug 'rust-lang/rust.vim', { 'for': 'rust' }
-Plug 'kovisoft/paredit', { 'for': 'scheme' }
-Plug 'tarrex/nginx.vim', { 'for': 'nginx' }
-Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
 Plug '$VIMRUNTIME/pack/dist/opt/matchit'
+
+Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
+Plug 'rust-lang/rust.vim',         { 'for': 'rust' }
+Plug 'kovisoft/paredit',           { 'for': 'scheme' }
+Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
+Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
+Plug 'cespare/vim-toml',           { 'for': 'toml'}
 
 call plug#end()
 
@@ -431,20 +453,41 @@ if s:has_plug('fzf.vim')
         \      '--hidden --glob "!{'.shellescape(&wildignore).'}" -- '.shellescape(<q-args>), 1,
         \   fzf#vim#with_preview(), <bang>0)
 
-    nnoremap <silent> <space>ff :FZFFiles<cr>
-    nnoremap <silent> <space>fb :FZFBuffers<cr>
-    nnoremap <silent> <space>fh :FZFHistory<cr>
-    nnoremap <silent> <space>fc :FZFHistory:<cr>
-    nnoremap <silent> <space>fs :FZFHistory/<cr>
-    nnoremap <silent> <space>fg :FZFGFiles?<cr>
-    nnoremap <silent> <space>ft :FZFBTags<cr>
-    nnoremap <silent> <space>fr :FZFRg<cr>
+    nnoremap <silent> <space>fb  :FZFBuffers<cr>
+    nnoremap <silent> <space>fc  :FZFBCommits<cr>
+    nnoremap <silent> <space>ff  :FZFFiles<cr>
+    nnoremap <silent> <space>fg  :FZFGFiles?<cr>
+    nnoremap <silent> <space>fh  :FZFHistory<cr>
+    nnoremap <silent> <space>fhc :FZFHistory:<cr>
+    nnoremap <silent> <space>fhs :FZFHistory/<cr>
+    nnoremap <silent> <space>fr  :FZFRg<cr>
+    nnoremap <silent> <space>fs  :FZFSnippets<cr>
+    nnoremap <silent> <space>ft  :FZFBTags<cr>
 
-    command! -bar -bang FZFMapsN call fzf#vim#maps("n", <bang>0)
     command! -bar -bang FZFMapsI call fzf#vim#maps("i", <bang>0)
-    command! -bar -bang FZFMapsX call fzf#vim#maps("x", <bang>0)
+    command! -bar -bang FZFMapsN call fzf#vim#maps("n", <bang>0)
     command! -bar -bang FZFMapsO call fzf#vim#maps("o", <bang>0)
     command! -bar -bang FZFMapsV call fzf#vim#maps("v", <bang>0)
+    command! -bar -bang FZFMapsX call fzf#vim#maps("x", <bang>0)
+endif
+
+" ----> tmsvg/pear-tree
+if s:has_plug('pear-tree')
+    let g:pear_tree_pairs = {
+        \ '(': {'closer': ')'},
+        \ '[': {'closer': ']'},
+        \ '{': {'closer': '}'},
+        \ "'": {'closer': "'"},
+        \ '"': {'closer': '"'}
+    \ }
+    let g:pear_tree_repeatable_expand = 0
+    augroup PearTree
+        autocmd!
+        autocmd FileType markdown let b:pear_tree_pairs = {
+                                      \ '$': {'closer': '$'},
+                                      \ '$$': {'closer': '$$'}
+                                  \ }
+    augroup END
 endif
 
 " ----> mbbill/undotree
@@ -628,6 +671,12 @@ if s:has_plug('coc.nvim')
     endif
 endif
 
+" ----> sirver/ultisnips
+if s:has_plug('ultisnips')
+    let g:UltiSnipsExpandTrigger      = '<nop>'
+    let g:UltiSnipsJumpForwardTrigger = '<tab>'
+endif
+
 " ----> skywind3000/vim-auto-popmenu
 if s:has_plug('vim-auto-popmenu')
     let g:apc_enable_ft = { '*': 1 }
@@ -775,10 +824,18 @@ endif
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal     ctermbg=0 guibg=#000000
-    highlight LineNr     ctermbg=0 guibg=#000000
-    highlight VertSplit  ctermfg=0 guifg=#000000
-    highlight SignColumn ctermbg=0 guibg=#000000
+    highlight Normal        ctermbg=NONE guibg=NONE
+    highlight NonText       ctermbg=NONE guibg=NONE
+    highlight CursorLineNr  ctermbg=NONE guibg=NONE
+    highlight LineNr        ctermbg=NONE guibg=NONE
+    highlight CursorLine    ctermbg=NONE guibg=NONE
+    highlight SpecialKey    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
+    highlight Folded        ctermbg=NONE guibg=NONE
+    highlight FoldColumn    ctermbg=NONE guibg=NONE
+    highlight DiffAdd       ctermbg=NONE guibg=NONE
+    highlight DiffChange    ctermbg=NONE guibg=NONE
+    highlight DiffDelete    ctermbg=NONE guibg=NONE
 endfunction
 
 augroup Highlights
@@ -817,6 +874,12 @@ nnoremap <silent> [T :tabfirst<cr>
 nnoremap <silent> ]T :tablast<cr>
 nnoremap <silent> <c-t> :tabnew<cr>
 inoremap <silent> <c-t> <esc>:tabnew<cr>
+nnoremap <silent> tt :<c-u>call MoveToTab()<cr>
+function! MoveToTab() abort
+    tab split | tabprevious
+    if winnr('$') > 1 | close | elseif bufnr('$') > 1 | buffer # | endif
+    tabnext
+endfunction
 
 " Quickfox switching
 nnoremap <silent> [q :cprevious<cr>
@@ -866,7 +929,7 @@ vnoremap J :m '>+1<cr>gv=gv
 vnoremap K :m '<-2<cr>gv=gv
 
 " Search in selected visual block
-vnoremap / :<C-U>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<CR>
+vnoremap / :<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<cr>
 
 " Fast save
 noremap  <silent> <c-s> :update<cr>
@@ -898,8 +961,14 @@ cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
 " Rotate tab size
 nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
 
+" Toggle current cursor position to top / center / bottom
+noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz'
+
 " Reselect the text that has just been pasted
 nnoremap <silent> <space>p `[V`]
+
+" Send output of previous global command to a new window
+nnoremap <silent> <space>s :redir @a<cr>:g//<cr>:redir END<cr>:new<cr>:put! a<cr><cr>
 
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
@@ -944,6 +1013,11 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
 augroup END
+
+" ----> Commands
+command! RemoveBlankLine silent! g/^$/d | nohlsearch | normal! ``
+command! -bar RTP echo substitute(&runtimepath, ',', "\n", 'g')
+command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
 
 " ----> Disable some vim built-in plugins
 let g:loaded_2html_plugin    = 1        " tohtml
@@ -1016,10 +1090,22 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if has('win32') || has('win64')
+if s:env.windows
     nnoremap <leader>e :!start explorer /e,%:p:h \| redraw!<cr>
     nnoremap <leader>E :execute "!start explorer /e," . shellescape(getcwd(),1) \| redraw!<cr>
-elseif has('mac') || has('macunix') || has('gui_mac')
+elseif s:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
 endif
+
+" ----> Echo start time when starting
+if has('reltime')
+    let s:startuptime = reltime()
+    augroup StartupTime
+        autocmd!
+        autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
+                            \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
+    augroup END
+endif
+
+set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
