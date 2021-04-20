@@ -704,10 +704,18 @@ elif [[ $OSTYPE == linux* ]]; then
     alias la='ls -ahl --color=auto'
 fi
 
-alias grep='grep --color'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+alias ..='cd ..'
+alias ...='cd ../..'
 
 alias dud='du -d 1 -h'
 alias duf='du -sh *'
+alias job='jobs -l'
+
+alias vi='vim -N -u NONE -i NONE'
 
 # Tools
 alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
@@ -747,6 +755,7 @@ fi
 # Frequently
 alias vimrc='vim ~/.vimrc'
 alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
+alias cdr='cd $(git rev-parse --show-toplevel)'
 
 # ============> Finally <============
 # Remove duplicate path
