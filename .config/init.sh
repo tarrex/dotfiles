@@ -79,7 +79,6 @@ function websearch() {
         archive         "https://web.archive.org/web/*/"
         scholar         "https://scholar.google.com/scholar?q="
         doubanbook      "https://search.douban.com/book/subject_search?search_text="
-        weibo           "https://weibo.com/search/weibo/time?q="
     )
 
     if [[ -z $urls[$1] ]]; then
@@ -91,9 +90,9 @@ function websearch() {
         local escape_str=`echo -n ${(j:+:)@[2,-1]} | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
         local url="${urls[$1]}${escape_str}"
 
-        case "$OSTYPE" in
-            darwin*)    open $url;;
-            linux*)     nohup xdg-open $url;;
+        case $OSTYPE in
+             linux*) nohup xdg-open $url;;
+            darwin*) open $url;;
         esac
     fi
 }
@@ -194,7 +193,8 @@ if [[ ! -z "$_Z_CMD" ]]; then
     if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
         echo "$XDG_DATA_HOME/z.sh doesn't exists."
         echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $XDG_DATA_HOME/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $XDG_DATA_HOME/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
     fi
     _Z_DATA=$XDG_CONFIG_HOME/z/z
     source $XDG_DATA_HOME/z.sh
@@ -205,7 +205,8 @@ if command -v git &> /dev/null; then
     if [[ ! -f $XDG_DATA_HOME/git-prompt.sh ]]; then
         echo "$XDG_DATA_HOME/git-prompt.sh doesn't exiets."
         echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git-prompt.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $XDG_DATA_HOME/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $XDG_DATA_HOME/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
     fi
     source $XDG_DATA_HOME/git-prompt.sh
 fi
@@ -694,15 +695,13 @@ if [[ -d /usr/local/node/bin ]]; then
 fi
 
 # Common alias
-if [[ $OSTYPE == darwin* ]]; then
-    alias ls='ls -Gh'
-    alias ll='ls -Ghl'
-    alias la='ls -aGhl'
-elif [[ $OSTYPE == linux* ]]; then
-    alias ls='ls -h --color=auto'
-    alias ll='ls -hl --color=auto'
-    alias la='ls -ahl --color=auto'
-fi
+case $OSTYPE in
+     linux*|cygwin*|msys*) alias ls='ls --color';;
+    darwin*|*bsd*|FreeBSD) alias ls='ls -G';;
+esac
+alias ls='ls -h'
+alias ll='ls -l'
+alias la='ll -a'
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -742,7 +741,6 @@ alias wolframalpha='websearch wolframalpha'
 alias archive='websearch archive'
 alias scholar='websearch scholar'
 alias doubanbook='websearch doubanbook'
-alias weibo='websearch weibo'
 
 # MacOS
 if [[ $OSTYPE == darwin* ]]; then
