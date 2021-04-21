@@ -696,10 +696,9 @@ fi
 
 # Common alias
 case $OSTYPE in
-     linux*|cygwin*|msys*) alias ls='ls --color';;
-    darwin*|*bsd*|FreeBSD) alias ls='ls -G';;
+     linux*|cygwin*|msys*) alias ls='ls --color -h';;
+    darwin*|*bsd*|FreeBSD) alias ls='ls -Gh';;
 esac
-alias ls='ls -h'
 alias ll='ls -l'
 alias la='ll -a'
 
