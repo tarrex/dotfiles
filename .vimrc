@@ -222,7 +222,6 @@ Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
 Plug '$VIMRUNTIME/pack/dist/opt/matchit'
-
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'rust-lang/rust.vim',         { 'for': 'rust' }
 Plug 'kovisoft/paredit',           { 'for': 'scheme' }
@@ -625,9 +624,9 @@ if s:has_plug('coc.nvim')
     " Add `:Format` command to format current buffer.
     command! -nargs=0 Format :call CocAction('format')
     " Add `:Fold` command to fold current buffer.
-    command! -nargs=? Fold :call   CocAction('fold', <f-args>)
+    command! -nargs=? Fold   :call CocAction('fold', <f-args>)
     " Add `:OR` command for organize imports of the current buffer.
-    command! -nargs=0 OR   :call   CocAction('runCommand', 'editor.action.organizeImport')
+    command! -nargs=0 OR     :call CocAction('runCommand', 'editor.action.organizeImport')
 
     " Mappings for CoCList
     " Show all diagnostics.
@@ -866,13 +865,13 @@ nnoremap <silent> ]B    :blast<cr>
 nnoremap <silent> <c-q> :bdelete<cr>
 
 " Tab switching
-nnoremap <silent> [t :tabprevious<cr>
-nnoremap <silent> ]t :tabnext<cr>
-nnoremap <silent> [T :tabfirst<cr>
-nnoremap <silent> ]T :tablast<cr>
+nnoremap <silent> [t    :tabprevious<cr>
+nnoremap <silent> ]t    :tabnext<cr>
+nnoremap <silent> [T    :tabfirst<cr>
+nnoremap <silent> ]T    :tablast<cr>
 nnoremap <silent> <c-t> :tabnew<cr>
 inoremap <silent> <c-t> <esc>:tabnew<cr>
-nnoremap <silent> tt :<c-u>call MoveToTab()<cr>
+nnoremap <silent> tt    :<c-u>call MoveToTab()<cr>
 function! MoveToTab() abort
     tab split | tabprevious
     if winnr('$') > 1 | close | elseif bufnr('$') > 1 | buffer # | endif
@@ -994,7 +993,7 @@ augroup VimBuild
 augroup END
 
 " ----> Filetype
-augroup CustomFileType
+augroup CustomByFileType
     autocmd!
     autocmd FileType qf setl nonu nornu
 augroup END
@@ -1003,9 +1002,9 @@ augroup END
 augroup VimTricks
     autocmd!
     " trim trailing whitespace on write
-    autocmd BufWritePre * let b:pos=getpos('.') | %s/\s\+$//e | call setpos('.', b:pos)
+    autocmd BufWritePre * if !&bin | let b:pos=getpos('.') | sil %s/\s\+$//e | call setpos('.', b:pos) | endif
     " remember cursor position
-    autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exe "normal! g`\"" | endif
+    autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | sil exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
     autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
     " auto source $MYVIMRC
