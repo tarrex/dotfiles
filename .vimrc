@@ -3,16 +3,14 @@
 
 " ============> Prepare <============
 let s:env          = {}
-let s:env.windows  = has('win16') || has('win32') || has('win64')
+let s:env.windows  = has('win64') || has('win32')
 let s:env.cygwin   = has('win32unix')
-let s:env.mac      = !s:env.windows && !s:env.cygwin
-                    \ && (has('mac') || has('macunix') || has('gui_macvim')
-                    \ || (!executable('xdg-open')
-                    \ && system('uname') =~? '^darwin'))
-let s:env.linux    = !s:env.mac && has('unix')
+let s:env.mac      = has('unix') && has('mac') || has('macunix') || system('uname') =~? '^darwin'
+let s:env.linux    = has('unix') && has('linux')
+let s:env.unix     = has('unix') && !s:env.mac && !s:env.linux
+
 let s:env.starting = has('vim_starting')
 let s:env.gui      = has('gui_running')
-let s:env.hostname = hostname()
 
 if s:env.windows
     let s:vimdir = $HOME . '/vimfiles'
