@@ -58,7 +58,7 @@ set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
 if executable('rg')
-    let &grepprg='rg --vimgrep'         " rg as the program to call when using the Ex commands: `:[l]grep[add]`
+    set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
 
@@ -203,7 +203,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
-Plug 'chrisbra/Colorizer', { 'on': 'ColorToggle' }
+Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -211,8 +211,9 @@ Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
 if executable('yarn') || executable('npm')
-    Plug 'neoclide/coc.nvim', { 'branch': 'release' }
+    Plug 'neoclide/coc.nvim'
 else
     Plug 'skywind3000/vim-auto-popmenu'
 endif

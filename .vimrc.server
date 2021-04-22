@@ -58,7 +58,7 @@ set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
 if executable('rg')
-    let &grepprg='rg --vimgrep'         " rg as the program to call when using the Ex commands: `:[l]grep[add]`
+    set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
 
@@ -183,6 +183,7 @@ let g:currentmode = {
 
 " file name
 function! FileName() abort
+    if mode() == 't' | return expand('%') | endif
     if winwidth(0) < 50
         let fname = expand('%:t')
     elseif winwidth(0) > 150
@@ -198,17 +199,17 @@ endfunction
 
 " file size
 function! FileSize() abort
+    if (winwidth(0) < 70 || mode() == 't') | return '' | endif
     let l:bytes = getfsize(@%)
-    if l:bytes <= 0
-        return '0B'
-    endif
+    if l:bytes <= 0 | return '0B' | endif
     let l:units = ['B', 'K', 'M', 'G']
     let l:idx = 0
     while l:bytes >= 1024
         let l:bytes = l:bytes / 1024.0
         let l:idx += 1
     endwhile
-    return printf('%.1f%s', l:bytes, l:units[l:idx])
+    return &ft ==? 'qf' ? '' :
+        \ printf('%.1f%s', l:bytes, l:units[l:idx])
 endfunction
 
 " statusline
