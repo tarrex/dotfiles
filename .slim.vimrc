@@ -121,7 +121,7 @@ set listchars+=precedes:«               " unwrapped text to screen left
 silent! set listchars+=tab:<->          " tab characters, preserve width
 set listchars+=nbsp:∅                   " non-breaking spaces
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
-let &showbreak = '↪ '                   " string to put at the start of lines that have been wrapped
+set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 

@@ -121,7 +121,7 @@ set listchars+=precedes:«               " unwrapped text to screen left
 silent! set listchars+=tab:<->          " tab characters, preserve width
 set listchars+=nbsp:∅                   " non-breaking spaces
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
-let &showbreak = '↪ '                   " string to put at the start of lines that have been wrapped
+set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 
@@ -196,8 +196,8 @@ endif
 
 call plug#begin(s:vimdir . '/plugged')
 
-Plug 'lifepillar/vim-gruvbox8'
-" Plug 'haishanh/night-owl.vim'
+" Plug 'lifepillar/vim-gruvbox8'
+Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -216,8 +216,10 @@ if executable('yarn') || executable('npm')
 else
     Plug 'skywind3000/vim-auto-popmenu'
 endif
-Plug 'sirver/ultisnips'
-Plug 'honza/vim-snippets'
+if has('python3')
+    Plug 'sirver/ultisnips'
+    Plug 'honza/vim-snippets'
+endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
@@ -241,7 +243,7 @@ if s:has_plug('lightline.vim')
     let g:lightline = {
         \ 'enable': {
         \   'statusline': 1,
-        \   'tabline': 0
+        \   'tabline': 1
         \ },
         \ 'colorscheme': 'solarized',
         \ 'active': {
@@ -316,6 +318,7 @@ if s:has_plug('lightline.vim')
     function! LightlineFileSize() abort
         if (winwidth(0) < 70 || mode() == 't') | return '' | endif
         let l:bytes = getfsize(@%)
+        if l:bytes <= 0 | return '0B' | endif
         let l:units = ['B', 'K', 'M', 'G']
         let l:idx = 0
         while l:bytes >= 1024
@@ -398,7 +401,7 @@ if s:has_plug('vista.vim')
     let g:vista_sidebar_width            = 30
     let g:vista_echo_cursor              = 1
     let g:vista_cursor_delay             = 400
-    if has('nvim-0.4.0') || has('patch-8.2.0750')
+    if has('patch-8.2.0750') || has('nvim-0.4.0')
         let g:vista_echo_cursor_strategy = 'floating_win'
     else
         let g:vista_echo_cursor_strategy = 'echo'
@@ -608,7 +611,7 @@ if s:has_plug('coc.nvim')
     omap <coc>ac <Plug>(coc-classobj-a)
 
     " Remap <C-f> and <C-b> for scroll float windows/popups.
-    if has('nvim-0.4.0') || has('patch-8.2.0750')
+    if has('patch-8.2.0750') || has('nvim-0.4.0')
         nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
         nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
         inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
@@ -841,7 +844,7 @@ augroup Highlights
 augroup END
 
 " ----> Color
-silent! colorscheme gruvbox8_hard
+silent! colorscheme night-owl
 
 " ----> Key maps
 let g:mapleader      = ','              " set vim map leader, <leader>
