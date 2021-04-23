@@ -87,11 +87,11 @@ function websearch() {
     fi
 
     if [[ $# -gt 1 ]]; then
-        local escape_str=`echo -n ${(j:+:)@[2,-1]} | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
+        local escape_str=`echo -n "${@:2}" | sed 's/ /+/g' | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
         local url="${urls[$1]}${escape_str}"
 
         case $OSTYPE in
-             linux*) nohup xdg-open $url;;
+             linux*) xdg-open $url;;
             darwin*) open $url;;
         esac
     fi
@@ -730,16 +730,18 @@ alias httpproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr al
 alias socks5proxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr "
 
 # Web search
-alias bing='websearch bing'
-alias google='websearch google'
-alias github='websearch github'
-alias baidu='websearch baidu'
-alias goodreads='websearch goodreads'
-alias sof='websearch stackoverflow'
-alias wolframalpha='websearch wolframalpha'
-alias archive='websearch archive'
-alias scholar='websearch scholar'
-alias doubanbook='websearch doubanbook'
+if [[ $OSTYPE == linux* || $OSTYPE == darwin* ]]; then
+    alias bing='websearch bing'
+    alias google='websearch google'
+    alias github='websearch github'
+    alias baidu='websearch baidu'
+    alias goodreads='websearch goodreads'
+    alias sof='websearch stackoverflow'
+    alias wolframalpha='websearch wolframalpha'
+    alias archive='websearch archive'
+    alias scholar='websearch scholar'
+    alias doubanbook='websearch doubanbook'
+fi
 
 # MacOS
 if [[ $OSTYPE == darwin* ]]; then
