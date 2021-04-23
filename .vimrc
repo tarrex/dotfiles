@@ -1097,6 +1097,9 @@ if s:env.windows
 elseif s:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
+elseif s:env.linux
+    nnoremap <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
+    nnoremap <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
 
 " ----> Echo start time when starting
