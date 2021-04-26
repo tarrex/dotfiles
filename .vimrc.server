@@ -2,6 +2,7 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
+" environment
 let s:env          = {}
 let s:env.windows  = has('win64') || has('win32')
 let s:env.cygwin   = has('win32unix')
@@ -17,6 +18,10 @@ if s:env.windows
 else
     let s:vimdir = $HOME . '/.vim'
 endif
+
+" dependency
+let s:dep    = {}
+let s:dep.rg = executable('rg')
 
 " ============> General <============
 if &compatible
@@ -57,7 +62,7 @@ set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
-if executable('rg')
+if s:dep.rg
     set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
@@ -584,5 +589,21 @@ if has('reltime')
                             \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
     augroup END
 endif
+
+" ----> Open URL under cursor
+function! OpenURLUnderCursor()
+    let s:uri = expand('<cword>')
+    let s:uri = substitute(s:uri, '?', '\\?', '')
+    let s:uri = shellescape(s:uri, 1)
+    if s:uri != ''
+        if s:env.mac
+            silent exec "!open '".s:uri."'"
+        elseif s:env.linux
+            silent exec "!xdg-open '".s:uri."'"
+        endif
+        :redraw!
+    endif
+endfunction
+nnoremap <silent> gu :call OpenURLUnderCursor()<cr>
 
 set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed

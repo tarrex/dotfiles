@@ -2,6 +2,7 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
+" environment
 let s:env          = {}
 let s:env.windows  = has('win64') || has('win32')
 let s:env.cygwin   = has('win32unix')
@@ -17,6 +18,12 @@ if s:env.windows
 else
     let s:vimdir = $HOME . '/.vim'
 endif
+
+" dependency
+let s:dep       = {}
+let s:dep.rg    = executable('rg')
+let s:dep.curl  = executable('curl')
+let s:dep.coc   = executable('yarn') || executable('npm')
 
 " ============> General <============
 if &compatible
@@ -57,7 +64,7 @@ set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
-if executable('rg')
+if s:dep.rg
     set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
@@ -175,7 +182,7 @@ set wildignore+=*DS_Store,*Thumbs.db
 " ============> Plugins <============
 let s:vimplug = s:vimdir . '/autoload/plug.vim'
 if empty(glob(s:vimplug))
-    if !executable('curl')
+    if !s:dep.curl
         echomsg 'You have to install curl or install vim-plug manually!'
         finish
     endif
@@ -187,7 +194,7 @@ endif
 
 let s:coc = s:vimdir . '/coc-settings.json'
 if empty(glob(s:coc))
-    if executable('yarn') || executable('npm')
+    if s:dep.coc
         silent execute '!echo "Download coc-settings.json..."'
         silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:coc .
                      \ ' https://raw.githubusercontent.com/tarrex/dotfiles/master/coc-settings.json'
@@ -202,7 +209,6 @@ Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
-Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
@@ -212,7 +218,7 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-if executable('yarn') || executable('npm')
+if s:dep.coc
     Plug 'neoclide/coc.nvim'
 else
     Plug 'skywind3000/vim-auto-popmenu'
@@ -228,9 +234,10 @@ Plug '$VIMRUNTIME/pack/dist/opt/matchit'
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'rust-lang/rust.vim',         { 'for': 'rust' }
 Plug 'kovisoft/paredit',           { 'for': 'scheme' }
+Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
-Plug 'cespare/vim-toml',           { 'for': 'toml'}
+Plug 'cespare/vim-toml',           { 'for': 'toml' }
 
 call plug#end()
 
@@ -265,13 +272,13 @@ if s:has_plug('lightline.vim')
         \            [ 'filetype' ]]
         \ },
         \ 'component_function': {
-        \   'mode': 'LightLineMode',
-        \   'filename': 'LightlineFilename',
-        \   'linter': 'LightlineLinter',
-        \   'filesize': 'LightlineFileSize',
-        \   'fileformat': 'LightLineFileFormat',
+        \   'mode':         'LightLineMode',
+        \   'filename':     'LightlineFilename',
+        \   'linter':       'LightlineLinter',
+        \   'filesize':     'LightlineFileSize',
+        \   'fileformat':   'LightLineFileFormat',
         \   'fileencoding': 'LightLineFileEncoding',
-        \   'filetype': 'LightLineFileType'
+        \   'filetype':     'LightLineFileType'
         \ }
     \ }
 
@@ -352,39 +359,38 @@ endif
 " ----> easymotion/vim-easymotion
 if s:has_plug('vim-easymotion')
     let g:EasyMotion_do_mapping       = 0
-    let g:EasyMotion_keys             = 'abcdefghijklmnopqrstuvwxyz'
     let g:EasyMotion_grouping         = 1
     let g:EasyMotion_smartcase        = 1
     let g:EasyMotion_startofline      = 0
     let g:EasyMotion_enter_jump_first = 1
     let g:EasyMotion_space_jump_first = 1
 
-    nnoremap <easymotion> <nop>
-    nmap     S            <easymotion>
+    nnoremap <em> <nop>
+    nmap     S    <em>
 
-    nmap <easymotion>j <Plug>(easymotion-s2)
-    xmap <easymotion>j <Plug>(easymotion-s2)
-    nmap <easymotion>/ <Plug>(easymotion-sn)
-    xmap <easymotion>/ <Plug>(easymotion-sn)
-    map  <easymotion>k <Plug>(easymotion-bd-jk)
-    nmap <easymotion>k <Plug>(easymotion-overwin-line)
-    map  <easymotion>S <Plug>(easymotion-bd-w)
-    nmap <easymotion>S <Plug>(easymotion-overwin-w)
-    map  <easymotion>w <Plug>(easymotion-bd-w)
-    nmap <easymotion>w <Plug>(easymotion-overwin-w)
+    nmap <em>j <Plug>(easymotion-s2)
+    xmap <em>j <Plug>(easymotion-s2)
+    nmap <em>/ <Plug>(easymotion-sn)
+    xmap <em>/ <Plug>(easymotion-sn)
+    map  <em>k <Plug>(easymotion-bd-jk)
+    nmap <em>k <Plug>(easymotion-overwin-line)
+    map  <em>S <Plug>(easymotion-bd-w)
+    nmap <em>S <Plug>(easymotion-overwin-w)
+    map  <em>w <Plug>(easymotion-bd-w)
+    nmap <em>w <Plug>(easymotion-overwin-w)
 endif
 
 " ----> terryma/vim-multiple-cursors
 if s:has_plug('vim-multiple-cursors')
     let g:multi_cursor_use_default_mapping = 0
 
-    nnoremap <multiple-cursors> <nop>
-    nmap     C                  <multiple-cursors>
+    nnoremap <mc> <nop>
+    nmap     C    <mc>
 
-    let g:multi_cursor_start_word_key      = 'C'
-    let g:multi_cursor_select_all_word_key = '<leader>C'
-    let g:multi_cursor_start_key           = 'gC'
-    let g:multi_cursor_select_all_key      = 'g<leader>C'
+    let g:multi_cursor_start_word_key      = '<mc>'
+    let g:multi_cursor_select_all_word_key = '<leader><mc>'
+    let g:multi_cursor_start_key           = 'g<mc>'
+    let g:multi_cursor_select_all_key      = 'g<leader><mc>'
     let g:multi_cursor_next_key            = '<c-n>'
     let g:multi_cursor_prev_key            = '<c-p>'
     let g:multi_cursor_skip_key            = '<c-x>'
@@ -410,22 +416,16 @@ if s:has_plug('vista.vim')
     let g:vista_close_on_jump            = 0
     let g:vista_stay_on_open             = 1
     let g:vista_blink                    = [2, 100]
-    let g:vista_icon_indent              = ['╰─▸ ', '├─▸ ']
     let g:vista_default_executive        = 'ctags'
-    let g:vista#executives               = ['ctags', 'coc']
-    let g:vista_ctags_cmd                = {
-          \ 'haskell': 'hasktags -o - -c',
-          \ }
     let g:vista_fzf_preview              = ['right:50%']
-    let g:vista_disable_statusline       = 0
+    let g:vista_disable_statusline       = 1
     let g:vista#renderer#enable_icon     = 0
-    let g:vista_no_mappings              = 0
 
-    augroup Vista
-        autocmd!
-        autocmd FileType *          nmap <localleader>t :Vista coc<cr>
-        autocmd FileType markdown   nmap <localleader>t :Vista toc<cr>
-    augroup END
+    if s:has_plug('coc.nvim')
+        nnoremap <localleader>t :Vista coc<cr>
+    else
+        nnoremap <localleader>t :Vista<cr>
+    end
 endif
 
 " ----> junegunn/fzf.vim
@@ -445,7 +445,7 @@ if s:has_plug('fzf.vim')
         \ 'ctrl-e': 'edit'
     \ }
     let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info'
-    if executable('rg')
+    if s:dep.rg
         let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!{'.shellescape(&wildignore).'}"'
     endif
     command! -bang -nargs=* FZFRg
@@ -1111,5 +1111,21 @@ if has('reltime')
                             \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
     augroup END
 endif
+
+" ----> Open URL under cursor
+function! OpenURLUnderCursor()
+    let s:uri = expand('<cword>')
+    let s:uri = substitute(s:uri, '?', '\\?', '')
+    let s:uri = shellescape(s:uri, 1)
+    if s:uri != ''
+        if s:env.mac
+            silent exec "!open '".s:uri."'"
+        elseif s:env.linux
+            silent exec "!xdg-open '".s:uri."'"
+        endif
+        :redraw!
+    endif
+endfunction
+nnoremap <silent> gu :call OpenURLUnderCursor()<cr>
 
 set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
