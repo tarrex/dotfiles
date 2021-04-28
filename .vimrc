@@ -1028,6 +1028,7 @@ let g:loaded_vimballPlugin   = 1        " vimball interface
 let g:loaded_vimball         = 1        " vimball autoload
 
 " ----> Netrw
+let g:netrw_altfile      = 1
 let g:netrw_banner       = 1
 let g:netrw_liststyle    = 1
 let g:netrw_list_hide    = &wildignore

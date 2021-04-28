@@ -178,12 +178,14 @@ set wildignore+=.git,*.git,.svn,.idea,.vscode,.vim
 set wildignore+=*DS_Store,*Thumbs.db
 
 " ============> Simple <============
+" -----> Statusline
 " mode map
 let g:currentmode = {
-    \ 'n': 'NORMAL', 'i': 'INSERT', 'R': 'REPLACE',
-    \ 'v': 'VISUAL', 'V': 'V-LINE', "\<C-v>": 'V-BLOCK',
-    \ 'c': 'COMMAND', 's': 'SELECT', 'S': 'S-LINE',
-    \ "\<C-s>": 'S-BLOCK', 't': 'TERMINAL'
+    \ 'n': 'NORMAL',
+    \ 'i': 'INSERT',  'R': 'REPLACE',  'Rv': 'V·REPLACE',
+    \ 'v': 'VISUAL',  'V': 'V·LINE',   "\<c-v>": 'V·BLOCK',
+    \ 's': 'SELECT',  'S': 'S·LINE',   "\<c-s>": 'S·BLOCK',
+    \ 'c': 'COMMAND', 'r?': 'CONFIRM', 't': 'TERMINAL'
 \ }
 
 " file name
@@ -217,7 +219,6 @@ function! FileSize() abort
         \ printf('%.1f%s', l:bytes, l:units[l:idx])
 endfunction
 
-" statusline
 function! Statusline() abort
     if &previewwindow | return | endif
     let line  = ''
@@ -239,7 +240,7 @@ endfunction
 
 let &statusline = Statusline()
 
-" complete
+" ----> Auto complete
 augroup Complete
     autocmd!
     autocmd CursorMovedI  if pumvisible() == 0 | pclose | endif
@@ -250,13 +251,13 @@ augroup Complete
         \ endif
 augroup END
 
-inoremap <expr><CR>       pumvisible() ? "\<C-y>" : "\<CR>"
-inoremap <expr><Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-inoremap <expr><Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <expr><PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
-inoremap <expr><PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
-inoremap <expr><TAB>      pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><S-TAB>    pumvisible() ? "\<C-p>" : "\<S-TAB>"
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+inoremap <expr> <TAB>      pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <expr> <S-TAB>    pumvisible() ? "\<C-p>" : "\<S-TAB>"
 
 " insert pairs
 inoremap <c-x>( ()<esc>i
@@ -285,7 +286,7 @@ augroup MyQuickFix
     autocmd QuickFixCmdPost lgetexpr lwindow
 augroup END
 
-" pack
+" ----> Plugins
 if !exists('g:loaded_matchit')
     silent! packadd matchit
 endif
@@ -506,6 +507,7 @@ let g:loaded_vimballPlugin   = 1        " vimball interface
 let g:loaded_vimball         = 1        " vimball autoload
 
 " ----> Netrw
+let g:netrw_altfile      = 1
 let g:netrw_banner       = 1
 let g:netrw_liststyle    = 1
 let g:netrw_list_hide    = &wildignore
