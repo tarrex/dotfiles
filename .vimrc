@@ -735,10 +735,14 @@ if s:has_plug('vim-go')
     let g:go_updatetime                    = 0
     let g:go_jump_to_error                 = 0
     let g:go_fmt_autosave                  = 0
+    let g:go_imports_autosave              = 0
+    let g:go_mod_fmt_autosave              = 0
+    let g:go_doc_keywordprg_enabled        = 0
     if has('patch-8.2.0012') || has('nvim')
         let g:go_doc_popup_window          = 1
     endif
     let g:go_def_mapping_enabled           = 0
+    let g:go_textobj_enabled               = 0
     let g:go_list_height                   = 6
     let g:go_list_type                     = 'quickfix'
     let g:go_alternate_mode                = 'vsplit'
