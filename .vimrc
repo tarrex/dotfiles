@@ -23,7 +23,7 @@ endif
 let s:dep       = {}
 let s:dep.rg    = executable('rg')
 let s:dep.curl  = executable('curl')
-let s:dep.coc   = executable('yarn') || executable('npm')
+let s:dep.node  = executable('node') && (executable('yarn') || executable('npm'))
 
 " ============> General <============
 if &compatible
@@ -90,7 +90,7 @@ set clipboard=autoselect,exclude:.*     " enable clipboard with system
 set scrolloff=1                         " minimal number of screen lines to keep above and below the cursor
 set sidescroll=5                        " minimal number of columns to scroll horizontally
 set sidescrolloff=1                     " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
-silent! set termwinkey=<c-w>            " the key that starts a CTRL-W command in a terminal window
+silent! set termwinkey=<c-_>            " the key that starts a CTRL-_ command in a terminal window
 
 set history=1000                        " set how many lines of command history vim has to remember
 set timeout                             " timeout for mappings
@@ -194,7 +194,7 @@ endif
 
 let s:coc = s:vimdir . '/coc-settings.json'
 if empty(glob(s:coc))
-    if s:dep.coc
+    if s:dep.node
         silent execute '!echo "Download coc-settings.json..."'
         silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:coc .
                      \ ' https://raw.githubusercontent.com/tarrex/dotfiles/master/coc-settings.json'
@@ -218,7 +218,7 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-if s:dep.coc
+if s:dep.node
     Plug 'neoclide/coc.nvim'
 else
     Plug 'skywind3000/vim-auto-popmenu'
@@ -914,11 +914,11 @@ inoremap <c-L> <esc><c-w>l
 
 " Window switching in terminal mode
 if has('terminal')
-    tnoremap <c-H> <c-w>h
-    tnoremap <c-J> <c-w>j
-    tnoremap <c-K> <c-w>k
-    tnoremap <c-L> <c-w>l
-    tnoremap <silent> <c-q> <c-w>:q!<cr>
+    tnoremap <c-H> <c-_>h
+    tnoremap <c-J> <c-_>j
+    tnoremap <c-K> <c-_>k
+    tnoremap <c-L> <c-_>l
+    tnoremap <silent> <c-q> <c-_>:q!<cr>
 endif
 
 " Vmap for maintain Visual Mode after shifting > and <
