@@ -694,7 +694,7 @@ if [[ -d /usr/local/node/bin ]]; then
     export PATH="/usr/local/node/bin:$PATH"
 fi
 
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$XDG_CONFIG_HOME/nvm"
 
 if [[ -s $NVM_DIR/bash_completion ]]; then
     source $NVM_DIR/bash_completion
