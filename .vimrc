@@ -260,8 +260,7 @@ if s:has_plug('lightline.vim')
         \           [ 'readonly', 'filename' ]],
         \   'right': [[ 'lineinfo' ],
         \            [ 'percent' ],
-        \            [ 'linter', 'filesize', 'fileformat', 'fileencoding', 'filetype' ],
-        \            [ 'tag' ]]
+        \            [ 'linter', 'filesize', 'fileformat', 'fileencoding', 'filetype' ]]
         \ },
         \ 'inactive': {
         \   'left': [[ 'mode' ],
