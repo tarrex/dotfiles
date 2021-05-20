@@ -704,11 +704,11 @@ fi
 
 _nvm_init() {
     if [[ -s $NVM_DIR/nvm.sh ]]; then
-        source $NVM_DIR/nvm.sh
+        source $NVM_DIR/nvm.sh --no-use
     elif [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
-        source /usr/local/opt/nvm/nvm.sh
+        source /usr/local/opt/nvm/nvm.sh --no-use
     elif [[ -s $HOME/.local/share/nvm.sh ]]; then
-        source $HOME/.local/share/nvm.sh
+        source $HOME/.local/share/nvm.sh --no-use
     fi
 }
 
