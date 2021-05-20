@@ -689,9 +689,20 @@ if [[ -d /usr/local/opt/llvm/bin ]]; then
     export PATH="/usr/local/opt/llvm/bin:$PATH"
 fi
 
-# Node
+# Node && nvm
 if [[ -d /usr/local/node/bin ]]; then
     export PATH="/usr/local/node/bin:$PATH"
+fi
+export NVM_DIR="$HOME/.nvm"
+if [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
+    source /usr/local/opt/nvm/nvm.sh
+elif [[ -s $HOME/.nvm/nvm.sh ]]; then
+    source $HOME/.nvm/nvm.sh
+elif [[ -s $HOME/.local/share/nvm.sh ]]; then
+    source $HOME/.local/share/nvm.sh
+fi
+if [[ -s /usr/local/opt/nvm/etc/bash_completion.d/nvm ]]; then
+    source /usr/local/opt/nvm/etc/bash_completion.d/nvm
 fi
 
 # Common alias
