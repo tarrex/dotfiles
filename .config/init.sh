@@ -19,11 +19,13 @@ export XDG_DATA_HOME=$HOME/.local/share
 if [[ -n $BASH_VERSION ]]; then
     export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
     export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
+    export BASH_DATA_DIR=$XDG_DATA_HOME/bash
 fi
 
 if [[ -n $ZSH_VERSION ]]; then
     export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
     export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
+    export ZSH_DATA_DIR=$XDG_DATA_HOME/zsh
 fi
 
 # ============> Function <============
@@ -38,7 +40,7 @@ function man() {
         LESS_TERMCAP_so=$'\e[1;44;33m' \
         LESS_TERMCAP_se=$'\e[0m' \
         PAGER="${commands[less]:-$PAGER}" \
-        man "$@"
+    man $@
 }
 
 # display shell startup time
@@ -189,26 +191,28 @@ fi
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
 _Z_CMD=z
 if [[ ! -z "$_Z_CMD" ]]; then
-    [[ -d $XDG_CONFIG_HOME/z ]] || command mkdir -p $XDG_CONFIG_HOME/z
-    if [[ ! -f $XDG_DATA_HOME/z.sh ]]; then
-        echo "$XDG_DATA_HOME/z.sh doesn't exists."
+    [[ -d $XDG_DATA_HOME/z ]] || command mkdir -p $XDG_DATA_HOME/z
+    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]]; then
+        echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
         echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
+            $XDG_DATA_HOME/z/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
     fi
-    _Z_DATA=$XDG_CONFIG_HOME/z/z
-    source $XDG_DATA_HOME/z.sh
+    _Z_DATA=$XDG_DATA_HOME/z/zdata
+    [[ -f $_Z_DATA ]] || command touch $_Z_DATA
+    source $XDG_DATA_HOME/z/z.sh
 fi
 
 # git-prompt.sh initialize
 if command -v git &> /dev/null; then
-    if [[ ! -f $XDG_DATA_HOME/git-prompt.sh ]]; then
-        echo "$XDG_DATA_HOME/git-prompt.sh doesn't exiets."
-        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git-prompt.sh ..."
+    [[ -d $XDG_DATA_HOME/git ]] || command mkdir -p $XDG_DATA_HOME/git
+    if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
+        echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
+        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
+            $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
     fi
-    source $XDG_DATA_HOME/git-prompt.sh
+    source $XDG_DATA_HOME/git/git-prompt.sh
 fi
 
 # ============> Shell <============
@@ -539,7 +543,7 @@ if [[ -n $ZSH_VERSION ]]; then
     # -----> Plugin
     # zinit
     typeset -A ZINIT=(
-        HOME_DIR        $ZSH_CONFIG_DIR/zinit
+        HOME_DIR        $ZSH_DATA_DIR/zinit
         ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
         COMPINIT_OPTS   -C
     )
@@ -613,7 +617,10 @@ export SAVEHIST=$HISTSIZE
 export EDITOR='vim'
 export VISUAL='vim'
 export GIT_EDITOR=$EDITOR
+
+# Less
 export PAGER='less -FRX'
+export LESSHISTFILE=-
 
 # Language
 export LANG=en_US.UTF-8
@@ -664,16 +671,27 @@ fi
 
 # Rust
 if command -v rustc &> /dev/null; then
-    export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
-    export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-    if [[ -d $HOME/.rustup ]]; then
-        export RUSTUP_HOME="$HOME/.rustup"
+    if [[ $OSTYPE == darwin* ]]; then
+        export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
     fi
-    if [[ -d $HOME/.cargo ]]; then
-        export CARGO_HOME="$HOME/.cargo"
+    export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+    if [[ -d $XDG_DATA_HOME/rustup ]]; then
+        export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+    fi
+    if [[ -d $XDG_DATA_HOME/cargo ]]; then
+        export CARGO_HOME="$XDG_DATA_HOME/cargo"
         export PATH="$CARGO_HOME/bin:$PATH"
     fi
 fi
+
+# Python
+export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
+export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
+export PYLINTHOME="$XDG_CACHE_HOME/pylint"
+
+# Ruby
+export GEM_HOME="$XDG_DATA_HOME/gem"
+export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
 
 # Java
 if command -v java &> /dev/null; then
@@ -694,47 +712,62 @@ if [[ -d /usr/local/node/bin ]]; then
     export PATH="/usr/local/node/bin:$PATH"
 fi
 
-export NVM_DIR="$XDG_CONFIG_HOME/nvm"
+export NODE_REPL_HISTORY=-
 
-if [[ -s $NVM_DIR/bash_completion ]]; then
-    source $NVM_DIR/bash_completion
-elif [[ -s /usr/local/opt/nvm/etc/bash_completion.d/nvm ]]; then
-    source /usr/local/opt/nvm/etc/bash_completion.d/nvm
-fi
+export NVM_DIR="$XDG_DATA_HOME/nvm"
 
-_nvm_init() {
-    if [[ -s $NVM_DIR/nvm.sh ]]; then
-        source $NVM_DIR/nvm.sh --no-use
-    elif [[ -s /usr/local/opt/nvm/nvm.sh ]]; then
-        source /usr/local/opt/nvm/nvm.sh --no-use
-    elif [[ -s $HOME/.local/share/nvm.sh ]]; then
-        source $HOME/.local/share/nvm.sh --no-use
+function install_nvm() {
+    [[ -d $NVM_DIR ]] || command mkdir -p $NVM_DIR
+    if [[ ! -f $NVM_DIR/nvm.sh ]]; then
+        echo "$NVM_DIR/nvm.sh doesn't exists."
+        echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $NVM_DIR/nvm.sh https://raw.githubusercontent.com/nvm-sh/nvm/master/nvm.sh`
+    fi
+    if [[ ! -f $NVM_DIR/bash_completion ]]; then
+        echo "$NVM_DIR/bash_completion doesn't exists."
+        echo "Downloading bash_completion from github to $NVM_DIR/bash_completion ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $NVM_DIR/bash_completion https://raw.githubusercontent.com/nvm-sh/nvm/master/bash_completion`
     fi
 }
 
-nvm() {
+if [[ -s $NVM_DIR/bash_completion ]]; then
+    source $NVM_DIR/bash_completion
+fi
+
+function _nvm_init() {
+    if [[ -s $NVM_DIR/nvm.sh ]]; then
+        source $NVM_DIR/nvm.sh
+    fi
+}
+
+function nvm() {
     unset -f nvm
     _nvm_init
     nvm $@
 }
 
-node() {
+function node() {
     unset -f node
     _nvm_init
     node $@
 }
 
-npm() {
+function npm() {
     unset -f npm
     _nvm_init
     npm $@
 }
 
-yarn() {
+function yarn() {
     unset -f yarn
     _nvm_init
     yarn $@
 }
+
+# Docker
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 
 # Common alias
 case $OSTYPE in
@@ -768,8 +801,22 @@ alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 
 # Proxy
 proxy_addr="127.0.0.1:7890"
-alias httpproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr "
-alias socks5proxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr "
+no_proxy_addr="localhost,127.0.0.0/8,*.local"
+
+alias httpproxy="all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
+alias socks5proxy="all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
+
+function fuckgfw() {
+    echo "Proxy Address: $proxy_addr"
+    export no_proxy=$no_proxy_addr
+    export all_proxy=http://$proxy_addr
+    echo "Your are fucking the GFW!"
+}
+
+function okgfw() {
+    unset all_proxy ALL_PROXY
+    echo "Remember fuck the GFW forever!"
+}
 
 # Web search
 if [[ $OSTYPE == linux* || $OSTYPE == darwin* ]]; then
