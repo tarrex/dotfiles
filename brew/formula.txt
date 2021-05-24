@@ -35,6 +35,5 @@ universal-ctags/universal-ctags/universal-ctags
 vim
 wget
 wrk
-yarn
 you-get
 youtube-dl
