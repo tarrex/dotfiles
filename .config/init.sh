@@ -769,6 +769,9 @@ function yarn() {
 # Docker
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 
+# GnuPG
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+
 # Common alias
 case $OSTYPE in
      linux*|cygwin*|msys*) alias ls='ls --color -h';;
