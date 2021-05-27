@@ -25,76 +25,33 @@ if [[ -n $ZSH_VERSION ]]; then
     export ZSH_DATA_DIR=$XDG_DATA_HOME/zsh
 fi
 
-# ============> Function <============
-# colored man pages
-man() {
-    env \
-        LESS_TERMCAP_mb=$'\e[1;31m' \
-        LESS_TERMCAP_md=$'\e[1;31m' \
-        LESS_TERMCAP_me=$'\e[0m' \
-        LESS_TERMCAP_us=$'\e[1;32m' \
-        LESS_TERMCAP_ue=$'\e[0m' \
-        LESS_TERMCAP_so=$'\e[1;44;33m' \
-        LESS_TERMCAP_se=$'\e[0m' \
-        PAGER="${commands[less]:-$PAGER}" \
-    man "$@"
-}
-
-# display shell startup time
-timeshell() {
-    local shell=${1-$SHELL}
-    echo "Timing $shell:"
-    for i in $(seq 1 5); do time $shell -i -c exit; done
-}
-
-# display cmd statistics
-cmdrank() {
-    fc -l 1 \
-        | awk '{ CMD[$2]++; count++; } END { for (a in CMD) print CMD[a] " " CMD[a]*100/count "% " a }' \
-        | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
-}
-
-# display a random quote
-quote() {
-    Q=$(curl -s --connect-timeout 2 "http://www.quotationspage.com/random.php" | iconv -c -f ISO-8859-1 -t UTF-8 | grep -m 1 "dt ")
-
-    TXT=$(echo "$Q" | sed -e 's/<\/dt>.*//g' -e 's/.*html//g' -e 's/^[^a-zA-Z]*//' -e 's/<\/a..*$//g')
-    WHO=$(echo "$Q" | sed -e 's/.*\/quotes\///g' -e 's/<.*//g' -e 's/.*">//g')
-
-    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: \"%F{5}${TXT}%f\""
-}
-
-# web search
-websearch() {
-    typeset -A urls
-    local urls=(
-        google          "https://www.google.com/search?q="
-        bing            "https://www.bing.com/search?q="
-        github          "https://github.com/search?q="
-        baidu           "https://www.baidu.com/s?wd="
-        goodreads       "https://www.goodreads.com/search?q="
-        stackoverflow   "https://stackoverflow.com/search?q="
-        wolframalpha    "https://www.wolframalpha.com/input/?i="
-        archive         "https://web.archive.org/web/*/"
-        scholar         "https://scholar.google.com/scholar?q="
-        doubanbook      "https://search.douban.com/book/subject_search?search_text="
-    )
-
-    if [[ -z $urls[$1] ]]; then
-        echo "Search engine '$1' not supported."
-        return 1
+# ============> Script <============
+# z.sh initialize, comment _Z_CMD if you don't want to use it.
+_Z_CMD=z
+if [[ ! -z $_Z_CMD ]]; then
+    [[ -d $XDG_DATA_HOME/z ]] || command mkdir -p $XDG_DATA_HOME/z
+    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]]; then
+        echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
+        echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $XDG_DATA_HOME/z/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
     fi
+    _Z_DATA=$XDG_DATA_HOME/z/zdata
+    [[ -f $_Z_DATA ]] || command touch $_Z_DATA
+    source $XDG_DATA_HOME/z/z.sh
+fi
 
-    if [[ $# -gt 1 ]]; then
-        local escape_str=`echo -n "${@:2}" | sed 's/ /+/g' | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
-        local url="${urls[$1]}${escape_str}"
-
-        case $OSTYPE in
-             linux*) xdg-open $url;;
-            darwin*) open $url;;
-        esac
+# git-prompt.sh initialize
+if command -v git &> /dev/null; then
+    [[ -d $XDG_DATA_HOME/git ]] || command mkdir -p $XDG_DATA_HOME/git
+    if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
+        echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
+        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
     fi
-}
+    source $XDG_DATA_HOME/git/git-prompt.sh
+fi
 
 # ============> Prompt <============
 # fish like collapse pwd
@@ -182,34 +139,6 @@ else
     else
         export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}>%f '
     fi
-fi
-
-# ============> Script <============
-# z.sh initialize, comment _Z_CMD if you don't want to use it.
-_Z_CMD=z
-if [[ ! -z "$_Z_CMD" ]]; then
-    [[ -d $XDG_DATA_HOME/z ]] || command mkdir -p $XDG_DATA_HOME/z
-    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]]; then
-        echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
-        echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/z/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
-    fi
-    _Z_DATA=$XDG_DATA_HOME/z/zdata
-    [[ -f $_Z_DATA ]] || command touch $_Z_DATA
-    source $XDG_DATA_HOME/z/z.sh
-fi
-
-# git-prompt.sh initialize
-if command -v git &> /dev/null; then
-    [[ -d $XDG_DATA_HOME/git ]] || command mkdir -p $XDG_DATA_HOME/git
-    if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
-        echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
-        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
-    fi
-    source $XDG_DATA_HOME/git/git-prompt.sh
 fi
 
 # ============> Shell <============
@@ -621,6 +550,13 @@ export GIT_EDITOR=$EDITOR
 # Less
 export PAGER='less -FRX'
 export LESSHISTFILE=-
+export LESS_TERMCAP_mb=$'\e[1;31m'
+export LESS_TERMCAP_md=$'\e[1;31m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[1;32m'
+export LESS_TERMCAP_ue=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[1;44;33m'
+export LESS_TERMCAP_se=$'\e[0m'
 
 # Language
 export LANG=en_US.UTF-8
@@ -704,6 +640,7 @@ fi
 export NODE_REPL_HISTORY=-
 
 export NVM_DIR="$XDG_DATA_HOME/nvm"
+
 install_nvm() {
     [[ -d $NVM_DIR ]] || command mkdir -p $NVM_DIR
     if [[ ! -f $NVM_DIR/nvm.sh ]]; then
@@ -799,15 +736,6 @@ alias job='jobs -l'
 
 alias vi='vim -N -u NONE -i NONE'
 
-# Tools
-alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
-alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
-alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
-alias ipinfo='curl wtfismyip.com/json'
-alias randname='curl pseudorandom.name'
-alias serve='python3 -m http.server 8000'
-alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
-
 # Proxy
 proxy_addr="127.0.0.1:7890"
 no_proxy_addr="localhost,127.0.0.0/8,*.local"
@@ -827,20 +755,6 @@ okgfw() {
     echo "Remember fuck the GFW forever!"
 }
 
-# Web search
-if [[ $OSTYPE == linux* || $OSTYPE == darwin* ]]; then
-    alias bing='websearch bing'
-    alias google='websearch google'
-    alias github='websearch github'
-    alias baidu='websearch baidu'
-    alias goodreads='websearch goodreads'
-    alias sof='websearch stackoverflow'
-    alias wolframalpha='websearch wolframalpha'
-    alias archive='websearch archive'
-    alias scholar='websearch scholar'
-    alias doubanbook='websearch doubanbook'
-fi
-
 # MacOS
 if [[ $OSTYPE == darwin* ]]; then
     # Typora
@@ -853,6 +767,84 @@ fi
 alias vimrc='vim ~/.vimrc'
 alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
 alias cdr='cd $(git rev-parse --show-toplevel)'
+
+# Tools
+alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
+alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
+alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
+alias ipinfo='curl wtfismyip.com/json'
+alias randname='curl pseudorandom.name'
+alias serve='python3 -m http.server 8000'
+alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
+
+# Display shell startup time
+timeshell() {
+    local shell=${1-$SHELL}
+    echo "Timing $shell:"
+    for i in $(seq 1 5); do time $shell -i -c exit; done
+}
+
+# Display cmd statistics
+cmdrank() {
+    fc -l 1 \
+        | awk '{ CMD[$2]++; count++; } END { for (a in CMD) print CMD[a] " " CMD[a]*100/count "% " a }' \
+        | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
+}
+
+# Display a random quote
+quote() {
+    Q=$(curl -s --connect-timeout 2 "http://www.quotationspage.com/random.php" | iconv -c -f ISO-8859-1 -t UTF-8 | grep -m 1 "dt ")
+
+    TXT=$(echo "$Q" | sed -e 's/<\/dt>.*//g' -e 's/.*html//g' -e 's/^[^a-zA-Z]*//' -e 's/<\/a..*$//g')
+    WHO=$(echo "$Q" | sed -e 's/.*\/quotes\///g' -e 's/<.*//g' -e 's/.*">//g')
+
+    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: \"%F{5}${TXT}%f\""
+}
+
+# Web search
+websearch() {
+    typeset -A urls
+    local urls=(
+        google          "https://www.google.com/search?q="
+        bing            "https://www.bing.com/search?q="
+        github          "https://github.com/search?q="
+        baidu           "https://www.baidu.com/s?wd="
+        goodreads       "https://www.goodreads.com/search?q="
+        stackoverflow   "https://stackoverflow.com/search?q="
+        wolframalpha    "https://www.wolframalpha.com/input/?i="
+        archive         "https://web.archive.org/web/*/"
+        scholar         "https://scholar.google.com/scholar?q="
+        doubanbook      "https://search.douban.com/book/subject_search?search_text="
+    )
+
+    if [[ -z $urls[$1] ]]; then
+        echo "Search engine '$1' not supported."
+        return 1
+    fi
+
+    if [[ $# -gt 1 ]]; then
+        local escape_str=`echo -n "${@:2}" | sed 's/ /+/g' | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
+        local url="${urls[$1]}${escape_str}"
+
+        case $OSTYPE in
+             linux*) xdg-open $url;;
+            darwin*) open $url;;
+        esac
+    fi
+}
+
+if [[ $OSTYPE == linux* || $OSTYPE == darwin* ]]; then
+    alias bing='websearch bing'
+    alias google='websearch google'
+    alias github='websearch github'
+    alias baidu='websearch baidu'
+    alias goodreads='websearch goodreads'
+    alias sof='websearch stackoverflow'
+    alias wolframalpha='websearch wolframalpha'
+    alias archive='websearch archive'
+    alias scholar='websearch scholar'
+    alias doubanbook='websearch doubanbook'
+fi
 
 # ============> Finally <============
 # Remove duplicate path
