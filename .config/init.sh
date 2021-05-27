@@ -8,9 +8,6 @@ case "$-" in
 esac
 
 # ============> Prepare <============
-# allow mapping Ctrl+S and Ctrl+Q shortcuts
-[[ -r ${TTY:-} && -w ${TTY:-} && $+commands[stty] == 1 ]] && stty -ixon <$TTY >$TTY
-
 # XDG directories
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
@@ -30,7 +27,7 @@ fi
 
 # ============> Function <============
 # colored man pages
-function man() {
+man() {
     env \
         LESS_TERMCAP_mb=$'\e[1;31m' \
         LESS_TERMCAP_md=$'\e[1;31m' \
@@ -40,35 +37,35 @@ function man() {
         LESS_TERMCAP_so=$'\e[1;44;33m' \
         LESS_TERMCAP_se=$'\e[0m' \
         PAGER="${commands[less]:-$PAGER}" \
-    man $@
+    man "$@"
 }
 
 # display shell startup time
-function timeshell() {
+timeshell() {
     local shell=${1-$SHELL}
     echo "Timing $shell:"
     for i in $(seq 1 5); do time $shell -i -c exit; done
 }
 
 # display cmd statistics
-function cmdrank() {
+cmdrank() {
     fc -l 1 \
         | awk '{ CMD[$2]++; count++; } END { for (a in CMD) print CMD[a] " " CMD[a]*100/count "% " a }' \
         | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
 }
 
 # display a random quote
-function quote {
+quote() {
     Q=$(curl -s --connect-timeout 2 "http://www.quotationspage.com/random.php" | iconv -c -f ISO-8859-1 -t UTF-8 | grep -m 1 "dt ")
 
     TXT=$(echo "$Q" | sed -e 's/<\/dt>.*//g' -e 's/.*html//g' -e 's/^[^a-zA-Z]*//' -e 's/<\/a..*$//g')
     WHO=$(echo "$Q" | sed -e 's/.*\/quotes\///g' -e 's/<.*//g' -e 's/.*">//g')
 
-    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: “%F{5}${TXT}%f”"
+    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: \"%F{5}${TXT}%f\""
 }
 
 # web search
-function websearch() {
+websearch() {
     typeset -A urls
     local urls=(
         google          "https://www.google.com/search?q="
@@ -101,7 +98,7 @@ function websearch() {
 
 # ============> Prompt <============
 # fish like collapse pwd
-function _fish_collapsed_pwd() {
+_fish_collapsed_pwd() {
     local pwd="$1"
     local home="$HOME"
     local size=${#home}
@@ -148,7 +145,7 @@ function _fish_collapsed_pwd() {
 }
 
 # return value
-function _retval() {
+_retval() {
     if [[ $? -ne 0 ]]; then
         if [[ -n $BASH_VERSION ]]; then
             echo -e " \033[38;5;9mλ"
@@ -165,7 +162,7 @@ function _retval() {
 }
 
 # git branch
-function _gitbranch() {
+_gitbranch() {
     if command -v git &> /dev/null; then
         echo "$(__git_ps1 '(%s)')"
     else
@@ -592,6 +589,9 @@ if [[ -n $ZSH_VERSION ]]; then
 fi
 
 # ============> Custom <============
+# Disable Ctrl+S and Ctrl+Q in terminal
+[[ -x stty ]] && stty -ixon
+
 # ls colors highlight
 if [[ $OSTYPE == linux* ]]; then
     export LS_COLORS='bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'
@@ -626,20 +626,10 @@ export LESSHISTFILE=-
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-# /usr/sbin
-if [[ -d /usr/sbin ]]; then
-    export PATH="/usr/sbin:$PATH"
-fi
-
-# /usr/local/sbin
-if [[ -d /usr/local/sbin ]]; then
-    export PATH="/usr/local/sbin:$PATH"
-fi
-
-# ~/.local/bin
-if [[ -d $HOME/.local/bin ]]; then
-    export PATH="$HOME/.local/bin:$PATH"
-fi
+# /usr/sbin, /usr/local/sbin, ~/.local/bin
+[[ -d /usr/sbin ]]        && export PATH="/usr/sbin:$PATH"
+[[ -d /usr/local/sbin ]]  && export PATH="/usr/local/sbin:$PATH"
+[[ -d $HOME/.local/bin ]] && export PATH="$HOME/.local/bin:$PATH"
 
 # MacOS
 if [[ $OSTYPE == darwin* ]]; then
@@ -711,12 +701,10 @@ fi
 if [[ -d /usr/local/node/bin ]]; then
     export PATH="/usr/local/node/bin:$PATH"
 fi
-
 export NODE_REPL_HISTORY=-
 
 export NVM_DIR="$XDG_DATA_HOME/nvm"
-
-function install_nvm() {
+install_nvm() {
     [[ -d $NVM_DIR ]] || command mkdir -p $NVM_DIR
     if [[ ! -f $NVM_DIR/nvm.sh ]]; then
         echo "$NVM_DIR/nvm.sh doesn't exists."
@@ -732,39 +720,57 @@ function install_nvm() {
     fi
 }
 
-if [[ -s $NVM_DIR/bash_completion ]]; then
-    source $NVM_DIR/bash_completion
-fi
+if [[ -d $NVM_DIR ]]; then
+    export NVM_NO_USE=false
+    export NVM_LAZY_LOAD=true
+    export NVM_LAZY_LOAD_EXTRA_COMMANDS=(vim nvim)
 
-function _nvm_init() {
-    if [[ -s $NVM_DIR/nvm.sh ]]; then
-        source $NVM_DIR/nvm.sh
+    [[ -r $NVM_DIR/bash_completion ]] && source $NVM_DIR/bash_completion
+
+    _nvm_load() {
+        if [[ $NVM_NO_USE == true ]]; then
+            source $NVM_DIR/nvm.sh --no-use
+        else
+            source $NVM_DIR/nvm.sh
+        fi
+    }
+
+    _nvm_global_binaries() {
+        [[ -n $ZSH_VERSION ]] && unsetopt NOMATCH
+        echo $NVM_DIR/v0*/bin/* $NVM_DIR/versions/*/*/bin/* |
+            xargs -n 1 basename | sort | uniq | tr -d '*'
+    }
+
+    _nvm_lazy_load() {
+        local global_binaries
+        if [[ $NVM_NO_USE == true ]]; then
+            global_binaries=()
+        else
+            global_binaries=($(_nvm_global_binaries))
+        fi
+        global_binaries+=(nvm)
+        global_binaries+=($NVM_LAZY_LOAD_EXTRA_COMMANDS)
+
+        local cmds
+        cmds=()
+        for bin in ${global_binaries[@]}; do
+            [[ $(which $bin 2> /dev/null) = "$bin: aliased to "* ]] || cmds+=($bin)
+        done
+
+        for cmd in ${cmds[@]}; do
+            eval "$cmd(){
+                unset -f ${cmds[@]} > /dev/null 2>&1
+                _nvm_load
+                $cmd \"\$@\"
+            }"
+        done
+    }
+    if [[ $NVM_LAZY_LOAD == true ]]; then
+        _nvm_lazy_load
+    else
+        _nvm_load
     fi
-}
-
-function nvm() {
-    unset -f nvm
-    _nvm_init
-    nvm $@
-}
-
-function node() {
-    unset -f node
-    _nvm_init
-    node $@
-}
-
-function npm() {
-    unset -f npm
-    _nvm_init
-    npm $@
-}
-
-function yarn() {
-    unset -f yarn
-    _nvm_init
-    yarn $@
-}
+fi
 
 # Docker
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
@@ -809,14 +815,14 @@ no_proxy_addr="localhost,127.0.0.0/8,*.local"
 alias httpproxy="all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
 alias socks5proxy="all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
 
-function fuckgfw() {
+fuckgfw() {
     echo "Proxy Address: $proxy_addr"
     export no_proxy=$no_proxy_addr
     export all_proxy=http://$proxy_addr
     echo "Your are fucking the GFW!"
 }
 
-function okgfw() {
+okgfw() {
     unset all_proxy ALL_PROXY
     echo "Remember fuck the GFW forever!"
 }
@@ -852,7 +858,7 @@ alias cdr='cd $(git rev-parse --show-toplevel)'
 # Remove duplicate path
 if [[ -n $PATH ]]; then
     old_PATH=$PATH:; PATH=
-    while [ -n "$old_PATH" ]; do
+    while [[ -n $old_PATH ]]; do
         x=${old_PATH%%:*}
         case $PATH: in
            *:"$x":*) ;;
