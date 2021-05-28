@@ -611,6 +611,7 @@ if command -v rustc &> /dev/null; then
 fi
 
 # Python
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/startup.py"
 export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"
