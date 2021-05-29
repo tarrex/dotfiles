@@ -532,7 +532,6 @@ fi
 if [[ -n $BASH_VERSION ]]; then
     export HISTCONTROL=ignoreboth
     export HISTIGNORE='ls:ll:la:ls -a:ls -l:ls -al:ls -alh:pwd:clear:cd:cd ..:history'
-    export HISTTIMEFORMAT='%F %T '
     export HISTFILE=$HOME/.bash_history
 fi
 if [[ -n $ZSH_VERSION ]]; then
