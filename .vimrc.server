@@ -34,7 +34,7 @@ filetype indent plugin on               " filetype detection on
 set number                              " print the line number in front of each line
 set noruler                             " don't show the line and column number of the cursor position, separated by a comma
 set nowrap                              " don't wrap lines longer than the width of the window
-set nomodeline                          " don't allow setting options via buffer content
+set modeline                            " allow setting options via buffer content
 set showcmd                             " show (partial) command in the last line of the screen
 set noshowmatch                         " don't briefly jump to the matching one when a bracket is inserted
 set noshowmode                          " don't display Insert, Replace or Visual mode message on the last line
