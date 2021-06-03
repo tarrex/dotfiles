@@ -484,20 +484,17 @@ if [[ -n $ZSH_VERSION ]]; then
     (( ${+_comps} )) && _comps[zinit]=_zinit
 
     # zinit plugin
+    zinit ice lucid wait'0' depth'1'
+    zinit light zsh-users/zsh-completions
+
+    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
+    zinit light zsh-users/zsh-autosuggestions
+
     zinit ice lucid wait'0' atinit'zpcompinit' depth'1'
     zinit light zdharma/fast-syntax-highlighting
 
     zinit ice lucid depth'1'
     zinit light zdharma/history-search-multi-word
-
-    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
-    zinit light zsh-users/zsh-autosuggestions
-
-    zinit ice lucid wait'0' depth'1'
-    zinit light zsh-users/zsh-completions
-
-    zinit ice as"program" mv"httpstat.sh -> httpstat" pick"httpstat" atpull'!git reset --hard' depth'1'
-    zinit light b4b4r07/httpstat
 
     zinit ice lucid has'docker' as'completion'
     zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
@@ -588,19 +585,19 @@ export CARGO_HOME=$XDG_DATA_HOME/cargo
 export PATH=$CARGO_HOME/bin:$PATH
 
 # Python
-export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/startup.py"
-export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
-export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
-export PYLINTHOME="$XDG_CACHE_HOME/pylint"
+export PYTHONSTARTUP=$XDG_CONFIG_HOME/python/startup.py
+export IPYTHONDIR=$XDG_CONFIG_HOME/jupyter
+export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
+export PYLINTHOME=$XDG_CACHE_HOME/pylint
 
 # Ruby -> gems
-export GEM_HOME="$XDG_DATA_HOME/gem"
-export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
+export GEM_HOME=$XDG_DATA_HOME/gem
+export GEM_SPEC_CACHE=$XDG_CACHE_HOME/gem
 
 # Ruby -> bundler
-export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
-export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
-export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
+export BUNDLE_USER_CONFIG=$XDG_CONFIG_HOME/bundle
+export BUNDLE_USER_CACHE=$XDG_CACHE_HOME/bundle
+export BUNDLE_USER_PLUGIN=$XDG_DATA_HOME/bundle
 
 # Java
 if [[ $OSTYPE == darwin* ]]; then
@@ -611,12 +608,12 @@ fi
 
 # LLVM
 if [[ -d /usr/local/opt/llvm/bin ]]; then
-    export PATH="/usr/local/opt/llvm/bin:$PATH"
+    export PATH=/usr/local/opt/llvm/bin:$PATH
 fi
 
 # Node && nvm
 export NODE_REPL_HISTORY=-
-export NVM_DIR="$XDG_DATA_HOME/nvm"
+export NVM_DIR=$XDG_DATA_HOME/nvm
 
 if [[ -d $NVM_DIR ]]; then
     export NVM_NO_USE=false
@@ -688,10 +685,10 @@ install_nvm() {
 }
 
 # Docker
-export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
 # GnuPG
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export GNUPGHOME=$XDG_DATA_HOME/gnupg
 
 # Common alias
 case $OSTYPE in
@@ -725,7 +722,7 @@ fuckgfw() {
     echo "Proxy Address: $proxy_addr"
     export no_proxy=$no_proxy_addr
     export all_proxy=http://$proxy_addr
-    echo "Your are fucking the GFW!"
+    echo "You are fucking the GFW!"
 }
 
 okgfw() {
