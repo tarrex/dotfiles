@@ -28,8 +28,7 @@ fi
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
 _Z_CMD=z
-if [[ ! -z $_Z_CMD ]]; then
-    [[ -d $XDG_DATA_HOME/z ]] || command mkdir -p $XDG_DATA_HOME/z
+if [[ -n $_Z_CMD ]]; then
     if [[ ! -f $XDG_DATA_HOME/z/z.sh ]]; then
         echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
         echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
@@ -43,7 +42,6 @@ fi
 
 # git-prompt.sh initialize
 if command -v git &> /dev/null; then
-    [[ -d $XDG_DATA_HOME/git ]] || command mkdir -p $XDG_DATA_HOME/git
     if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
         echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
         echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
@@ -121,7 +119,7 @@ _retval() {
 # git branch
 _gitbranch() {
     if command -v git &> /dev/null; then
-        echo "$(__git_ps1 '(%s)')"
+        echo $(__git_ps1 '(%s)')
     else
         echo ''
     fi
@@ -218,11 +216,11 @@ if [[ -n $ZSH_VERSION ]]; then
     # Initialisation
 
     # Input/Output
+    setopt CLOBBER                  # Allows ‘>’ redirection to truncate existing files.
     setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
     setopt PATH_DIRS                # Perform path search even on command names with slashes.
     setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
     setopt RM_STAR_SILENT           # Do not query the user before executing `rm *` or `rm path/*`.
-    unsetopt CLOBBER                # Do not overwrite existing files with > and >>. Use >! and >>! to bypass.
     unsetopt CORRECT                # Do not try to correct the spelling of commands.
     unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
     unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
@@ -544,7 +542,6 @@ export SAVEHIST=$HISTSIZE
 # Editor
 export EDITOR='vim'
 export VISUAL='vim'
-export GIT_EDITOR=$EDITOR
 
 # Less
 export PAGER='less -FRX'
@@ -562,52 +559,33 @@ export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
 # /usr/sbin, /usr/local/sbin, ~/.local/bin
-[[ -d /usr/sbin ]]        && export PATH="/usr/sbin:$PATH"
-[[ -d /usr/local/sbin ]]  && export PATH="/usr/local/sbin:$PATH"
-[[ -d $HOME/.local/bin ]] && export PATH="$HOME/.local/bin:$PATH"
+[[ -d /usr/sbin ]]        && export PATH=/usr/sbin:$PATH
+[[ -d /usr/local/sbin ]]  && export PATH=/usr/local/sbin:$PATH
+[[ -d $HOME/.local/bin ]] && export PATH=$HOME/.local/bin:$PATH
 
-# MacOS
+# Homebrew
 if [[ $OSTYPE == darwin* ]]; then
-    # Open command
-    export BROWSER='open'
-    # Brew
-    if command -v brew &> /dev/null; then
-        export HOMEBREW_NO_ANALYTICS=1
-        export HOMEBREW_NO_AUTO_UPDATE=1
-        # export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
-    fi
+    export HOMEBREW_NO_ANALYTICS=1
+    export HOMEBREW_NO_AUTO_UPDATE=1
 fi
 
 # Golang
-if command -v go &> /dev/null; then
-    if [[ $OSTYPE == linux* ]]; then
-        export GOROOT=/usr/local/go
-    fi
-    if [[ -d $HOME/Projects/Go ]]; then
-        export GOBASEPATH=$HOME/Projects/Go
-        export GOPATH=$GOBASEPATH
-    fi
-    export PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
-    # export GO111MODULE=on
+[[ $OSTYPE == linux* ]] && export GOROOT=/usr/local/go
+export GOBASEPATH=$HOME/Projects/Go
+export GOPATH=$GOBASEPATH
+export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
-    alias gohere='export GOPATH=`pwd`'
-    alias gobase='export GOPATH=$GOBASEPATH'
-fi
+alias gohere='export GOPATH=`pwd`'
+alias gobase='export GOPATH=$GOBASEPATH'
 
 # Rust
-if command -v rustc &> /dev/null; then
-    if [[ $OSTYPE == darwin* ]]; then
-        export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
-    fi
+if [[ $OSTYPE == darwin* ]]; then
+    export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
     export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-    if [[ -d $XDG_DATA_HOME/rustup ]]; then
-        export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-    fi
-    if [[ -d $XDG_DATA_HOME/cargo ]]; then
-        export CARGO_HOME="$XDG_DATA_HOME/cargo"
-        export PATH="$CARGO_HOME/bin:$PATH"
-    fi
 fi
+export RUSTUP_HOME=$XDG_DATA_HOME/rustup
+export CARGO_HOME=$XDG_DATA_HOME/cargo
+export PATH=$CARGO_HOME/bin:$PATH
 
 # Python
 export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/startup.py"
@@ -615,22 +593,20 @@ export IPYTHONDIR="$XDG_CONFIG_HOME/jupyter"
 export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
 export PYLINTHOME="$XDG_CACHE_HOME/pylint"
 
-# Ruby
-# gems
+# Ruby -> gems
 export GEM_HOME="$XDG_DATA_HOME/gem"
 export GEM_SPEC_CACHE="$XDG_CACHE_HOME/gem"
-# bundler
+
+# Ruby -> bundler
 export BUNDLE_USER_CONFIG="$XDG_CONFIG_HOME/bundle"
 export BUNDLE_USER_CACHE="$XDG_CACHE_HOME/bundle"
 export BUNDLE_USER_PLUGIN="$XDG_DATA_HOME/bundle"
 
 # Java
-if command -v java &> /dev/null; then
-    if [[ $OSTYPE == darwin* ]]; then
-        export JAVA_HOME=$(/usr/libexec/java_home)
-        export CLASSPATH="$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar"
-        export PATH="$JAVA_HOME/bin:$PATH"
-    fi
+if [[ $OSTYPE == darwin* ]]; then
+    export JAVA_HOME=$(/usr/libexec/java_home)
+    export CLASSPATH=$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
+    export PATH=$JAVA_HOME/bin:$PATH
 fi
 
 # LLVM
@@ -639,28 +615,8 @@ if [[ -d /usr/local/opt/llvm/bin ]]; then
 fi
 
 # Node && nvm
-if [[ -d /usr/local/node/bin ]]; then
-    export PATH="/usr/local/node/bin:$PATH"
-fi
 export NODE_REPL_HISTORY=-
-
 export NVM_DIR="$XDG_DATA_HOME/nvm"
-
-install_nvm() {
-    [[ -d $NVM_DIR ]] || command mkdir -p $NVM_DIR
-    if [[ ! -f $NVM_DIR/nvm.sh ]]; then
-        echo "$NVM_DIR/nvm.sh doesn't exists."
-        echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $NVM_DIR/nvm.sh https://raw.githubusercontent.com/nvm-sh/nvm/master/nvm.sh`
-    fi
-    if [[ ! -f $NVM_DIR/bash_completion ]]; then
-        echo "$NVM_DIR/bash_completion doesn't exists."
-        echo "Downloading bash_completion from github to $NVM_DIR/bash_completion ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $NVM_DIR/bash_completion https://raw.githubusercontent.com/nvm-sh/nvm/master/bash_completion`
-    fi
-}
 
 if [[ -d $NVM_DIR ]]; then
     export NVM_NO_USE=false
@@ -707,12 +663,29 @@ if [[ -d $NVM_DIR ]]; then
             }"
         done
     }
+
     if [[ $NVM_LAZY_LOAD == true ]]; then
         _nvm_lazy_load
     else
         _nvm_load
     fi
 fi
+
+install_nvm() {
+    if [[ ! -f $NVM_DIR/nvm.sh ]]; then
+        echo "$NVM_DIR/nvm.sh doesn't exists."
+        echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $NVM_DIR/nvm.sh https://raw.githubusercontent.com/nvm-sh/nvm/master/nvm.sh`
+    fi
+    if [[ ! -f $NVM_DIR/bash_completion ]]; then
+        echo "$NVM_DIR/bash_completion doesn't exists."
+        echo "Downloading bash_completion from github to $NVM_DIR/bash_completion ..."
+        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+            $NVM_DIR/bash_completion https://raw.githubusercontent.com/nvm-sh/nvm/master/bash_completion`
+    fi
+    source $XDG_CONFIG_HOME/init.sh
+}
 
 # Docker
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
@@ -760,9 +733,8 @@ okgfw() {
     echo "Remember fuck the GFW forever!"
 }
 
-# MacOS
+# Typora
 if [[ $OSTYPE == darwin* ]]; then
-    # Typora
     alias typora="open -a typora"
     alias blog='open -a typora ~/Workspace/Github/blog'
     alias wiki='open -a typora ~/Workspace/Github/wiki'
