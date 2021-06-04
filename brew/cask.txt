@@ -29,6 +29,7 @@ obsidian
 omnidisksweeper
 pdf-expert
 squirrel
+sublime-merge
 sublime-text
 suspicious-package
 tabula
