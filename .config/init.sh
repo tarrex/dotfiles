@@ -1,4 +1,4 @@
-# Personal shell initial file
+# Tarrex's bash/zsh initialization file.
 
 # ============> Check <============
 # if not running interactively, don't do anything
@@ -180,26 +180,18 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt PUSHD_MINUS              # Exchanges the meanings of ‘+’ and ‘-’ when used with a number to specify a directory in the stack.
     setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
     setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
-
     # Completion
     setopt ALWAYS_TO_END            # Move cursor to the end of a completed word.
-    setopt AUTO_LIST                # Automatically list choices on ambiguous completion.
-    setopt AUTO_MENU                # Show completion menu on a successive tab press.
-    setopt AUTO_PARAM_SLASH         # If completed parameter is a directory, add a trailing slash.
     setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
-    setopt HASH_LIST_ALL            # Whenever a command completion or spelling correction is attempted, make sure the entire command path is hashed first. This makes the first completion slower but avoids false reports of spelling errors.
     setopt LIST_PACKED              # Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
     setopt MENU_COMPLETE            # Autoselect the first completion entry.
     unsetopt LIST_BEEP              # Do not beep on an ambiguous completion.
-
     # Expansion and Globbing
     setopt BRACE_CCL                # Expand expressions in braces which would not otherwise undergo brace expansion to a lexically ordered list of all the characters.
     setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
     setopt MAGIC_EQUAL_SUBST        # Make zsh perform filename expansion on the command arguments of the form `var=val`.
     unsetopt CASE_GLOB              # Make globbing (filename generation) sensitive to case.
-
     # History
-    setopt BANG_HIST                # Treat the '!' character specially during expansion.
     setopt EXTENDED_HISTORY         # Write the history file in the ':start:elapsed;command' format.
     setopt HIST_EXPIRE_DUPS_FIRST   # Expire a duplicate event first when trimming history.
     setopt HIST_FIND_NO_DUPS        # Do not display a previously found event.
@@ -212,60 +204,158 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt INC_APPEND_HISTORY       # Write to the history file immediately, not when the shell exits.
     setopt SHARE_HISTORY            # Share history between all sessions.
     unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
-
-    # Initialisation
-
     # Input/Output
-    setopt CLOBBER                  # Allows ‘>’ redirection to truncate existing files.
     setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
     setopt PATH_DIRS                # Perform path search even on command names with slashes.
     setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
     setopt RM_STAR_SILENT           # Do not query the user before executing `rm *` or `rm path/*`.
     unsetopt CORRECT                # Do not try to correct the spelling of commands.
     unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
-    unsetopt MAIL_WARNING           # Don't print a warning message if a mail file has been accessed.
-
     # Job Control
     setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
     setopt LONG_LIST_JOBS           # List jobs in the long format by default.
-    setopt NOTIFY                   # Report status of background jobs immediately.
     unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
     unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
     unsetopt HUP                    # Don't kill jobs on shell exit.
-
     # Prompting
     setopt PROMPT_SUBST             # If set, parameter expansion, command substitution and arithmetic expansion are performed in prompts.
     setopt TRANSIENT_RPROMPT        # Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
-
-    # Scripts and Functions
-    setopt MULTIOS                  # Write to multiple descriptors.
-
-    # Shell Emulation
-
-    # Shell State
-
     # Zle
     setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
     unsetopt BEEP                   # Do not beep on error in line editor.
 
-    # -----> Completion
-    # Load and initialize the completion system ignoring insecure directories with a
-    # cache time of 20 hours, so it should almost always regenerate the first time a
-    # shell is opened each day.
-    autoload -Uz compinit
-    _comp_path="$ZSH_CACHE_DIR/zcompdump"
-    if [[ -f $_comp_path ]]; then
-        # -C (skip function check) implies -i (skip security check).
-        compinit -C -d "$_comp_path"
-    else
-        command mkdir -p "$_comp_path:h"
-        compinit -i -d "$_comp_path"
-    fi
-    unset _comp_path
+    # -----> Key binding
+    bindkey -e              # Use Emacs key bindings
 
+    # create a zkbd compatible hash;
+    # to add other keys to this hash, see: man 5 terminfo
+    typeset -g -A key=(
+        Home        ${terminfo[khome]}
+        End         ${terminfo[kend]}
+        Insert      ${terminfo[kich1]}
+        Backspace   ${terminfo[kbs]}
+        Delete      ${terminfo[kdch1]}
+        Up          ${terminfo[kcuu1]}
+        Down        ${terminfo[kcud1]}
+        Left        ${terminfo[kcub1]}
+        Right       ${terminfo[kcuf1]}
+        PageUp      ${terminfo[kpp]}
+        PageDown    ${terminfo[knp]}
+        Shift-Tab   ${terminfo[kcbt]}
+    )
+
+    # setup key accordingly
+    [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
+    [[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"       end-of-line
+    [[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"    overwrite-mode
+    [[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}" backward-delete-char
+    [[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"    delete-char
+    [[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"        up-line-or-history
+    [[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"      down-line-or-history
+    [[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"      backward-char
+    [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
+    [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
+    [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
+    [[ -n "${key[Shift-Tab]}" ]] && bindkey -- "${key[Shift-Tab]}" reverse-menu-complete
+
+    # Finally, make sure the terminal is in application mode, when zle is
+    # active. Only then are the values from $terminfo valid.
+    if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
+        autoload -Uz add-zle-hook-widget
+        function zle_application_mode_start() {
+            echoti smkx
+        }
+        function zle_application_mode_stop() {
+            echoti rmkx
+        }
+        add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
+        add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
+    fi
+
+    # history search
+    autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+    zle -N up-line-or-beginning-search
+    zle -N down-line-or-beginning-search
+
+    [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
+    [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+
+    # Shift, Alt, Ctrl and Meta modifiers
+    key[Control-Left]="${terminfo[kLFT5]}"
+    key[Control-Right]="${terminfo[kRIT5]}"
+
+    [[ -n "${key[Control-Left]}"  ]] && bindkey -- "${key[Control-Left]}"  backward-word
+    [[ -n "${key[Control-Right]}" ]] && bindkey -- "${key[Control-Right]}" forward-word
+
+    bindkey '\ew' kill-region                             # [Esc-w] - Kill from the cursor to the mark
+    bindkey -s '\el' 'ls\n'                               # [Esc-l] - run command: ls
+    bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+    bindkey ' ' magic-space                               # [Space] - do history expansion
+
+    # Edit the current command line in $EDITOR
+    autoload -Uz edit-command-line
+    zle -N edit-command-line
+    bindkey '\C-x\C-e' edit-command-line
+
+    # Quote URLs automatically as you type
+    autoload -Uz url-quote-magic
+    zle -N self-insert url-quote-magic
+
+    # -----> Plugin
+    # zinit
+    typeset -A ZINIT=(
+        HOME_DIR        $ZSH_DATA_DIR/zinit
+        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
+        COMPINIT_OPTS   -C
+    )
+
+    # zinit install
+    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
+    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
+        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+    fi
+    source $ZINIT[HOME_DIR]/bin/zinit.zsh
+
+    # zinit compinit
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
+
+    # zinit plugin
+    zinit ice lucid wait'0' atinit'zpcompinit' depth'1'
+    zinit light zdharma/fast-syntax-highlighting
+
+    zinit ice lucid depth'1'
+    zinit light zdharma/history-search-multi-word
+
+    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
+    zinit light zsh-users/zsh-autosuggestions
+
+    zinit ice lucid wait'0' depth'1'
+    zinit light zsh-users/zsh-completions
+
+    zinit ice lucid has'docker' as'completion'
+    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+
+    zinit ice lucid has'docker-compose' as'completion'
+    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+
+    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+        atclone'kubectl completion zsh >! _kubectl' \
+        atpull'%atclone' src"_kubectl" run-atpull \
+        atload'zicdreplay'
+    zinit light zdharma/null
+
+    # -----> Completion
     # Load bash completion function.
-    autoload -Uz bashcompinit
-    bashcompinit
+    autoload -Uz bashcompinit && bashcompinit
+
+    # Load and initialize the zsh completion system, do not initialize prematurely.
+    autoload -Uz compinit
+    if [[ -f $_comp_path ]]; then
+        compinit -C -d "$ZSH_CACHE_DIR/zcompdump" # -C: skip function check
+    else
+        compinit -i -d "$ZSH_CACHE_DIR/zcompdump" # -i: skip security check
+    fi
 
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
@@ -387,127 +477,6 @@ if [[ -n $ZSH_VERSION ]]; then
                                                /sbin           \
                                                /bin
 
-    # -----> Key binding
-    bindkey -e              # Use Emacs key bindings
-
-    # create a zkbd compatible hash;
-    # to add other keys to this hash, see: man 5 terminfo
-    typeset -g -A key=(
-        Home        ${terminfo[khome]}
-        End         ${terminfo[kend]}
-        Insert      ${terminfo[kich1]}
-        Backspace   ${terminfo[kbs]}
-        Delete      ${terminfo[kdch1]}
-        Up          ${terminfo[kcuu1]}
-        Down        ${terminfo[kcud1]}
-        Left        ${terminfo[kcub1]}
-        Right       ${terminfo[kcuf1]}
-        PageUp      ${terminfo[kpp]}
-        PageDown    ${terminfo[knp]}
-        Shift-Tab   ${terminfo[kcbt]}
-    )
-
-    # setup key accordingly
-    [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
-    [[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"       end-of-line
-    [[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"    overwrite-mode
-    [[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}" backward-delete-char
-    [[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"    delete-char
-    [[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"        up-line-or-history
-    [[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"      down-line-or-history
-    [[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"      backward-char
-    [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
-    [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
-    [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
-    [[ -n "${key[Shift-Tab]}" ]] && bindkey -- "${key[Shift-Tab]}" reverse-menu-complete
-
-    # Finally, make sure the terminal is in application mode, when zle is
-    # active. Only then are the values from $terminfo valid.
-    if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
-        autoload -Uz add-zle-hook-widget
-        function zle_application_mode_start() {
-            echoti smkx
-        }
-        function zle_application_mode_stop() {
-            echoti rmkx
-        }
-        add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
-        add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
-    fi
-
-    # history search
-    autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-    zle -N up-line-or-beginning-search
-    zle -N down-line-or-beginning-search
-
-    [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
-    [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
-
-    # Shift, Alt, Ctrl and Meta modifiers
-    key[Control-Left]="${terminfo[kLFT5]}"
-    key[Control-Right]="${terminfo[kRIT5]}"
-
-    [[ -n "${key[Control-Left]}"  ]] && bindkey -- "${key[Control-Left]}"  backward-word
-    [[ -n "${key[Control-Right]}" ]] && bindkey -- "${key[Control-Right]}" forward-word
-
-    bindkey '\ew' kill-region                             # [Esc-w] - Kill from the cursor to the mark
-    bindkey -s '\el' 'ls\n'                               # [Esc-l] - run command: ls
-    bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
-    bindkey ' ' magic-space                               # [Space] - do history expansion
-
-    # Edit the current command line in $EDITOR
-    autoload -Uz edit-command-line
-    zle -N edit-command-line
-    bindkey '\C-x\C-e' edit-command-line
-
-    # Quote URLs automatically as you type
-    autoload -Uz url-quote-magic
-    zle -N self-insert url-quote-magic
-
-    # -----> Plugin
-    # zinit
-    typeset -A ZINIT=(
-        HOME_DIR        $ZSH_DATA_DIR/zinit
-        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
-        COMPINIT_OPTS   -C
-    )
-
-    # zinit install
-    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
-    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
-    fi
-    source $ZINIT[HOME_DIR]/bin/zinit.zsh
-
-    # zinit compinit
-    autoload -Uz _zinit
-    (( ${+_comps} )) && _comps[zinit]=_zinit
-
-    # zinit plugin
-    zinit ice lucid wait'0' depth'1'
-    zinit light zsh-users/zsh-completions
-
-    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
-    zinit light zsh-users/zsh-autosuggestions
-
-    zinit ice lucid wait'0' atinit'zpcompinit' depth'1'
-    zinit light zdharma/fast-syntax-highlighting
-
-    zinit ice lucid depth'1'
-    zinit light zdharma/history-search-multi-word
-
-    zinit ice lucid has'docker' as'completion'
-    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
-
-    zinit ice lucid has'docker-compose' as'completion'
-    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
-
-    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
-        atclone'kubectl completion zsh >! _kubectl' \
-        atpull'%atclone' src"_kubectl" run-atpull \
-        atload'zicdreplay'
-    zinit light zdharma/null
-
     # -----> Command-not-found
     [[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
 fi
@@ -620,8 +589,6 @@ if [[ -d $NVM_DIR ]]; then
     export NVM_LAZY_LOAD=true
     export NVM_LAZY_LOAD_EXTRA_COMMANDS=(vim nvim)
 
-    [[ -r $NVM_DIR/bash_completion ]] && source $NVM_DIR/bash_completion
-
     _nvm_load() {
         if [[ $NVM_NO_USE == true ]]; then
             source $NVM_DIR/nvm.sh --no-use
@@ -674,12 +641,6 @@ install_nvm() {
         echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
             $NVM_DIR/nvm.sh https://raw.githubusercontent.com/nvm-sh/nvm/master/nvm.sh`
-    fi
-    if [[ ! -f $NVM_DIR/bash_completion ]]; then
-        echo "$NVM_DIR/bash_completion doesn't exists."
-        echo "Downloading bash_completion from github to $NVM_DIR/bash_completion ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $NVM_DIR/bash_completion https://raw.githubusercontent.com/nvm-sh/nvm/master/bash_completion`
     fi
     source $XDG_CONFIG_HOME/init.sh
 }
