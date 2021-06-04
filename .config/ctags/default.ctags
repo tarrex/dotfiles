@@ -1,0 +1,14 @@
+--exclude=.git
+--exclude=.svn
+--exclude=.hg
+--exclude=.DS_Store
+--exclude=tags
+
+--exclude=\*.swp
+--exclude=\*.bak
+--exclude=\*.pyc
+--exclude=\*.pdb
+--exclude=\*.pyo
+--exclude=\*.class
+--exclude=\*.zip
+--exclude=\*.tar.\*
