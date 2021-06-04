@@ -41,7 +41,7 @@ if [[ -n $_Z_CMD ]]; then
 fi
 
 # git-prompt.sh initialize
-if command -v git &> /dev/null; then
+if command -v git > /dev/null; then
     if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
         echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
         echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
@@ -118,7 +118,7 @@ _retval() {
 
 # git branch
 _gitbranch() {
-    if command -v git &> /dev/null; then
+    if command -v git > /dev/null; then
         echo $(__git_ps1 '(%s)')
     else
         echo ''
@@ -225,7 +225,7 @@ if [[ -n $ZSH_VERSION ]]; then
     unsetopt BEEP                   # Do not beep on error in line editor.
 
     # -----> Key binding
-    bindkey -e              # Use Emacs key bindings
+    bindkey -e                      # Use Emacs key bindings
 
     # create a zkbd compatible hash;
     # to add other keys to this hash, see: man 5 terminfo
@@ -301,61 +301,15 @@ if [[ -n $ZSH_VERSION ]]; then
     autoload -Uz url-quote-magic
     zle -N self-insert url-quote-magic
 
-    # -----> Plugin
-    # zinit
-    typeset -A ZINIT=(
-        HOME_DIR        $ZSH_DATA_DIR/zinit
-        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
-        COMPINIT_OPTS   -C
-    )
-
-    # zinit install
-    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
-    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
-    fi
-    source $ZINIT[HOME_DIR]/bin/zinit.zsh
-
-    # zinit compinit
-    autoload -Uz _zinit
-    (( ${+_comps} )) && _comps[zinit]=_zinit
-
-    # zinit plugin
-    zinit ice lucid wait'0' atinit'zpcompinit' depth'1'
-    zinit light zdharma/fast-syntax-highlighting
-
-    zinit ice lucid depth'1'
-    zinit light zdharma/history-search-multi-word
-
-    zinit ice lucid wait'0' atload'_zsh_autosuggest_start' depth'1'
-    zinit light zsh-users/zsh-autosuggestions
-
-    zinit ice lucid wait'0' depth'1'
-    zinit light zsh-users/zsh-completions
-
-    zinit ice lucid has'docker' as'completion'
-    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
-
-    zinit ice lucid has'docker-compose' as'completion'
-    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
-
-    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
-        atclone'kubectl completion zsh >! _kubectl' \
-        atpull'%atclone' src"_kubectl" run-atpull \
-        atload'zicdreplay'
-    zinit light zdharma/null
-
     # -----> Completion
-    # Load bash completion function.
-    autoload -Uz bashcompinit && bashcompinit
-
-    # Load and initialize the zsh completion system, do not initialize prematurely.
-    autoload -Uz compinit
-    if [[ -f $_comp_path ]]; then
-        compinit -C -d "$ZSH_CACHE_DIR/zcompdump" # -C: skip function check
-    else
-        compinit -i -d "$ZSH_CACHE_DIR/zcompdump" # -i: skip security check
-    fi
+    # Load and initialize the zsh completion system.
+    # If you use zinit, comment below to avoid compinit duplicate initialization.
+    # autoload -Uz compinit
+    # if [[ -f $_comp_path ]]; then
+    #     compinit -C -d "$ZSH_CACHE_DIR/zcompdump" # -C: skip function check
+    # else
+    #     compinit -i -d "$ZSH_CACHE_DIR/zcompdump" # -i: skip security check
+    # fi
 
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
@@ -476,6 +430,50 @@ if [[ -n $ZSH_VERSION ]]; then
                                                /usr/bin        \
                                                /sbin           \
                                                /bin
+
+    # -----> Plugin
+    # zinit
+    typeset -A ZINIT=(
+        HOME_DIR        $ZSH_DATA_DIR/zinit
+        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
+        COMPINIT_OPTS   -C
+    )
+
+    # zinit install
+    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
+    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
+        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+    fi
+    source $ZINIT[HOME_DIR]/bin/zinit.zsh
+
+    # zinit compinit
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
+
+    # zinit plugin
+    zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
+    zinit light zdharma/fast-syntax-highlighting
+
+    zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
+    zinit light zsh-users/zsh-autosuggestions
+
+    zinit ice wait lucid blockf depth'1'
+    zinit light zsh-users/zsh-completions
+
+    zinit ice lucid depth'1'
+    zinit light zdharma/history-search-multi-word
+
+    zinit ice lucid has'docker' as'completion'
+    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+
+    zinit ice lucid has'docker-compose' as'completion'
+    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+
+    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+        atclone'kubectl completion zsh >! _kubectl' \
+        atpull'%atclone' src"_kubectl" run-atpull \
+        atload'zicdreplay'
+    zinit light zdharma/null
 
     # -----> Command-not-found
     [[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
@@ -710,6 +708,7 @@ alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
 alias ipinfo='curl wtfismyip.com/json'
 alias randname='curl pseudorandom.name'
 alias serve='python3 -m http.server 8000'
+alias venv='python3 -m venv'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 
 # Display shell startup time
