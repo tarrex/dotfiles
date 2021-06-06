@@ -1,29 +1,16 @@
 # Tarrex's bash/zsh initialization file.
 
-# ============> Check <============
-# if not running interactively, don't do anything
-case "$-" in
-    *i*) ;;
-      *) return;;
-esac
-
 # ============> Prepare <============
+# if not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Disable Ctrl+S and Ctrl+Q in terminal
+[[ -x stty ]] && stty -ixon
+
 # XDG directories
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
-
-if [[ -n $BASH_VERSION ]]; then
-    export BASH_CACHE_DIR=$XDG_CACHE_HOME/bash
-    export BASH_CONFIG_DIR=$XDG_CONFIG_HOME/bash
-    export BASH_DATA_DIR=$XDG_DATA_HOME/bash
-fi
-
-if [[ -n $ZSH_VERSION ]]; then
-    export ZSH_CACHE_DIR=$XDG_CACHE_HOME/zsh
-    export ZSH_CONFIG_DIR=$XDG_CONFIG_HOME/zsh
-    export ZSH_DATA_DIR=$XDG_DATA_HOME/zsh
-fi
 
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
@@ -306,14 +293,14 @@ if [[ -n $ZSH_VERSION ]]; then
     # If you use zinit, comment below to avoid compinit duplicate initialization.
     # autoload -Uz compinit
     # if [[ -f $_comp_path ]]; then
-    #     compinit -C -d "$ZSH_CACHE_DIR/zcompdump" # -C: skip function check
+    #     compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump" # -C: skip function check
     # else
-    #     compinit -i -d "$ZSH_CACHE_DIR/zcompdump" # -i: skip security check
+    #     compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump" # -i: skip security check
     # fi
 
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
-    zstyle ':completion::complete:*' cache-path "$ZSH_CACHE_DIR"
+    zstyle ':completion::complete:*' cache-path $XDG_CACHE_HOME/zsh
 
     # case-insensitive (all), partial-word, and then substring completion.
     zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
@@ -434,8 +421,8 @@ if [[ -n $ZSH_VERSION ]]; then
     # -----> Plugin
     # zinit
     typeset -A ZINIT=(
-        HOME_DIR        $ZSH_DATA_DIR/zinit
-        ZCOMPDUMP_PATH  $ZSH_CACHE_DIR/zcompdump
+        HOME_DIR        $XDG_DATA_HOME/zsh/zinit
+        ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
         COMPINIT_OPTS   -C
     )
 
@@ -480,9 +467,6 @@ if [[ -n $ZSH_VERSION ]]; then
 fi
 
 # ============> Custom <============
-# Disable Ctrl+S and Ctrl+Q in terminal
-[[ -x stty ]] && stty -ixon
-
 # ls colors highlight
 if [[ $OSTYPE == linux* ]]; then
     export LS_COLORS='bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'
@@ -648,6 +632,9 @@ export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
+if [[ ! -d $GNUPGHOME ]] && command -v gpg > /dev/null; then
+    command mkdir -m700 -p $GNUPGHOME
+fi
 
 # Common alias
 case $OSTYPE in
@@ -691,7 +678,7 @@ okgfw() {
 
 # Typora
 if [[ $OSTYPE == darwin* ]]; then
-    alias typora="open -a typora"
+    alias typora='open -a typora'
     alias blog='open -a typora ~/Workspace/Github/blog'
     alias wiki='open -a typora ~/Workspace/Github/wiki'
 fi
