@@ -518,9 +518,19 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 # Golang
-[[ $OSTYPE == linux* ]] && export GOROOT=/usr/local/go
-export GOBASEPATH=$HOME/Projects/Go
+case $OSTYPE in
+     linux*) export \
+        GOROOT=$XDG_DATA_HOME/go/go1.16.5 \
+        GOBASEPATH=$HOME/projects/go;;
+    darwin*) export \
+        GOBASEPATH=$HOME/Projects/Go;;
+esac
+export GO111MODULE=on
+# export GOPROXY=https://goproxy.cn,direct
 export GOPATH=$GOBASEPATH
+export GOENV=$XDG_CONFIG_HOME/go/env
+export GOCACHE=$XDG_CACHE_HOME/go-build
+export GOLANGCI_LINT_CACHE=$XDG_CACHE_HOME/golangci-lint
 export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
 
 alias gohere='export GOPATH=`pwd`'
@@ -659,6 +669,7 @@ alias vi='vim -N -u NONE -i NONE'
 
 # Proxy
 proxy_addr="127.0.0.1:7890"
+# proxy_addr="10.0.0.4:7890"
 no_proxy_addr="localhost,127.0.0.0/8,*.local"
 
 alias httpproxy="all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
