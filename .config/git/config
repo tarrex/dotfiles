@@ -4,10 +4,11 @@
 [github]
     user = tarrex
 [gist]
-    private = yes
+    private = true
 [core]
     fileMode          = false
     precomposeunicode = false
+    quotepath         = false
     trustctime        = false
     untrackedCache    = true
     compression       = 1
@@ -95,3 +96,6 @@
 [status]
     short              = true
     showUntrackedFiles = all
+[i18n]
+    commitEncoding    = utf-8
+    logOutputEncoding = utf-8
