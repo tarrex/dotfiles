@@ -493,6 +493,7 @@ export VISUAL='vim'
 
 # Less
 export PAGER='less -FRX'
+export LESSCHARSET=utf-8
 export LESSHISTFILE=-
 export LESS_TERMCAP_mb=$'\e[1;31m'
 export LESS_TERMCAP_md=$'\e[1;31m'
