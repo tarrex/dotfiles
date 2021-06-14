@@ -1,4 +1,4 @@
 #!/bin/sh
 
-brew leaves      > formula.txt
-brew list --cask > cask.txt
+brew leaves      > formula.list
+brew list --cask > cask.list

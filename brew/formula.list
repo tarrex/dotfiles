@@ -11,6 +11,7 @@ gdb
 ghostscript
 git-crypt
 git-lfs
+gnupg
 go
 graphviz
 htop
@@ -31,7 +32,7 @@ socat
 tcpdump
 tmux
 tokei
-universal-ctags/universal-ctags/universal-ctags
+universal-ctags
 vim
 wget
 wrk
