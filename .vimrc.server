@@ -10,9 +10,6 @@ let s:env.mac      = has('unix') && has('mac') || has('macunix') || system('unam
 let s:env.linux    = has('unix') && has('linux')
 let s:env.unix     = has('unix') && !s:env.mac && !s:env.linux
 
-let s:env.starting = has('vim_starting')
-let s:env.gui      = has('gui_running')
-
 if s:env.windows
     let s:vimdir = $HOME . '/vimfiles'
 else
@@ -129,6 +126,7 @@ set breakat+=)]}                        " line break characters, default are ' ^
 set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
+set matchpairs+=<:>                     " pairs characters that the `%` command jumps from one to the other
 
 set dictionary+=/usr/share/dict/words   " files that are used to lookup words for keyword completion commands
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
@@ -644,19 +642,24 @@ augroup VimTricks
     autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
+    " don't list terminal buffer at buffer list
+    autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
 augroup END
 
 " ----> Commands
-command! RemoveBlankLine silent! g/^$/d | nohlsearch | normal! ``
-command! -bar RTP echo substitute(&runtimepath, ',', "\n", 'g')
 command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
+command! RemoveBlankLine sil g/^$/d | noh | normal! ``
+command! RTP echo substitute(&runtimepath, ',', "\n", 'g')
+command! SaveAsUTF8 setl fenc=utf-8 | w
+command! Tab2Space sil %s/\t/    /g | noh | normal! ``
 
 " ----> Disable some vim built-in plugins
 let g:loaded_2html_plugin    = 1        " tohtml
-let g:loaded_getscriptPlugin = 1        " getscript
+let g:loaded_getscript       = 1        " getscript
+let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat         = 1        " logipat
-let g:loaded_vimballPlugin   = 1        " vimball interface
-let g:loaded_vimball         = 1        " vimball autoload
+let g:loaded_vimball         = 1        " vimball
+let g:loaded_vimballPlugin   = 1
 
 " ----> Netrw
 let g:netrw_altfile      = 1
