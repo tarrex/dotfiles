@@ -160,7 +160,6 @@ fi
 if [[ -n $ZSH_VERSION ]]; then
     # -----> Option
     # Changing Directories
-    setopt AUTO_CD                  # Auto changes to a directory without typing cd.
     setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
     setopt CDABLE_VARS              # Change directory to a path stored in a variable.
     setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
@@ -709,6 +708,7 @@ alias randname='curl pseudorandom.name'
 alias serve='python3 -m http.server 8000'
 alias venv='python3 -m venv'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
+alias certexp='_certexp(){openssl s_client -connect $1:443 -servername $1 2> /dev/null | openssl x509 -noout -dates};_certexp'
 
 # Display shell startup time
 timeshell() {
