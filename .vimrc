@@ -128,7 +128,7 @@ set breakat+=)]}                        " line break characters, default are ' ^
 set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
-set matchpairs+=<:>                     " pairs characters that the `%` command jumps from one to the other
+set matchpairs+=<:>,《:》,「:」,（:）,【:】     " pairs characters that the `%` command jumps from one to the other
 
 set dictionary+=/usr/share/dict/words   " files that are used to lookup words for keyword completion commands
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
