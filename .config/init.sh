@@ -502,6 +502,8 @@ export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_so=$'\e[1;44;33m'
 export LESS_TERMCAP_se=$'\e[0m'
 
+export MANPAGER="vim -M +MANPAGER --not-a-term -"
+
 # Language
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -576,7 +578,7 @@ fi
 export NODE_REPL_HISTORY=-
 export NVM_DIR=$XDG_DATA_HOME/nvm
 
-if [[ -d $NVM_DIR ]]; then
+if [[ -f $NVM_DIR/nvm.sh ]]; then
     export NVM_NO_USE=false
     export NVM_LAZY_LOAD=true
     export NVM_LAZY_LOAD_EXTRA_COMMANDS=(vim nvim)
