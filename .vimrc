@@ -37,7 +37,6 @@ set modeline                            " allow setting options via buffer conte
 set showcmd                             " show (partial) command in the last line of the screen
 set noshowmatch                         " don't briefly jump to the matching one when a bracket is inserted
 set noshowmode                          " don't display Insert, Replace or Visual mode message on the last line
-set linebreak                           " break lines at word boundaries
 set laststatus=2                        " show status line
 set display=lastline                    " as much as possible of the last line in a window will be displayed
 if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't show cursorline and cursorcolumn
@@ -55,7 +54,10 @@ set tabstop=4                           " number of spaces that a <tab> in the f
 set softtabstop=4                       " number of spaces that a <tab> counts for while performing editing operations
 set smarttab                            " be smart when use tabs
 set autoindent                          " copy indent from current line when starting a new line
+
+set linebreak                           " break lines at word boundaries
 set breakindent                         " every wrapped line will continue visually indented
+set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 
 set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
@@ -125,7 +127,6 @@ set listchars+=precedes:«               " unwrapped text to screen left
 silent! set listchars+=tab:<->          " tab characters, preserve width
 set listchars+=nbsp:∅                   " non-breaking spaces
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
-set showbreak=↪\                        " string to put at the start of lines that have been wrapped
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 set matchpairs+=<:>,《:》,「:」,（:）,【:】     " pairs characters that the `%` command jumps from one to the other
@@ -1121,7 +1122,7 @@ if has('reltime')
 endif
 
 " ----> Open URL under cursor
-function! OpenURLUnderCursor()
+function! OpenURLUnderCursor() abort
     let s:uri = expand('<cword>')
     let s:uri = substitute(s:uri, '?', '\\?', '')
     let s:uri = shellescape(s:uri, 1)
@@ -1135,5 +1136,27 @@ function! OpenURLUnderCursor()
     endif
 endfunction
 nnoremap <silent> gu :call OpenURLUnderCursor()<cr>
+
+" ---> Generate Strings
+function! GenUUID() abort
+python3 << EOF
+import uuid
+vim.command('let uuid = \'%s\'' % str(uuid.uuid4()))
+EOF
+    execute 'normal i' . uuid . ''
+endfunction
+
+function! GenToken() abort
+python3 << EOF
+import secrets
+vim.command('let token = \'%s\'' % str(secrets.token_hex(16)))
+EOF
+    execute 'normal i' . token . ''
+endfunction
+
+command! -nargs=* -range=% GenUUID call GenUUID()
+command! -nargs=* -range=% GenToken call GenToken()
+noremap <localleader>gu :call GenUUID()<cr>
+noremap <localleader>gt :call GenToken()<cr>
 
 set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
