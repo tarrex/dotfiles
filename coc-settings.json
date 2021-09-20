@@ -1,11 +1,6 @@
 {
     "coc.preferences.enableMarkdown": true,
     "coc.preferences.extensionUpdateCheck": "never",
-    "coc.preferences.formatOnType": true,
-    "coc.preferences.formatOnSaveFiletypes": [
-        "javascript",
-        "typescript"
-    ],
     "coc.preferences.rootPatterns": [
         ".root",
         ".git",
@@ -25,8 +20,13 @@
 
     "suggest.asciiCharactersOnly": false,
     "suggest.autoTrigger": "always",
+    "suggest.enablePreselect": true,
+    "suggest.languageSourcePriority": 90,
     "suggest.maxCompleteItemCount": 20,
     "suggest.minTriggerInputLength": 2,
+    "suggest.noselect": false,
+
+    "http.proxy": "http://127.0.0.1:7890",
 
     "html.autoClosingTags": true,
 
@@ -37,11 +37,6 @@
     },
 
     "toml.formatter.reorderKeys": false,
-
-    "prettier.tabWidth": 4,
-    "prettier.singleQuote": true,
-    "prettier.trailingComma": "all",
-    "prettier.ignorePath": ".gitignore",
 
     "rust-analyzer.diagnostics.enable": false,
     "rust-analyzer.notifications.cargoTomlNotFound": false,

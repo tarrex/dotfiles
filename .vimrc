@@ -102,7 +102,7 @@ set comments=                           " clear default comments value, let the 
 set commentstring=                      " clear default comment template
 set include=                            " don't assume I'm editing C; let the filetype set this
 set complete+=k                         " scan the files given with the 'dictionary' option
-set completeopt=menu,menuone            " use a popup menu to show the possible completions even if there is only one match
+set completeopt=menu,menuone,noinsert   " use a popup menu to show the possible completions even if there is only one match
 silent! set completeopt+=noselect       " only insert the longest common text of the matches
 silent! set completeopt+=popup          " add popup option for insert mode completion if could
 silent! set completepopup=border:off    " used for the properties of the info popup when it is created
@@ -511,7 +511,6 @@ if s:has_plug('coc.nvim')
         \ 'coc-yaml',
         \ 'coc-toml',
         \ 'coc-tsserver',
-        \ 'coc-prettier',
         \ 'coc-pyright',
         \ 'coc-rust-analyzer',
         \ 'coc-clangd',
@@ -684,38 +683,66 @@ endif
 
 " ----> dense-analysis/ale
 if s:has_plug('ale')
-    let g:ale_command_wrapper      = 'nice -n5'
-    let g:ale_maximum_file_size    = 10 * 1024 * 1024
-    let g:ale_echo_msg_error_str   = 'E'
-    let g:ale_echo_msg_info_str    = 'I'
-    let g:ale_echo_msg_warning_str = 'W'
-    let g:ale_echo_msg_log_str     = 'L'
-    let g:ale_echo_msg_format      = '%severity%: [%linter%] %s'
-    let g:ale_loclist_msg_format   = '[%linter%] %code: %%s'
-    let g:ale_sign_error           = '>>'
-    let g:ale_sign_warning         = '--'
-    let g:ale_sign_info            = '~~'
-    let g:ale_set_quickfix         = 1
-    let g:ale_list_window_size     = 6
-    let g:ale_open_list            = 'on_save'
-    let g:ale_fix_on_save          = 1
-    let g:ale_fixers               = {
-        \ 'go': ['goimports'],
-        \ 'python': ['black'],
-        \ 'rust': ['rustfmt']
+    let g:ale_command_wrapper             = 'nice -n5'
+    let g:ale_maximum_file_size           = 10 * 1024 * 1024
+    let g:ale_echo_msg_error_str          = 'E'
+    let g:ale_echo_msg_info_str           = 'I'
+    let g:ale_echo_msg_warning_str        = 'W'
+    let g:ale_echo_msg_log_str            = 'L'
+    let g:ale_echo_msg_format             = '%severity%: [%linter%] %s'
+    let g:ale_loclist_msg_format          = '[%linter%] %code: %%s'
+    let g:ale_sign_error                  = '>>'
+    let g:ale_sign_warning                = '--'
+    let g:ale_sign_info                   = '~~'
+    let g:ale_set_highlights              = 0
+    let g:ale_set_quickfix                = 1
+    let g:ale_list_window_size            = 6
+    let g:ale_open_list                   = 'on_save'
+    let g:ale_fix_on_save                 = 1
+    let g:ale_fixers                      = {
+        \ 'go':         ['goimports'],
+        \ 'python':     ['black'],
+        \ 'rust':       ['rustfmt'],
+        \ 'c':          ['clang-format'],
+        \ 'cpp':        ['clang-format'],
+        \ 'javascript': ['eslint'],
+        \ 'typescript': ['tslint'],
+        \ 'vue':        ['prettier'],
+        \ 'html':       ['prettier'],
+        \ 'css':        ['prettier'],
+        \ 'less':       ['prettier'],
+        \ 'sass':       ['prettier'],
+        \ 'scss':       ['prettier'],
+        \ 'json':       ['prettier'],
+        \ 'yaml':       ['prettier'],
+        \ 'graphql':    ['prettier'],
+        \ 'sh':         ['shfmt']
     \}
-    let g:ale_lint_delay           = 1000
-    let g:ale_lint_on_enter        = 0
-    let g:ale_linters_explicit     = 1
-    let g:ale_linters              = {
-        \ 'c': ['gcc'],
-        \ 'cpp': ['gcc'],
-        \ 'go': ['golint', 'go vet'],
-        \ 'java': ['javac'],
-        \ 'lua': ['luac'],
-        \ 'python': ['flake8', 'pylint'],
-        \ 'rust': ['cargo', 'rls'],
-        \ 'sh': ['shell']
+    let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
+    let g:ale_javascript_prettier_options = '--print-width 120 --tab-width 4 --single-quote true --trailing-comma all --bracket-same-line'
+    let g:ale_lint_on_enter               = 0
+    let g:ale_lint_on_save                = 1
+    let g:ale_lint_on_text_changed        = 0
+    let g:ale_linters_explicit            = 1
+    let g:ale_linters                     = {
+        \ 'go':         ['golangci-lint', 'gopls'],
+        \ 'python':     ['pyflakes'],
+        \ 'rust':       ['analyzer', 'rls'],
+        \ 'java':       ['javac'],
+        \ 'c':          ['cc', 'clangd'],
+        \ 'cpp':        ['cc', 'clangd'],
+        \ 'javascript': ['eslint'],
+        \ 'typescript': ['tslint'],
+        \ 'vue':        ['eslint'],
+        \ 'html':       ['stylelint'],
+        \ 'css':        ['stylelint'],
+        \ 'less':       ['stylelint'],
+        \ 'sass':       ['stylelint'],
+        \ 'scss':       ['stylelint'],
+        \ 'json':       ['prettier'],
+        \ 'yaml':       ['yamllint'],
+        \ 'graphql':    ['eslint'],
+        \ 'sh':         ['shell']
     \ }
 
     nmap <silent> [a <Plug>(ale_previous)
@@ -723,8 +750,8 @@ if s:has_plug('ale')
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
 
-    highlight clear ALEErrorSign
-    highlight clear ALEWarningSign
+    highlight link ALEErrorSign CursorLineNr
+    highlight link ALEWarningSign CursorLineNr
 endif
 
 " ----> fatih/vim-go
@@ -1003,13 +1030,14 @@ augroup END
 augroup CustomByFileType
     autocmd!
     autocmd FileType qf setl nonu nornu
+    autocmd FileType gitcommit setl spell
 augroup END
 
 " ----> Tricks
 augroup VimTricks
     autocmd!
     " trim trailing whitespace on write
-    autocmd BufWritePre * if !&bin | let b:pos=getpos('.') | sil %s/\s\+$//e | call setpos('.', b:pos) | endif
+    autocmd BufWritePre * if !&bin | sil exe 'normal mz' | sil %s/\v\s+$//ge | sil exe 'normal `z' | endif
     " remember cursor position
     autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | sil exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
@@ -1137,7 +1165,7 @@ function! OpenURLUnderCursor() abort
 endfunction
 nnoremap <silent> gu :call OpenURLUnderCursor()<cr>
 
-" ---> Generate Strings
+" ---> Generate security strings
 function! GenUUID() abort
 python3 << EOF
 import uuid
@@ -1145,6 +1173,8 @@ vim.command('let uuid = \'%s\'' % str(uuid.uuid4()))
 EOF
     execute 'normal i' . uuid . ''
 endfunction
+command! -nargs=* -range=% GenUUID call GenUUID()
+noremap <silent> <localleader>gu :call GenUUID()<cr>
 
 function! GenToken() abort
 python3 << EOF
@@ -1153,10 +1183,7 @@ vim.command('let token = \'%s\'' % str(secrets.token_hex(16)))
 EOF
     execute 'normal i' . token . ''
 endfunction
-
-command! -nargs=* -range=% GenUUID call GenUUID()
 command! -nargs=* -range=% GenToken call GenToken()
-noremap <localleader>gu :call GenUUID()<cr>
-noremap <localleader>gt :call GenToken()<cr>
+noremap <silent> <localleader>gt :call GenToken()<cr>
 
 set secure                              " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
