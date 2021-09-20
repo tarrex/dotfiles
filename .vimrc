@@ -281,12 +281,14 @@ if s:has_plug('lightline.vim')
         \ }
     \ }
 
+    let s:specific_fts = ['qf', 'netrw', 'vista']
+
     function! LightLineMode() abort
         let fname = expand('%:t')
-        return fname ==? '__vista__' ? 'Vista' :
-            \ (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
+        return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
             \ &ft ==? 'qf' ? 'QuickFix' :
             \ &ft ==? 'netrw' ? 'Netrw' :
+            \ &ft ==? 'vista' ? 'Vista' :
             \ lightline#mode()
     endfunction
 
@@ -299,9 +301,7 @@ if s:has_plug('lightline.vim')
         else
             let fname = pathshorten(expand('%'))
         endif
-        return fname ==? '__vista__' ? '' :
-            \ &ft ==? 'qf' ? '' :
-            \ &ft ==? 'netrw' ? '' :
+        return index(s:specific_fts, &ft) >= 0 ? '' :
             \ ('' !=? fname ? fname : '[No Name]') .
             \ (&modified ? ' +' : '')
     endfunction
@@ -325,32 +325,31 @@ if s:has_plug('lightline.vim')
     function! LightlineFileSize() abort
         if (winwidth(0) < 70 || mode() == 't') | return '' | endif
         let l:bytes = getfsize(@%)
-        if l:bytes <= 0 | return '0B' | endif
+        if l:bytes < 0 | return '' | endif
         let l:units = ['B', 'K', 'M', 'G']
         let l:idx = 0
         while l:bytes >= 1024
             let l:bytes = l:bytes / 1024.0
             let l:idx += 1
         endwhile
-        return &ft ==? 'qf' ? '' :
-            \ printf('%.1f%s', l:bytes, l:units[l:idx])
+        return printf('%.1f%s', l:bytes, l:units[l:idx])
     endfunction
 
     function! LightLineFileFormat() abort
         if (winwidth(0) < 60 || mode() == 't') | return '' | endif
-        return &ft ==? 'qf' ? '' :
-            \ &fileformat
+        return index(s:specific_fts, &ft) >= 0 ? ''
+            \ : &fileformat
     endfunction
 
     function! LightLineFileEncoding() abort
         if (winwidth(0) < 50 || mode() == 't') | return '' | endif
-        return &ft ==? 'qf' ? '' :
+        return index(s:specific_fts, &ft) >= 0 ? '' :
             \ &fenc !=# '' ? &fenc : &enc
     endfunction
 
     function! LightLineFileType() abort
         if (winwidth(0) < 40 || mode() == 't') | return '' | endif
-        return &ft ==? 'qf' ? '' :
+        return index(s:specific_fts, &ft) >= 0 ? '' :
             \ &ft !=# '' ? &ft : 'no ft'
     endfunction
 endif

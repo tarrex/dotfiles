@@ -187,6 +187,8 @@ let g:currentmode = {
     \ 'c': 'COMMAND', 'r?': 'CONFIRM', 't': 'TERMINAL'
 \ }
 
+let s:specific_fts = ['qf', 'netrw']
+
 " file name
 function! FileName() abort
     if mode() == 't' | return expand('%') | endif
@@ -197,25 +199,41 @@ function! FileName() abort
     else
         let fname = pathshorten(expand('%'))
     endif
-    return &ft ==? 'netrw' ? '' :
-        \ &ft ==? 'qf' ? '' :
-        \ ('' !=? fname ? fname : '[No Name]') .
-        \ (&modified ? ' +' : '')
+    return index(s:specific_fts, &ft) >= 0 ? '' :
+        \ ('' !=? fname ? '| '.fname.' ' : '| [No Name] ') .
+        \ (&modified ? '+' : '')
 endfunction
 
 " file size
 function! FileSize() abort
     if (winwidth(0) < 70 || mode() == 't') | return '' | endif
     let l:bytes = getfsize(@%)
-    if l:bytes <= 0 | return '0B' | endif
+    if l:bytes < 0 | return '' | endif
     let l:units = ['B', 'K', 'M', 'G']
     let l:idx = 0
     while l:bytes >= 1024
         let l:bytes = l:bytes / 1024.0
         let l:idx += 1
     endwhile
-    return &ft ==? 'qf' ? '' :
-        \ printf('%.1f%s', l:bytes, l:units[l:idx])
+    return printf('%.1f%s', l:bytes, l:units[l:idx]) . ' | '
+endfunction
+
+function! FileFormat() abort
+    if (winwidth(0) < 60 || mode() == 't') | return '' | endif
+    return index(s:specific_fts, &ft) >= 0 ? ''
+        \ : &fileformat . ' | '
+endfunction
+
+function! FileEncoding() abort
+    if (winwidth(0) < 50 || mode() == 't') | return '' | endif
+    return index(s:specific_fts, &ft) >= 0 ? '' :
+        \ &fenc !=# '' ? &fenc.' | ' : &enc.' | '
+endfunction
+
+function! FileType() abort
+    if (winwidth(0) < 40 || mode() == 't') | return '' | endif
+    return index(s:specific_fts, &ft) >= 0 ? '' :
+        \ &ft !=# '' ? &ft.' | ' : 'no ft | '
 endfunction
 
 function! Statusline() abort
@@ -225,14 +243,14 @@ function! Statusline() abort
     let line .= '%{&paste!=#"paste"? "| paste ":""}' " paste state
     let line .= '| %n '                              " buffer number
     let line .= '%{&ro!=#""?"| RO ":""}'             " read only flag
-    let line .= '| %{FileName()} '                   " tail of filename
+    let line .= '%{FileName()}'                      " tail of filename
     let line .= ' %= '                               " separator
-    let line .= '%{FileSize()} '                     " file size
-    let line .= '| %{&ff} '                          " file format
-    let line .= '| %{&fenc?&fenc:&enc} '             " file encoding
-    let line .= '| %{&ft!=#""?&ft:"no ft"} '         " filetype
-    let line .= '| %3p%% '                           " percent through file
-    let line .= '| %3l:%-2v '                        " cursor column
+    let line .= '%{FileSize()}'                      " file size
+    let line .= '%{FileFormat()}'                    " file format
+    let line .= '%{FileEncoding()}'                  " file encoding
+    let line .= '%{FileType()}'                      " filetype
+    let line .= '%3p%% | '                           " percent through file
+    let line .= '%3l:%-2v '                          " cursor column
     return line
 endfunction
 
