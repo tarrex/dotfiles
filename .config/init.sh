@@ -8,9 +8,15 @@
 [[ -x stty ]] && stty -ixon
 
 # XDG directories
+# user directories
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
 export XDG_DATA_HOME=$HOME/.local/share
+export XDG_STATE_HOME=$HOME/.local/state
+export XDG_RUNTIME_DIR=/tmp
+# system directories
+export XDG_DATA_DIRS=/usr/local/share:/usr/share
+export XDG_CONFIG_DIRS=/etc/xdg
 
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
@@ -114,13 +120,13 @@ _gitbranch() {
 
 if [[ -n $BASH_VERSION ]]; then
     if [[ $UID -eq 0 ]]; then
-        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;124m\]#\[\e[0m\] '
+        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;197m\]#\[\e[0m\] '
     else
         export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;83m\]>\[\e[0m\] '
     fi
 else
     if [[ $UID -eq 0 ]]; then
-        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{124}#%f '
+        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{197}#%f '
     else
         export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}>%f '
     fi
@@ -574,7 +580,11 @@ if [[ -d /usr/local/opt/llvm/bin ]]; then
     export PATH=/usr/local/opt/llvm/bin:$PATH
 fi
 
-# Node && nvm
+# Node / npm / yarn / nvm
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/config
+export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
+export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
+
 export NODE_REPL_HISTORY=-
 export NVM_DIR=$XDG_DATA_HOME/nvm
 
