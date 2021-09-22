@@ -200,8 +200,8 @@ function! FileName() abort
         let fname = pathshorten(expand('%'))
     endif
     return index(s:specific_fts, &ft) >= 0 ? '' :
-        \ ('' !=? fname ? '| '.fname.' ' : '| [No Name] ') .
-        \ (&modified ? '+' : '')
+        \ ('' !=? fname ? '| '.fname : '| [No Name]') .
+        \ (&modified ? ' +' : '')
 endfunction
 
 " file size
