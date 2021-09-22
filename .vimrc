@@ -1008,12 +1008,12 @@ noremap <silent> <space>] :vertical resize +2<cr>
 noremap <silent> <space>/ :wincmd =<cr>
 
 " Move lines up or down
-nnoremap <up>   :m-2<cr>==
-nnoremap <down> :m+1<cr>==
-vnoremap <up>   :m '<-2<cr>gv=gv
-vnoremap <down> :m '>+1<cr>gv=gv
-" inoremap <up>   <esc>:m-2<cr>==gi
-" inoremap <down> <esc>:m+1<cr>==gi
+nnoremap <silent> <up>   :m-2<cr>==
+nnoremap <silent> <down> :m+1<cr>==
+vnoremap <silent> <up>   :m '<-2<cr>gv=gv
+vnoremap <silent> <down> :m '>+1<cr>gv=gv
+" inoremap  <silent> <up>   <esc>:m-2<cr>==gi
+" inoremap  <silent> <down> <esc>:m+1<cr>==gi
 
 " Correct vim exit command
 cnoreabbrev Wq      wq

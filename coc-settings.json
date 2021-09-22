@@ -26,8 +26,6 @@
     "suggest.minTriggerInputLength": 2,
     "suggest.noselect": false,
 
-    "http.proxy": "http://127.0.0.1:7890",
-
     "html.format.enable": false,
     "html.autoClosingTags": true,
 
