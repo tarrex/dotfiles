@@ -239,18 +239,19 @@ endfunction
 function! Statusline() abort
     if &previewwindow | return | endif
     let line  = ''
-    let line .= ' %{g:currentmode[mode()]} '         " buffer mode
-    let line .= '%{&paste!=#"paste"? "| paste ":""}' " paste state
-    let line .= '| %n '                              " buffer number
-    let line .= '%{&ro!=#""?"| RO ":""}'             " read only flag
-    let line .= '%{FileName()}'                      " tail of filename
-    let line .= ' %= '                               " separator
-    let line .= '%{FileSize()}'                      " file size
-    let line .= '%{FileFormat()}'                    " file format
-    let line .= '%{FileEncoding()}'                  " file encoding
-    let line .= '%{FileType()}'                      " filetype
-    let line .= '%3p%% | '                           " percent through file
-    let line .= '%3l:%-2v '                          " cursor column
+    let line .= ' %{g:currentmode[mode()]} '        " buffer mode
+    let line .= '%{&paste!=#"paste"?"| paste ":""}' " paste state
+    let line .= '%{&spell?"| ".&spelllang." ":""}'  " spell state
+    let line .= '| %n '                             " buffer number
+    let line .= '%{&ro!=#""?"| RO ":""}'            " read only flag
+    let line .= '%{FileName()}'                     " tail of filename
+    let line .= ' %= '                              " separator
+    let line .= '%{FileSize()}'                     " file size
+    let line .= '%{FileFormat()}'                   " file format
+    let line .= '%{FileEncoding()}'                 " file encoding
+    let line .= '%{FileType()}'                     " file type
+    let line .= '%3p%% | '                          " percent through file
+    let line .= '%3l:%-2v '                         " cursor column
     return line
 endfunction
 
@@ -625,6 +626,14 @@ noremap <silent> <space>= :resize +2<cr>
 noremap <silent> <space>[ :vertical resize -2<cr>
 noremap <silent> <space>] :vertical resize +2<cr>
 noremap <silent> <space>/ :wincmd =<cr>
+
+" Move lines up or down
+nnoremap <up>   :m-2<cr>==
+nnoremap <down> :m+1<cr>==
+vnoremap <up>   :m '<-2<cr>gv=gv
+vnoremap <down> :m '>+1<cr>gv=gv
+" inoremap <up>   <esc>:m-2<cr>==gi
+" inoremap <down> <esc>:m+1<cr>==gi
 
 " Correct vim exit command
 cnoreabbrev Wq      wq

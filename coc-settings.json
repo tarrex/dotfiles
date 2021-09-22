@@ -2,11 +2,11 @@
     "coc.preferences.enableMarkdown": true,
     "coc.preferences.extensionUpdateCheck": "never",
     "coc.preferences.rootPatterns": [
-        ".root",
-        ".git",
-        ".svn",
-        ".hg",
-        ".project",
+        ".root/",
+        ".git/",
+        ".svn/",
+        ".hg/",
+        ".project/",
         "Cargo.toml",
         "go.mod",
         "Makefile",
@@ -28,33 +28,37 @@
 
     "http.proxy": "http://127.0.0.1:7890",
 
+    "html.format.enable": false,
     "html.autoClosingTags": true,
 
-    "yaml.format.enable": true,
-    "yaml.format.singleQuote": true,
+    "yaml.format.enable": false,
+    "yaml.schemaStore.enable": true,
     "yaml.schemas": {
-        "kubernetes": "/*.y?(a)ml"
+        "kubernetes": "/*.yaml",
+        "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
+        "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
+        "https://json.schemastore.org/github-workflow.json": "/.github/workflow/*.y?(a)ml"
     },
-
-    "toml.formatter.reorderKeys": false,
-
-    "rust-analyzer.diagnostics.enable": false,
-    "rust-analyzer.notifications.cargoTomlNotFound": false,
-    "rust-analyzer.checkOnSave.enable": false,
-    "rust-analyzer.lens.enable": false,
-
-    "clangd.semanticHighlighting": true,
-    "clangd.arguments": ["--background-index"],
 
     "languageserver": {
         "golang": {
             "command": "gopls",
             "filetypes": ["go"],
-            "rootPatterns": ["go.mod", ".git", "Makefile"],
+            "rootPatterns": [".git/", "go.mod", "Makefile"],
             "initializationOptions": {
                 "usePlaceholders": false,
                 "completeUnimported": true
             }
+        },
+        "rust": {
+            "command": "rust-analyzer",
+            "filetypes": ["rust"],
+            "rootPatterns": [".git/", "Cargo.toml"]
+        },
+        "clangd": {
+            "command": "clangd",
+            "rootPatterns": [".git/"],
+            "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
         }
     }
 }

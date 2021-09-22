@@ -255,7 +255,7 @@ if s:has_plug('lightline.vim')
         \ },
         \ 'colorscheme': 'solarized',
         \ 'active': {
-        \   'left': [[ 'mode', 'paste' ],
+        \   'left': [[ 'mode', 'paste', 'spell' ],
         \           [ 'bufnum' ],
         \           [ 'readonly', 'filename' ]],
         \   'right': [[ 'lineinfo' ],
@@ -496,10 +496,8 @@ endif
 
 " ----> neoclide/coc.nvim
 if s:has_plug('coc.nvim')
-    if &backup || &writebackup
-        set nobackup
-        set nowritebackup
-    endif
+    if &backup | set nobackup | endif
+    if &writebackup | set nowritebackup | endif
     let g:coc_disable_startup_warning = 1
     let g:coc_global_extensions       = [
         \ 'coc-word',
@@ -508,11 +506,8 @@ if s:has_plug('coc.nvim')
         \ 'coc-css',
         \ 'coc-json',
         \ 'coc-yaml',
-        \ 'coc-toml',
         \ 'coc-tsserver',
         \ 'coc-pyright',
-        \ 'coc-rust-analyzer',
-        \ 'coc-clangd',
         \ 'coc-vimlsp',
         \ 'coc-translator'
     \]
@@ -538,10 +533,10 @@ if s:has_plug('coc.nvim')
         inoremap <silent><expr> <c-@> coc#refresh()
     endif
 
-    " Make <CR> auto-select the first completion item and notify coc.nvim to
+    " Make <cr> auto-select the first completion item and notify coc.nvim to
     " format on enter, <cr> could be remapped by other vim plugin
     inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                                  \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+                                  \: "\<c-g>u\<cr>\<c-r>=coc#on_enter()\<cr>"
 
     " Use `[g` and `]g` to navigate diagnostics
     " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -555,7 +550,7 @@ if s:has_plug('coc.nvim')
     nmap <silent> gr <Plug>(coc-references)
 
     " Use K to show documentation in preview window.
-    nnoremap <silent> K :call <SID>show_documentation()<CR>
+    nnoremap <silent> K :call <SID>show_documentation()<cr>
 
     function! s:show_documentation()
         if (index(['vim','help'], &filetype) >= 0)
@@ -571,11 +566,10 @@ if s:has_plug('coc.nvim')
         autocmd!
         " Highlight the symbol and its references when holding the cursor.
         autocmd CursorHold * silent call CocActionAsync('highlight')
-        " Setup formatexpr specified filetype(s).
-        autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-        autocmd FileType scss setl iskeyword+=@-@
         " Update signature help on jump placeholder.
         autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+        " Options for coc-css
+        autocmd FileType scss setl iskeyword+=@-@
     augroup END
 
     nnoremap <coc> <Nop>
@@ -608,14 +602,14 @@ if s:has_plug('coc.nvim')
     xmap <coc>ac <Plug>(coc-classobj-a)
     omap <coc>ac <Plug>(coc-classobj-a)
 
-    " Remap <C-f> and <C-b> for scroll float windows/popups.
+    " Remap <c-f> and <c-b> for scroll float windows/popups.
     if has('patch-8.2.0750') || has('nvim-0.4.0')
-        nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-        nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-        inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-        inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-        vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-        vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+        nnoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<c-f>"
+        nnoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<c-b>"
+        inoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+        inoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+        vnoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<c-f>"
+        vnoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<c-b>"
     endif
 
     " Requires 'textDocument/selectionRange' support of language server.
@@ -631,22 +625,22 @@ if s:has_plug('coc.nvim')
 
     " Mappings for CoCList
     " Show all diagnostics.
-    nnoremap <silent><nowait> <coc>d :<C-u>CocDiagnostics<cr>
-    nnoremap <silent><nowait> <coc>D :<C-u>CocList diagnostics<cr>
+    nnoremap <silent><nowait> <coc>d :<c-u>CocDiagnostics<cr>
+    nnoremap <silent><nowait> <coc>D :<c-u>CocList diagnostics<cr>
     " Manage extensions.
-    nnoremap <silent><nowait> <coc>e :<C-u>CocList extensions<cr>
+    nnoremap <silent><nowait> <coc>e :<c-u>CocList extensions<cr>
     " Show commands.
-    nnoremap <silent><nowait> <coc>c :<C-u>CocList commands<cr>
+    nnoremap <silent><nowait> <coc>c :<c-u>CocList commands<cr>
     " Find symbol of current document.
-    nnoremap <silent><nowait> <coc>o :<C-u>CocList outline<cr>
+    nnoremap <silent><nowait> <coc>o :<c-u>CocList outline<cr>
     " Search workspace symbols.
-    nnoremap <silent><nowait> <coc>s :<C-u>CocList -I symbols<cr>
+    nnoremap <silent><nowait> <coc>s :<c-u>CocList -I symbols<cr>
     " Do default action for next item.
-    nnoremap <silent><nowait> <coc>j :<C-u>CocNext<CR>
+    nnoremap <silent><nowait> <coc>j :<c-u>CocNext<cr>
     " Do default action for previous item.
-    nnoremap <silent><nowait> <coc>k :<C-u>CocPrev<CR>
+    nnoremap <silent><nowait> <coc>k :<c-u>CocPrev<cr>
     " Resume latest coc list.
-    nnoremap <silent><nowait> <coc>p :<C-u>CocListResume<CR>
+    nnoremap <silent><nowait> <coc>p :<c-u>CocListResume<cr>
 
     function! s:coc_uninstall_all() abort
         for e in g:coc_global_extensions
@@ -718,7 +712,12 @@ if s:has_plug('ale')
         \ 'sh':         ['shfmt']
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
-    let g:ale_javascript_prettier_options = '--print-width 120 --tab-width 4 --single-quote true --trailing-comma all --bracket-same-line'
+    let s:ale_prettier_common_options     = '--print-width 120 --single-quote true --trailing-comma all --bracket-same-line'
+    let g:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
+    augroup PrettierForFileTypes
+        autocmd!
+        autocmd FileType yaml let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
+    augroup END
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
     let g:ale_lint_on_text_changed        = 0
@@ -743,6 +742,7 @@ if s:has_plug('ale')
         \ 'graphql':    ['eslint'],
         \ 'sh':         ['shell']
     \ }
+    let g:ale_go_golangci_lint_options    = ''
 
     nmap <silent> [a <Plug>(ale_previous)
     nmap <silent> ]a <Plug>(ale_next)
@@ -1006,6 +1006,14 @@ noremap <silent> <space>= :resize +2<cr>
 noremap <silent> <space>[ :vertical resize -2<cr>
 noremap <silent> <space>] :vertical resize +2<cr>
 noremap <silent> <space>/ :wincmd =<cr>
+
+" Move lines up or down
+nnoremap <up>   :m-2<cr>==
+nnoremap <down> :m+1<cr>==
+vnoremap <up>   :m '<-2<cr>gv=gv
+vnoremap <down> :m '>+1<cr>gv=gv
+" inoremap <up>   <esc>:m-2<cr>==gi
+" inoremap <down> <esc>:m+1<cr>==gi
 
 " Correct vim exit command
 cnoreabbrev Wq      wq
