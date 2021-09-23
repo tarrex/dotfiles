@@ -716,7 +716,7 @@ if s:has_plug('ale')
     let g:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
     augroup PrettierForFileTypes
         autocmd!
-        autocmd FileType yaml let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
+        autocmd FileType html,css,scss,sass,yaml let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
     augroup END
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
@@ -946,17 +946,21 @@ if has('terminal')
     tnoremap <silent> <c-q> <c-_>:q!<cr>
 endif
 
-" Vmap for maintain Visual Mode after shifting > and <
-vmap < <gv
-vmap > >gv
-
 " Search will center on the line it's found in
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
-" Move visual block
-vnoremap J :m '>+1<cr>gv=gv
-vnoremap K :m '<-2<cr>gv=gv
+" Move lines left or right
+nnoremap < <<
+nnoremap > >>
+vnoremap < <gv
+vnoremap > >gv
+
+" Move lines up or down
+nnoremap <silent> <up>   :m-2<cr>==
+nnoremap <silent> <down> :m+1<cr>==
+vnoremap <silent> <up>   :m '<-2<cr>gv=gv
+vnoremap <silent> <down> :m '>+1<cr>gv=gv
 
 " Search in selected visual block
 vnoremap / :<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<cr>
@@ -1006,14 +1010,6 @@ noremap <silent> <space>= :resize +2<cr>
 noremap <silent> <space>[ :vertical resize -2<cr>
 noremap <silent> <space>] :vertical resize +2<cr>
 noremap <silent> <space>/ :wincmd =<cr>
-
-" Move lines up or down
-nnoremap <silent> <up>   :m-2<cr>==
-nnoremap <silent> <down> :m+1<cr>==
-vnoremap <silent> <up>   :m '<-2<cr>gv=gv
-vnoremap <silent> <down> :m '>+1<cr>gv=gv
-" inoremap  <silent> <up>   <esc>:m-2<cr>==gi
-" inoremap  <silent> <down> <esc>:m+1<cr>==gi
 
 " Correct vim exit command
 cnoreabbrev Wq      wq
