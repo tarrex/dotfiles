@@ -39,11 +39,15 @@ set laststatus=2                        " show status line
 set display=lastline                    " as much as possible of the last line in a window will be displayed
 if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't show cursorline and cursorcolumn
     set cursorline                      " show underline for the cursor's line
-    silent! set cursorlineopt=number    " highlight the line number of the cursor if could
+    if has('patch-8.1.2019')
+        set cursorlineopt=number        " highlight the line number of the cursor if could
+    endif
 endif
-silent! set signcolumn=number           " display signs in the 'number' column if could else 'auto'
+if has('patch-8.1.1564')
+    set signcolumn=number               " display signs in the 'number' column if could else 'auto'
+endif
 set background=dark                     " try to use colors that look good on a dark background
-silent! set termguicolors               " enable GUI colors for the terminal to get truecolor
+set termguicolors                       " enable GUI colors for the terminal to get truecolor
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
@@ -69,7 +73,7 @@ endif
 set encoding=utf-8                      " the character encoding used inside vim
 set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,latin1 " list of character encodings considered when starting to edit an existing file
 set fileformats=unix,dos,mac            " gives the <eol> formats of editing a new buffer or reading a file
-silent! set termencoding=utf-8          " encoding used for the terminal
+set termencoding=utf-8                  " encoding used for the terminal
 
 set autoread                            " auto load the file when changed outside vim
 set autowrite                           " auto write file when building or switching
@@ -82,12 +86,16 @@ set splitbelow                          " horizontally split below
 set splitright                          " vertically split to the right
 set ttyfast                             " indicates a fast terminal connection
 set mouse=a                             " enable the mouse in all five modes
-set ttymouse=sgr                        " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
-set clipboard=autoselect,exclude:.*     " enable clipboard with system
+if !has('nvim')
+    set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
+    set clipboard=autoselect,exclude:.* " enable clipboard with system
+endif
 set scrolloff=1                         " minimal number of screen lines to keep above and below the cursor
 set sidescroll=5                        " minimal number of columns to scroll horizontally
 set sidescrolloff=1                     " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
-silent! set termwinkey=<c-_>            " the key that starts a CTRL-_ command in a terminal window
+if !has('nvim')
+    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
+endif
 
 set history=1000                        " set how many lines of command history vim has to remember
 set timeout                             " timeout for mappings
@@ -101,15 +109,17 @@ set commentstring=                      " clear default comment template
 set include=                            " don't assume I'm editing C; let the filetype set this
 set complete+=k                         " scan the files given with the 'dictionary' option
 set completeopt=menu,menuone,noinsert   " use a popup menu to show the possible completions even if there is only one match
-silent! set completeopt+=noselect       " only insert the longest common text of the matches
-silent! set completeopt+=popup          " add popup option for insert mode completion if could
-silent! set completepopup=border:off    " used for the properties of the info popup when it is created
+set completeopt+=noselect               " only insert the longest common text of the matches
+if has('patch-8.1.1882')
+    set completeopt+=popup              " add popup option for insert mode completion if could
+    set completepopup=border:off        " used for the properties of the info popup when it is created
+endif
 set diffopt+=context:3                  " only 3 lines of context above/below a changed line (instead of 6)
 set diffopt+=vertical                   " start diff mode with vertical splits (unless explicitly specified otherwise)
 set diffopt+=foldcolumn:1               " use only 1 column for the foldcolumn, instead of 2 (vertical space is precious)
-silent! set diffopt+=hiddenoff          " turn off diff mode automatically for a buffer which becomes hidden
-silent! set diffopt+=indent-heuristic   " use the indent heuristic for the internal diff library
-silent! set diffopt+=algorithm:patience " use the `patience` diff algorithm
+set diffopt+=hiddenoff                  " turn off diff mode automatically for a buffer which becomes hidden
+set diffopt+=indent-heuristic           " use the indent heuristic for the internal diff library
+set diffopt+=algorithm:patience         " use the `patience` diff algorithm
 set formatoptions+=m                    " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                    " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                    " remove a comment leader when joining lines
@@ -117,12 +127,14 @@ set nrformats-=octal                    " treat numbers with a leading zero as d
 set shortmess+=a                        " enable all sort of abbreviations
 set shortmess+=c                        " don't give ins-completion-menu messages
 set shortmess-=S                        " helps to avoid all the hit-enter prompts caused by file messages
-silent! set spelloptions=camel          " when a word is CamelCased, assume "Cased" is a separate word
+if has('patch-8.2.0953')
+    set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
+endif
 set fillchars=vert:┃                    " vertical separators
 set listchars=eol:¬                     " end of line
 set listchars+=extends:»                " unwrapped text to screen right
 set listchars+=precedes:«               " unwrapped text to screen left
-silent! set listchars+=tab:<->          " tab characters, preserve width
+set listchars+=tab:<->                  " tab characters, preserve width
 set listchars+=nbsp:∅                   " non-breaking spaces
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                   " allow virtual editing in Visual block mode
@@ -146,7 +158,11 @@ if !isdirectory(&backupdir)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-let &undodir = s:vimdir . '/tmp/undo'
+if has('nvim')
+    let &undodir = s:vimdir . '/tmp/nundo'
+else
+    let &undodir = s:vimdir . '/tmp/undo'
+endif
 if !isdirectory(&undodir)
     silent call mkdir(&undodir, 'p', 0700)
 endif
@@ -660,7 +676,7 @@ augroup END
 augroup VimTricks
     autocmd!
     " trim trailing whitespace on write
-    autocmd BufWritePre * if !&bin | sil exe 'normal mz' | sil %s/\v\s+$//ge | sil exe 'normal `z' | endif
+    autocmd BufWritePre * if !&bin | sil exe 'normal mz' | %s/\v\s+$//ge | sil exe 'normal `z' | endif
     " remember cursor position
     autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | sil exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
@@ -668,7 +684,9 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
+    if !has('nvim')
+        autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
+    endif
 augroup END
 
 " ----> Commands
