@@ -3,12 +3,11 @@
 
 " ============> Prepare <============
 " environment
-let s:env          = {}
-let s:env.windows  = has('win64') || has('win32')
-let s:env.cygwin   = has('win32unix')
-let s:env.mac      = has('unix') && has('mac') || has('macunix')
-let s:env.linux    = has('unix') && has('linux')
-let s:env.unix     = has('unix') && !s:env.mac && !s:env.linux
+let s:env         = {}
+let s:env.windows = has('win32') || has('win64')
+let s:env.cygwin  = has('win32unix')
+let s:env.mac     = has('mac') || has('macunix')
+let s:env.linux   = has('linux')
 
 if s:env.windows
     let s:vimdir = $HOME . '/vimfiles'
@@ -17,10 +16,10 @@ else
 endif
 
 " dependency
-let s:dep       = {}
-let s:dep.rg    = executable('rg')
-let s:dep.curl  = executable('curl')
-let s:dep.node  = executable('yarn') || executable('npm')
+let s:dep      = {}
+let s:dep.rg   = executable('rg')
+let s:dep.curl = executable('curl')
+let s:dep.node = executable('yarn') || executable('npm')
 
 " ============> General <============
 if &compatible
@@ -1173,22 +1172,6 @@ if has('reltime')
                             \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
     augroup END
 endif
-
-" ----> Open URL under cursor
-function! OpenURLUnderCursor() abort
-    let s:uri = expand('<cword>')
-    let s:uri = substitute(s:uri, '?', '\\?', '')
-    let s:uri = shellescape(s:uri, 1)
-    if s:uri != ''
-        if s:env.mac
-            silent exec "!open '".s:uri."'"
-        elseif s:env.linux
-            silent exec "!xdg-open '".s:uri."'"
-        endif
-        :redraw!
-    endif
-endfunction
-nnoremap <silent> gu :call OpenURLUnderCursor()<cr>
 
 " ---> Generate security strings
 function! GenUUID() abort
