@@ -1,6 +1,6 @@
 {
     "coc.preferences.enableMarkdown": true,
-    "coc.preferences.extensionUpdateCheck": "never",
+    "coc.preferences.extensionUpdateCheck": "weekly",
     "coc.preferences.rootPatterns": [
         ".root/",
         ".git/",
@@ -13,7 +13,6 @@
         "tsconfig.js",
         "jsconfig.js"
     ],
-    "coc.preferences.snippets.enable": false,
 
     "diagnostic.enable": false,
     "diagnostic.displayByAle": true,

@@ -726,14 +726,15 @@ if s:has_plug('ale')
         \ 'json':       ['prettier'],
         \ 'yaml':       ['prettier'],
         \ 'graphql':    ['prettier'],
-        \ 'sh':         ['shfmt']
+        \ 'sh':         ['shfmt'],
+        \ 'markdown':   ['prettier']
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
     let s:ale_prettier_common_options     = '--print-width 120 --single-quote true --trailing-comma all --bracket-same-line'
     let g:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
     augroup PrettierForFileTypes
         autocmd!
-        autocmd FileType html,css,scss,sass,yaml let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
+        autocmd FileType html,css,scss,sass,yaml,markdown let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
     augroup END
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
@@ -757,7 +758,9 @@ if s:has_plug('ale')
         \ 'json':       ['prettier'],
         \ 'yaml':       ['yamllint'],
         \ 'graphql':    ['eslint'],
-        \ 'sh':         ['shell']
+        \ 'sh':         ['shell'],
+        \ 'markdown':   ['languagetool'],
+        \ 'text':       ['languagetool']
     \ }
     let g:ale_go_golangci_lint_options    = ''
 
@@ -945,21 +948,21 @@ nnoremap <silent> [<c-t> :ptprevious<cr>
 nnoremap <silent> ]<c-t> :ptnext<cr>
 
 " Window switching in normal mode
-nnoremap <c-H> <c-w>h
-nnoremap <c-J> <c-w>j
-nnoremap <c-K> <c-w>k
-nnoremap <c-L> <c-w>l
-inoremap <c-H> <esc><c-w>h
-inoremap <c-J> <esc><c-w>j
-inoremap <c-K> <esc><c-w>k
-inoremap <c-L> <esc><c-w>l
+nnoremap <c-h> <c-w>h
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-l> <c-w>l
+inoremap <c-h> <esc><c-w>h
+inoremap <c-j> <esc><c-w>j
+inoremap <c-k> <esc><c-w>k
+inoremap <c-l> <esc><c-w>l
 
 " Window switching in terminal mode
 if has('terminal')
-    tnoremap <c-H> <c-_>h
-    tnoremap <c-J> <c-_>j
-    tnoremap <c-K> <c-_>k
-    tnoremap <c-L> <c-_>l
+    tnoremap <c-h> <c-_>h
+    tnoremap <c-j> <c-_>j
+    tnoremap <c-k> <c-_>k
+    tnoremap <c-l> <c-_>l
     tnoremap <silent> <c-q> <c-_>:q!<cr>
 endif
 
@@ -974,8 +977,8 @@ vnoremap < <gv
 vnoremap > >gv
 
 " Move lines up or down
-nnoremap <silent> <up>   :m-2<cr>==
-nnoremap <silent> <down> :m+1<cr>==
+" nnoremap <silent> <up>   :m-2<cr>==
+" nnoremap <silent> <down> :m+1<cr>==
 vnoremap <silent> <up>   :m '<-2<cr>gv=gv
 vnoremap <silent> <down> :m '>+1<cr>gv=gv
 
@@ -999,7 +1002,7 @@ nnoremap <leader>cd :<c-u>lcd %:p:h<cr>:pwd<cr>
 nnoremap <silent> <space>n :nohlsearch<cr>
 
 " Open terminal on the right
-nnoremap <silent> <space>t :terminal<cr><c-w>L
+nnoremap <silent> <space>t :terminal<cr>
 
 " Hex read
 nnoremap <silent> <space>hr :%!xxd<cr> :set filetype=xxd<cr>
