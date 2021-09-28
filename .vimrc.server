@@ -2,22 +2,15 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
-" environment
-let s:env         = {}
-let s:env.windows = has('win32') || has('win64')
-let s:env.cygwin  = has('win32unix')
-let s:env.mac     = has('mac') || has('macunix')
-let s:env.linux   = has('linux')
+let s:env       = {}
+let s:env.mac   = has('mac') || has('macunix')
+let s:env.linux = has('linux')
 
-if s:env.windows
-    let s:vimdir = $HOME . '/vimfiles'
-else
-    let s:vimdir = $HOME . '/.vim'
-endif
-
-" dependency
 let s:dep    = {}
 let s:dep.rg = executable('rg')
+
+let s:nvim   = has('nvim')
+let s:vimdir = $HOME . '/.vim'
 
 " ============> General <============
 if &compatible
@@ -47,6 +40,7 @@ if has('patch-8.1.1564')
 endif
 set background=dark                     " try to use colors that look good on a dark background
 set termguicolors                       " enable GUI colors for the terminal to get truecolor
+set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
@@ -85,16 +79,16 @@ set splitbelow                          " horizontally split below
 set splitright                          " vertically split to the right
 set ttyfast                             " indicates a fast terminal connection
 set mouse=a                             " enable the mouse in all five modes
-if !has('nvim')
+if !s:nvim
     set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
-    set clipboard=autoselect,exclude:.* " enable clipboard with system
+    " set clipboard=autoselect,exclude:.* " enable clipboard with system
+    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
+    set t_ut=                           " clearing uses the current background color
+    set ttyscroll=3                     " maximum number of lines to scroll the screen
 endif
 set scrolloff=1                         " minimal number of screen lines to keep above and below the cursor
 set sidescroll=5                        " minimal number of columns to scroll horizontally
 set sidescrolloff=1                     " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
-if !has('nvim')
-    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
-endif
 
 set history=1000                        " set how many lines of command history vim has to remember
 set timeout                             " timeout for mappings
@@ -157,7 +151,7 @@ if !isdirectory(&backupdir)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-if has('nvim')
+if s:nvim
     let &undodir = s:vimdir . '/tmp/nundo'
 else
     let &undodir = s:vimdir . '/tmp/undo'
@@ -166,7 +160,7 @@ if !isdirectory(&undodir)
     silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
-if has('nvim')
+if s:nvim
     let &viminfo.=',n' . s:vimdir . '/nviminfo'
 else
     let &viminfo.=',n' . s:vimdir . '/viminfo'
@@ -271,16 +265,6 @@ function! Statusline() abort
 endfunction
 
 let &statusline = Statusline()
-
-" ----> Insert pairs
-inoremap <c-x>( ()<esc>i
-inoremap <c-x>[ []<esc>i
-inoremap <c-x>' ''<esc>i
-inoremap <c-x>" ""<esc>i
-inoremap <c-x>< <><esc>i
-inoremap <c-x>` ``<esc>i
-inoremap <c-x>$ $$<esc>i
-inoremap <c-x>{ {<esc>o}<esc>ko
 
 " ----> Grep
 function! Grep(...)
@@ -515,6 +499,17 @@ silent! colorscheme desert
 let g:mapleader      = ','              " set vim map leader, <leader>
 let g:maplocalleader = '\'              " set vim local map leader, <localleader>
 
+" Clipboard
+if s:env.mac
+    set clipboard=unnamed
+    noremap <leader>y "*y
+    noremap <leader>p "*p
+elseif s:env.linux
+    set clipboard=unnamedplus
+    noremap <leader>y "+y
+    noremap <leader>p "+p
+endif
+
 " Toggle number,paste,cuc,list,wrap,spell and so on.
 nnoremap <silent> <localleader>n :setl number! nu?<cr>
 nnoremap <silent> <localleader>r :setl relativenumber! rnu?<cr>
@@ -567,10 +562,6 @@ nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
-inoremap <c-h> <esc><c-w>h
-inoremap <c-j> <esc><c-w>j
-inoremap <c-k> <esc><c-w>k
-inoremap <c-l> <esc><c-w>l
 
 " Window switching in terminal mode
 if has('terminal')
@@ -581,9 +572,9 @@ if has('terminal')
     tnoremap <silent> <c-q> <c-_>:q!<cr>
 endif
 
-" Search will center on the line it's found in
-nnoremap n nzzzv
-nnoremap N Nzzzv
+" Search will center on the line it's found in, conflict with shortmess-=S option
+" nnoremap n nzzzv
+" nnoremap N Nzzzv
 
 " Move lines left or right
 nnoremap < <<
@@ -683,7 +674,7 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    if !has('nvim')
+    if !s:nvim
         autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
     endif
 augroup END
@@ -768,10 +759,7 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if s:env.windows
-    nnoremap <leader>e :!start explorer /e,%:p:h \| redraw!<cr>
-    nnoremap <leader>E :execute "!start explorer /e," . shellescape(getcwd(),1) \| redraw!<cr>
-elseif s:env.mac
+if s:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
 elseif s:env.linux

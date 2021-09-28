@@ -2,24 +2,17 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
-" environment
-let s:env         = {}
-let s:env.windows = has('win32') || has('win64')
-let s:env.cygwin  = has('win32unix')
-let s:env.mac     = has('mac') || has('macunix')
-let s:env.linux   = has('linux')
+let s:env       = {}
+let s:env.mac   = has('mac') || has('macunix')
+let s:env.linux = has('linux')
 
-if s:env.windows
-    let s:vimdir = $HOME . '/vimfiles'
-else
-    let s:vimdir = $HOME . '/.vim'
-endif
-
-" dependency
 let s:dep      = {}
 let s:dep.rg   = executable('rg')
 let s:dep.curl = executable('curl')
 let s:dep.node = executable('yarn') || executable('npm')
+
+let s:nvim   = has('nvim')
+let s:vimdir = $HOME . '/.vim'
 
 " ============> General <============
 if &compatible
@@ -49,6 +42,7 @@ if has('patch-8.1.1564')
 endif
 set background=dark                     " try to use colors that look good on a dark background
 set termguicolors                       " enable GUI colors for the terminal to get truecolor
+set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
@@ -87,16 +81,16 @@ set splitbelow                          " horizontally split below
 set splitright                          " vertically split to the right
 set ttyfast                             " indicates a fast terminal connection
 set mouse=a                             " enable the mouse in all five modes
-if !has('nvim')
+if !s:nvim
     set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
-    set clipboard=autoselect,exclude:.* " enable clipboard with system
+    " set clipboard=autoselect,exclude:.* " enable clipboard with system
+    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
+    set t_ut=                           " clearing uses the current background color
+    set ttyscroll=3                     " maximum number of lines to scroll the screen
 endif
 set scrolloff=1                         " minimal number of screen lines to keep above and below the cursor
 set sidescroll=5                        " minimal number of columns to scroll horizontally
 set sidescrolloff=1                     " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
-if !has('nvim')
-    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
-endif
 
 set history=1000                        " set how many lines of command history vim has to remember
 set timeout                             " timeout for mappings
@@ -159,7 +153,7 @@ if !isdirectory(&backupdir)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-if has('nvim')
+if s:nvim
     let &undodir = s:vimdir . '/tmp/nundo'
 else
     let &undodir = s:vimdir . '/tmp/undo'
@@ -168,7 +162,7 @@ if !isdirectory(&undodir)
     silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
-if has('nvim')
+if s:nvim
     let &viminfo.=',n' . s:vimdir . '/nviminfo'
 else
     let &viminfo.=',n' . s:vimdir . '/viminfo'
@@ -422,7 +416,7 @@ if s:has_plug('vista.vim')
     let g:vista_sidebar_width            = 30
     let g:vista_echo_cursor              = 1
     let g:vista_cursor_delay             = 400
-    if has('patch-8.2.0750') || has('nvim-0.4.0')
+    if has('patch-8.2.0750') || s:nvim
         let g:vista_echo_cursor_strategy = 'floating_win'
     else
         let g:vista_echo_cursor_strategy = 'echo'
@@ -543,7 +537,7 @@ if s:has_plug('coc.nvim')
     endfunction
 
     " Use <c-space> to trigger completion.
-    if has('nvim')
+    if s:nvim
         inoremap <silent><expr> <c-space> coc#refresh()
     else
         inoremap <silent><expr> <c-@> coc#refresh()
@@ -619,7 +613,7 @@ if s:has_plug('coc.nvim')
     omap <coc>ac <Plug>(coc-classobj-a)
 
     " Remap <c-f> and <c-b> for scroll float windows/popups.
-    if has('patch-8.2.0750') || has('nvim-0.4.0')
+    if has('patch-8.2.0750') || s:nvim
         nnoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<c-f>"
         nnoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<c-b>"
         inoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
@@ -681,6 +675,7 @@ endif
 
 " ----> sirver/ultisnips
 if s:has_plug('ultisnips')
+    let g:UltiSnipsEnableSnipMate     = 0
     let g:UltiSnipsExpandTrigger      = '<nop>'
     let g:UltiSnipsJumpForwardTrigger = '<tab>'
 endif
@@ -782,7 +777,7 @@ if s:has_plug('vim-go')
     let g:go_imports_autosave              = 0
     let g:go_mod_fmt_autosave              = 0
     let g:go_doc_keywordprg_enabled        = 0
-    if has('patch-8.2.0012') || has('nvim')
+    if has('patch-8.2.0012') || s:nvim
         let g:go_doc_popup_window          = 1
     endif
     let g:go_def_mapping_enabled           = 0
@@ -843,31 +838,31 @@ if s:has_plug('rust.vim')
 endif
 
 " ----> ycm-core/youcompleteme
-if isdirectory(s:vimdir . '/youcompleteme') && 0 " disabled
-    set rtp+=~/.vim/youcompleteme
-    let g:ycm_add_preview_to_completeopt                    = 0
-    let g:ycm_show_diagnostics_ui                           = 0
-    let g:ycm_server_log_level                              = 'info'
-    let g:ycm_min_num_identifier_candidate_chars            = 2
-    let g:ycm_collect_identifiers_from_comments_and_strings = 1
-    let g:ycm_complete_in_strings                           = 1
-    let g:ycm_key_invoke_completion                         = '<c-z>'
-    let g:ycm_disable_signature_help                        = 1
-    let g:ycm_auto_hover                                    = ''
-
-    if exists('+completepopup')
-        set completepopup=align:menu,border:off,highlight:WildMenu
-        set completepopup=align:menu,border:off,highlight:QuickPreview
-        set completeopt+=popup
-    endif
-
-    let g:ycm_semantic_triggers =  {
-        \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-        \ 'cs,lua,javascript': ['re!\w{2}'],
-    \ }
-    let g:ycm_goto_buffer_command = 'new-or-existing-tab'
-    nmap <leader>D <plug>(YCMHover)
-endif
+" if isdirectory(s:vimdir . '/youcompleteme')
+"     set rtp+=~/.vim/youcompleteme
+"     let g:ycm_add_preview_to_completeopt                    = 0
+"     let g:ycm_show_diagnostics_ui                           = 0
+"     let g:ycm_server_log_level                              = 'info'
+"     let g:ycm_min_num_identifier_candidate_chars            = 2
+"     let g:ycm_collect_identifiers_from_comments_and_strings = 1
+"     let g:ycm_complete_in_strings                           = 1
+"     let g:ycm_key_invoke_completion                         = '<c-z>'
+"     let g:ycm_disable_signature_help                        = 1
+"     let g:ycm_auto_hover                                    = ''
+"
+"     if exists('+completepopup')
+"         set completepopup=align:menu,border:off,highlight:WildMenu
+"         set completepopup=align:menu,border:off,highlight:QuickPreview
+"         set completeopt+=popup
+"     endif
+"
+"     let g:ycm_semantic_triggers =  {
+"         \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
+"         \ 'cs,lua,javascript': ['re!\w{2}'],
+"     \ }
+"     let g:ycm_goto_buffer_command = 'new-or-existing-tab'
+"     nmap <leader>D <plug>(YCMHover)
+" endif
 
 " ============> Custom <============
 " ----> Highlights
@@ -898,6 +893,17 @@ silent! colorscheme night-owl
 " ----> Key maps
 let g:mapleader      = ','              " set vim map leader, <leader>
 let g:maplocalleader = '\'              " set vim local map leader, <localleader>
+
+" Clipboard
+if s:env.mac
+    set clipboard=unnamed
+    noremap <leader>y "*y
+    noremap <leader>p "*p
+elseif s:env.linux
+    set clipboard=unnamedplus
+    noremap <leader>y "+y
+    noremap <leader>p "+p
+endif
 
 " Toggle number,paste,cuc,list,wrap,spell and so on.
 nnoremap <silent> <localleader>n :setl number! nu?<cr>
@@ -951,10 +957,6 @@ nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
-inoremap <c-h> <esc><c-w>h
-inoremap <c-j> <esc><c-w>j
-inoremap <c-k> <esc><c-w>k
-inoremap <c-l> <esc><c-w>l
 
 " Window switching in terminal mode
 if has('terminal')
@@ -965,9 +967,9 @@ if has('terminal')
     tnoremap <silent> <c-q> <c-_>:q!<cr>
 endif
 
-" Search will center on the line it's found in
-nnoremap n nzzzv
-nnoremap N Nzzzv
+" Search will center on the line it's found in, conflict with shortmess-=S option
+" nnoremap n nzzzv
+" nnoremap N Nzzzv
 
 " Move lines left or right
 nnoremap < <<
@@ -1067,7 +1069,7 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    if !has('nvim')
+    if !s:nvim
         autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
     endif
 augroup END
@@ -1152,10 +1154,7 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if s:env.windows
-    nnoremap <leader>e :!start explorer /e,%:p:h \| redraw!<cr>
-    nnoremap <leader>E :execute "!start explorer /e," . shellescape(getcwd(),1) \| redraw!<cr>
-elseif s:env.mac
+if s:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
 elseif s:env.linux
