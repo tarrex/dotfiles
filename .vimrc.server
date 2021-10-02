@@ -2,15 +2,15 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
-let s:env       = {}
-let s:env.mac   = has('mac') || has('macunix')
-let s:env.linux = has('linux')
+let g:env       = {}
+let g:env.mac   = has('mac') || has('macunix')
+let g:env.linux = has('linux')
 
-let s:dep    = {}
-let s:dep.rg = executable('rg')
+let g:dep       = {}
+let g:dep.rg    = executable('rg')
 
-let s:nvim   = has('nvim')
-let s:vimdir = $HOME . '/.vim'
+let g:nvim      = has('nvim')
+let g:vimdir    = $HOME . '/.vim'
 
 " ============> General <============
 if &compatible
@@ -39,7 +39,9 @@ if has('patch-8.1.1564')
     set signcolumn=number               " display signs in the 'number' column if could else 'auto'
 endif
 set background=dark                     " try to use colors that look good on a dark background
-set termguicolors                       " enable GUI colors for the terminal to get truecolor
+if $TERM_PROGRAM !=# 'Apple_Terminal'
+    set termguicolors                       " enable GUI colors for the terminal to get truecolor
+endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -58,7 +60,7 @@ set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
-if s:dep.rg
+if g:dep.rg
     set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
@@ -79,7 +81,7 @@ set splitbelow                          " horizontally split below
 set splitright                          " vertically split to the right
 set ttyfast                             " indicates a fast terminal connection
 set mouse=a                             " enable the mouse in all five modes
-if !s:nvim
+if !g:nvim
     set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
     " set clipboard=autoselect,exclude:.* " enable clipboard with system
     set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
@@ -138,32 +140,32 @@ set dictionary+=/usr/share/dict/words   " files that are used to lookup words fo
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set tags=./tags;                        " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
 set noswapfile                          " don't create swapfile for the buffer
-" let &directory = s:vimdir . '/tmp/swap'
+" let &directory = g:vimdir . '/tmp/swap'
 " if !isdirectory(&directory)
 "     silent call mkdir(&directory, 'p', 0700)
 " endif
 set backup                              " make a backup before overwriting a file
 set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
 set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
-let &backupdir = s:vimdir . '/tmp/backup'
+let &backupdir = g:vimdir . '/tmp/backup'
 if !isdirectory(&backupdir)
     silent call mkdir(&backupdir, 'p', 0700)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-if s:nvim
-    let &undodir = s:vimdir . '/tmp/nundo'
+if g:nvim
+    let &undodir = g:vimdir . '/tmp/nundo'
 else
-    let &undodir = s:vimdir . '/tmp/undo'
+    let &undodir = g:vimdir . '/tmp/undo'
 endif
 if !isdirectory(&undodir)
     silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
-if s:nvim
-    let &viminfo.=',n' . s:vimdir . '/nviminfo'
+if g:nvim
+    let &viminfo.=',n' . g:vimdir . '/nviminfo'
 else
-    let &viminfo.=',n' . s:vimdir . '/viminfo'
+    let &viminfo.=',n' . g:vimdir . '/viminfo'
 endif
 
 set wildmenu                            " show autocomplete for command menu
@@ -196,7 +198,16 @@ let g:currentmode = {
     \ 'c': 'COMMAND', 'r?': 'CONFIRM', 't': 'TERMINAL'
 \ }
 
-let s:specific_fts = ['qf', 'netrw']
+function! Mode() abort
+    return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
+        \ &ft ==? 'qf' ? 'QuickFix' :
+        \ &ft ==? 'help' ? 'Help' :
+        \ &ft ==? 'man' ? 'Man' :
+        \ &ft ==? 'netrw' ? 'Netrw' :
+        \ get(g:currentmode, mode(), mode())
+endfunction
+
+let s:specific_fts = ['qf', 'help', 'man', 'netrw']
 
 " file name
 function! FileName() abort
@@ -224,7 +235,8 @@ function! FileSize() abort
         let l:bytes = l:bytes / 1024.0
         let l:idx += 1
     endwhile
-    return printf('%.1f%s', l:bytes, l:units[l:idx]) . ' | '
+    return index(s:specific_fts, &ft) >= 0 ? ''
+        \ : printf('%.1f%s | ', l:bytes, l:units[l:idx])
 endfunction
 
 function! FileFormat() abort
@@ -248,7 +260,7 @@ endfunction
 function! Statusline() abort
     if &previewwindow | return | endif
     let line  = ''
-    let line .= ' %{g:currentmode[mode()]} '        " buffer mode
+    let line .= ' %{Mode()} '                       " buffer mode
     let line .= '%{&paste!=#"paste"?"| paste ":""}' " paste state
     let line .= '%{&spell?"| ".&spelllang." ":""}'  " spell state
     let line .= '| %n '                             " buffer number
@@ -500,11 +512,11 @@ let g:mapleader      = ','              " set vim map leader, <leader>
 let g:maplocalleader = '\'              " set vim local map leader, <localleader>
 
 " Clipboard
-if s:env.mac
+if g:env.mac
     set clipboard=unnamed
     noremap <leader>y "*y
     noremap <leader>p "*p
-elseif s:env.linux
+elseif g:env.linux
     set clipboard=unnamedplus
     noremap <leader>y "+y
     noremap <leader>p "+p
@@ -674,7 +686,7 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    if !s:nvim
+    if !g:nvim
         autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
     endif
 augroup END
@@ -759,10 +771,10 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if s:env.mac
+if g:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
-elseif s:env.linux
+elseif g:env.linux
     nnoremap <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif

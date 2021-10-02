@@ -14,6 +14,7 @@ let &packpath=&runtimepath
 source ~/.vimrc
 
 " ----> nvim-treesitter/nvim-treesitter
+if HasPlug('nvim-treesitter')
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
     ensure_installed = 'maintained',
@@ -25,3 +26,4 @@ require'nvim-treesitter.configs'.setup {
     },
 }
 EOF
+endif

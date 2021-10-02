@@ -57,5 +57,7 @@
             "rootPatterns": [".git/"],
             "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
         }
-    }
+    },
+
+    "translator.engines": ["bing", "youdao"]
 }

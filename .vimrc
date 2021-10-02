@@ -2,17 +2,20 @@
 "       ------ Enjoy vim, enjoy coding.
 
 " ============> Prepare <============
-let s:env       = {}
-let s:env.mac   = has('mac') || has('macunix')
-let s:env.linux = has('linux')
+let g:env       = {}
+let g:env.mac   = has('mac') || has('macunix')
+let g:env.linux = has('linux')
 
-let s:dep      = {}
-let s:dep.rg   = executable('rg')
-let s:dep.curl = executable('curl')
-let s:dep.node = executable('yarn') || executable('npm')
+let g:dep       = {}
+let g:dep.rg    = executable('rg')
+let g:dep.curl  = executable('curl')
+let g:dep.node  = executable('npm') || executable('yarn')
 
-let s:nvim   = has('nvim')
-let s:vimdir = $HOME . '/.vim'
+let g:feat      = {}
+let g:feat.py3  = has('python3')
+
+let g:nvim      = has('nvim')
+let g:vimdir    = $HOME . '/.vim'
 
 " ============> General <============
 if &compatible
@@ -41,7 +44,9 @@ if has('patch-8.1.1564')
     set signcolumn=number               " display signs in the 'number' column if could else 'auto'
 endif
 set background=dark                     " try to use colors that look good on a dark background
-set termguicolors                       " enable GUI colors for the terminal to get truecolor
+if $TERM_PROGRAM !=# 'Apple_Terminal'
+    set termguicolors                       " enable GUI colors for the terminal to get truecolor
+endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -60,7 +65,7 @@ set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
 set incsearch                           " real time show the search case
 set smartcase                           " override the 'ignorecase' option if the search pattern contains upper case characters
-if s:dep.rg
+if g:dep.rg
     set grepprg=rg\ --vimgrep           " rg as the program to call when using the Ex commands: `:[l]grep[add]`
     set grepformat=%f:%l:%c:%m,%f:%l:%m " how the output of rg must be parsed
 endif
@@ -81,7 +86,7 @@ set splitbelow                          " horizontally split below
 set splitright                          " vertically split to the right
 set ttyfast                             " indicates a fast terminal connection
 set mouse=a                             " enable the mouse in all five modes
-if !s:nvim
+if !g:nvim
     set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
     " set clipboard=autoselect,exclude:.* " enable clipboard with system
     set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
@@ -140,32 +145,32 @@ set dictionary+=/usr/share/dict/words   " files that are used to lookup words fo
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set tags=./tags;                        " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
 set noswapfile                          " don't create swapfile for the buffer
-" let &directory = s:vimdir . '/tmp/swap'
+" let &directory = g:vimdir . '/tmp/swap'
 " if !isdirectory(&directory)
 "     silent call mkdir(&directory, 'p', 0700)
 " endif
 set backup                              " make a backup before overwriting a file
 set backupext=.bak                      " string which is appended to a file name to make the name of the backup file
 set backupskip+=/etc/cron.*/*           " list of file patterns that do not create backup file
-let &backupdir = s:vimdir . '/tmp/backup'
+let &backupdir = g:vimdir . '/tmp/backup'
 if !isdirectory(&backupdir)
     silent call mkdir(&backupdir, 'p', 0700)
 endif
 set undofile                            " automatically saves undo history to an undo file
 set undolevels=1000                     " maximum number of changes that can be undone
-if s:nvim
-    let &undodir = s:vimdir . '/tmp/nundo'
+if g:nvim
+    let &undodir = g:vimdir . '/tmp/nundo'
 else
-    let &undodir = s:vimdir . '/tmp/undo'
+    let &undodir = g:vimdir . '/tmp/undo'
 endif
 if !isdirectory(&undodir)
     silent call mkdir(&undodir, 'p', 0700)
 endif
 set viminfo='100,:1000,<50,s10,h,!      " viminfo settings
-if s:nvim
-    let &viminfo.=',n' . s:vimdir . '/nviminfo'
+if g:nvim
+    let &viminfo.=',n' . g:vimdir . '/nviminfo'
 else
-    let &viminfo.=',n' . s:vimdir . '/viminfo'
+    let &viminfo.=',n' . g:vimdir . '/viminfo'
 endif
 
 set wildmenu                            " show autocomplete for command menu
@@ -188,9 +193,9 @@ set wildignore+=.git,*.git,.svn,.idea,.vscode,.vim
 set wildignore+=*DS_Store,*Thumbs.db
 
 " ============> Plugins <============
-let s:vimplug = s:vimdir . '/autoload/plug.vim'
+let s:vimplug = g:vimdir . '/autoload/plug.vim'
 if empty(glob(s:vimplug))
-    if !s:dep.curl
+    if !g:dep.curl
         echomsg 'You have to install curl or install vim-plug manually!'
         finish
     endif
@@ -200,16 +205,18 @@ if empty(glob(s:vimplug))
     autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-let s:coc = s:vimdir . '/coc-settings.json'
+let s:coc = g:vimdir . '/coc-settings.json'
 if empty(glob(s:coc))
-    if s:dep.node
+    if g:dep.node
         silent execute '!echo "Download coc-settings.json..."'
         silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:coc .
                      \ ' https://raw.githubusercontent.com/tarrex/dotfiles/master/coc-settings.json'
     endif
 endif
 
-call plug#begin(s:vimdir . '/plugged')
+let g:plug_url_format = 'git@github.com:%s.git'
+
+call plug#begin(g:vimdir . '/plugged')
 
 " Plug 'lifepillar/vim-gruvbox8'
 Plug 'haishanh/night-owl.vim'
@@ -227,15 +234,8 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-if s:dep.node
-    Plug 'neoclide/coc.nvim'
-else
-    Plug 'skywind3000/vim-auto-popmenu'
-endif
-if has('python3')
-    Plug 'sirver/ultisnips'
-    Plug 'honza/vim-snippets'
-endif
+if g:dep.node | Plug 'neoclide/coc.nvim' | else | Plug 'skywind3000/vim-auto-popmenu' | endif
+if g:feat.py3 | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
@@ -247,17 +247,16 @@ Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' 
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'cespare/vim-toml',           { 'for': 'toml' }
-Plug 'nvim-treesitter/nvim-treesitter', has('nvim') ? {'do': ':TSUpdate'} : { 'on': [] }
+if g:nvim | Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} | endif
 
 call plug#end()
 
-let s:plugs = get(g:, 'plugs', '{}')
-function! s:has_plug(name) abort
-    return has_key(s:plugs, a:name) ? isdirectory(s:plugs[a:name].dir) : 0
+function! HasPlug(name) abort
+    return has_key(g:plugs, a:name) ? isdirectory(g:plugs[a:name].dir) : 0
 endfunction
 
 " ----> itchyny/lightline.vim
-if s:has_plug('lightline.vim')
+if HasPlug('lightline.vim')
     let g:lightline = {
         \ 'enable': {
         \   'statusline': 1,
@@ -291,12 +290,13 @@ if s:has_plug('lightline.vim')
         \ }
     \ }
 
-    let s:specific_fts = ['qf', 'netrw', 'vista']
+    let s:specific_fts = ['qf', 'help', 'man', 'netrw', 'vista']
 
     function! LightLineMode() abort
-        let fname = expand('%:t')
         return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
             \ &ft ==? 'qf' ? 'QuickFix' :
+            \ &ft ==? 'help' ? 'Help' :
+            \ &ft ==? 'man' ? 'Man' :
             \ &ft ==? 'netrw' ? 'Netrw' :
             \ &ft ==? 'vista' ? 'Vista' :
             \ lightline#mode()
@@ -318,7 +318,7 @@ if s:has_plug('lightline.vim')
 
     function! LightlineLinter() abort
         if (winwidth(0) < 80 || mode() == 't') | return '' | endif
-        if s:has_plug('ale')
+        if HasPlug('ale')
             let l:counts = ale#statusline#Count(bufnr(''))
             let l:all_errors = l:counts.error + l:counts.style_error
             let l:all_non_errors = l:counts.total - l:all_errors
@@ -342,7 +342,8 @@ if s:has_plug('lightline.vim')
             let l:bytes = l:bytes / 1024.0
             let l:idx += 1
         endwhile
-        return printf('%.1f%s', l:bytes, l:units[l:idx])
+        return index(s:specific_fts, &ft) >= 0 ? ''
+            \ : printf('%.1f%s', l:bytes, l:units[l:idx])
     endfunction
 
     function! LightLineFileFormat() abort
@@ -365,7 +366,7 @@ if s:has_plug('lightline.vim')
 endif
 
 " ----> easymotion/vim-easymotion
-if s:has_plug('vim-easymotion')
+if HasPlug('vim-easymotion')
     let g:EasyMotion_do_mapping       = 0
     let g:EasyMotion_grouping         = 1
     let g:EasyMotion_smartcase        = 1
@@ -389,7 +390,7 @@ if s:has_plug('vim-easymotion')
 endif
 
 " ----> terryma/vim-multiple-cursors
-if s:has_plug('vim-multiple-cursors')
+if HasPlug('vim-multiple-cursors')
     let g:multi_cursor_use_default_mapping = 0
 
     nnoremap <mc> <nop>
@@ -406,17 +407,17 @@ if s:has_plug('vim-multiple-cursors')
 endif
 
 " ----> dhruvasagar/vim-table-mode
-if s:has_plug('vim-table-mode')
+if HasPlug('vim-table-mode')
     let g:table_mode_corner = '|'
 endif
 
 " ----> liuchengxu/vista.vim
-if s:has_plug('vista.vim')
+if HasPlug('vista.vim')
     let g:vista_sidebar_position         = 'vertical botright'
     let g:vista_sidebar_width            = 30
     let g:vista_echo_cursor              = 1
     let g:vista_cursor_delay             = 400
-    if has('patch-8.2.0750') || s:nvim
+    if has('patch-8.2.0750') || g:nvim
         let g:vista_echo_cursor_strategy = 'floating_win'
     else
         let g:vista_echo_cursor_strategy = 'echo'
@@ -429,7 +430,7 @@ if s:has_plug('vista.vim')
     let g:vista_disable_statusline       = 1
     let g:vista#renderer#enable_icon     = 0
 
-    if s:has_plug('coc.nvim')
+    if HasPlug('coc.nvim')
         nnoremap <localleader>t :Vista coc<cr>
     else
         nnoremap <localleader>t :Vista<cr>
@@ -437,7 +438,7 @@ if s:has_plug('vista.vim')
 endif
 
 " ----> junegunn/fzf.vim
-if s:has_plug('fzf.vim')
+if HasPlug('fzf.vim')
     let g:fzf_command_prefix = 'FZF'
     let g:fzf_layout         = { 'down': '40%' }
     function! s:build_quickfix_list(lines)
@@ -453,7 +454,7 @@ if s:has_plug('fzf.vim')
         \ 'ctrl-e': 'edit'
     \ }
     let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info'
-    if s:dep.rg
+    if g:dep.rg
         let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --glob "!{'.shellescape(&wildignore).'}"'
     endif
     command! -bang -nargs=* FZFRg
@@ -481,7 +482,7 @@ if s:has_plug('fzf.vim')
 endif
 
 " ----> tmsvg/pear-tree
-if s:has_plug('pear-tree')
+if HasPlug('pear-tree')
     let g:pear_tree_pairs = {
         \ '(': {'closer': ')'},
         \ '[': {'closer': ']'},
@@ -500,12 +501,12 @@ if s:has_plug('pear-tree')
 endif
 
 " ----> mbbill/undotree
-if s:has_plug('undotree')
+if HasPlug('undotree')
     nnoremap <silent> <localleader>u :UndotreeToggle<cr>
 endif
 
 " ----> neoclide/coc.nvim
-if s:has_plug('coc.nvim')
+if HasPlug('coc.nvim')
     if &backup | set nobackup | endif
     if &writebackup | set nowritebackup | endif
     let g:coc_disable_startup_warning = 1
@@ -537,7 +538,7 @@ if s:has_plug('coc.nvim')
     endfunction
 
     " Use <c-space> to trigger completion.
-    if s:nvim
+    if g:nvim
         inoremap <silent><expr> <c-space> coc#refresh()
     else
         inoremap <silent><expr> <c-@> coc#refresh()
@@ -613,7 +614,7 @@ if s:has_plug('coc.nvim')
     omap <coc>ac <Plug>(coc-classobj-a)
 
     " Remap <c-f> and <c-b> for scroll float windows/popups.
-    if has('patch-8.2.0750') || s:nvim
+    if has('patch-8.2.0750') || g:nvim
         nnoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<c-f>"
         nnoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<c-b>"
         inoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
@@ -674,19 +675,19 @@ if s:has_plug('coc.nvim')
 endif
 
 " ----> sirver/ultisnips
-if s:has_plug('ultisnips')
+if HasPlug('ultisnips')
     let g:UltiSnipsEnableSnipMate     = 0
     let g:UltiSnipsExpandTrigger      = '<nop>'
     let g:UltiSnipsJumpForwardTrigger = '<tab>'
 endif
 
 " ----> skywind3000/vim-auto-popmenu
-if s:has_plug('vim-auto-popmenu')
+if HasPlug('vim-auto-popmenu')
     let g:apc_enable_ft = { '*': 1 }
 endif
 
 " ----> dense-analysis/ale
-if s:has_plug('ale')
+if HasPlug('ale')
     let g:ale_command_wrapper             = 'nice -n5'
     let g:ale_maximum_file_size           = 10 * 1024 * 1024
     let g:ale_echo_msg_error_str          = 'E'
@@ -768,7 +769,7 @@ if s:has_plug('ale')
 endif
 
 " ----> fatih/vim-go
-if s:has_plug('vim-go')
+if HasPlug('vim-go')
     let g:go_version_warning               = 0
     let g:go_code_completion_enabled       = 0
     let g:go_updatetime                    = 0
@@ -777,7 +778,7 @@ if s:has_plug('vim-go')
     let g:go_imports_autosave              = 0
     let g:go_mod_fmt_autosave              = 0
     let g:go_doc_keywordprg_enabled        = 0
-    if has('patch-8.2.0012') || s:nvim
+    if has('patch-8.2.0012') || g:nvim
         let g:go_doc_popup_window          = 1
     endif
     let g:go_def_mapping_enabled           = 0
@@ -829,40 +830,13 @@ if s:has_plug('vim-go')
 endif
 
 " ----> rust-lang/rust.vim
-if s:has_plug('rust.vim')
+if HasPlug('rust.vim')
     augroup Rust
         autocmd!
         autocmd FileType rust nmap <space>rb :Cbuild<cr>
         autocmd FileType rust nmap <space>rr :Crun<cr>
     augroup END
 endif
-
-" ----> ycm-core/youcompleteme
-" if isdirectory(s:vimdir . '/youcompleteme')
-"     set rtp+=~/.vim/youcompleteme
-"     let g:ycm_add_preview_to_completeopt                    = 0
-"     let g:ycm_show_diagnostics_ui                           = 0
-"     let g:ycm_server_log_level                              = 'info'
-"     let g:ycm_min_num_identifier_candidate_chars            = 2
-"     let g:ycm_collect_identifiers_from_comments_and_strings = 1
-"     let g:ycm_complete_in_strings                           = 1
-"     let g:ycm_key_invoke_completion                         = '<c-z>'
-"     let g:ycm_disable_signature_help                        = 1
-"     let g:ycm_auto_hover                                    = ''
-"
-"     if exists('+completepopup')
-"         set completepopup=align:menu,border:off,highlight:WildMenu
-"         set completepopup=align:menu,border:off,highlight:QuickPreview
-"         set completeopt+=popup
-"     endif
-"
-"     let g:ycm_semantic_triggers =  {
-"         \ 'c,cpp,python,java,go,erlang,perl': ['re!\w{2}'],
-"         \ 'cs,lua,javascript': ['re!\w{2}'],
-"     \ }
-"     let g:ycm_goto_buffer_command = 'new-or-existing-tab'
-"     nmap <leader>D <plug>(YCMHover)
-" endif
 
 " ============> Custom <============
 " ----> Highlights
@@ -895,11 +869,11 @@ let g:mapleader      = ','              " set vim map leader, <leader>
 let g:maplocalleader = '\'              " set vim local map leader, <localleader>
 
 " Clipboard
-if s:env.mac
+if g:env.mac
     set clipboard=unnamed
     noremap <leader>y "*y
     noremap <leader>p "*p
-elseif s:env.linux
+elseif g:env.linux
     set clipboard=unnamedplus
     noremap <leader>y "+y
     noremap <leader>p "+p
@@ -1069,7 +1043,7 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    if !s:nvim
+    if !g:nvim
         autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
     endif
 augroup END
@@ -1154,10 +1128,10 @@ endfunction
 nnoremap <silent> <space>. :call LocationToggle()<cr>
 
 " ----> Open current buffer directory in finder or explorer
-if s:env.mac
+if g:env.mac
     nnoremap <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!open .' \| redraw!<cr>
-elseif s:env.linux
+elseif g:env.linux
     nnoremap <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
