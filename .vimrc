@@ -36,15 +36,10 @@ set laststatus=2                        " show status line
 set display=lastline                    " as much as possible of the last line in a window will be displayed
 if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't show cursorline and cursorcolumn
     set cursorline                      " show underline for the cursor's line
-    if has('patch-8.1.2019')
-        set cursorlineopt=number        " highlight the line number of the cursor if could
-    endif
-endif
-if has('patch-8.1.1564')
-    set signcolumn=number               " display signs in the 'number' column if could else 'auto'
+    silent! set cursorlineopt=number    " highlight the line number of the cursor if could
 endif
 set background=dark                     " try to use colors that look good on a dark background
-set termguicolors                       " enable GUI colors for the terminal to get truecolor
+silent! set termguicolors               " enable GUI colors for the terminal to get truecolor
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -57,7 +52,7 @@ set autoindent                          " copy indent from current line when sta
 
 set linebreak                           " break lines at word boundaries
 set breakindent                         " every wrapped line will continue visually indented
-set showbreak=↪\                        " string to put at the start of lines that have been wrapped
+silent! set showbreak=↪\                " string to put at the start of lines that have been wrapped
 
 set hlsearch                            " highlight all search pattern results
 set ignorecase                          " ignore case in search patterns.
@@ -87,7 +82,7 @@ set mouse=a                             " enable the mouse in all five modes
 if !g:nvim
     set ttymouse=sgr                    " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
     " set clipboard=autoselect,exclude:.* " enable clipboard with system
-    set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
+    silent! set termwinkey=<c-_>        " the key that starts a CTRL-_ command in a terminal window
     set t_ut=                           " clearing uses the current background color
     set ttyscroll=3                     " maximum number of lines to scroll the screen
 endif
@@ -106,18 +101,17 @@ set comments=                           " clear default comments value, let the 
 set commentstring=                      " clear default comment template
 set include=                            " don't assume I'm editing C; let the filetype set this
 set complete+=k                         " scan the files given with the 'dictionary' option
-set completeopt=menu,menuone,noinsert   " use a popup menu to show the possible completions even if there is only one match
-set completeopt+=noselect               " only insert the longest common text of the matches
-if has('patch-8.1.1882')
-    set completeopt+=popup              " add popup option for insert mode completion if could
-    set completepopup=border:off        " used for the properties of the info popup when it is created
-endif
+set completeopt=menu,menuone            " use a popup menu to show the possible completions even there is only one match
+silent! set completeopt+=noinsert       " do not insert any text for a match until the user selects a match from the menu
+silent! set completeopt+=noselect       " do not select a match in the menu, force the user to select one from the menu
+silent! set completeopt+=popup          " show extra information about the currently selected completion in a popup window
+silent! set completepopup=border:off    " used for the properties of the info popup when it is created
 set diffopt+=context:3                  " only 3 lines of context above/below a changed line (instead of 6)
 set diffopt+=vertical                   " start diff mode with vertical splits (unless explicitly specified otherwise)
 set diffopt+=foldcolumn:1               " use only 1 column for the foldcolumn, instead of 2 (vertical space is precious)
-set diffopt+=hiddenoff                  " turn off diff mode automatically for a buffer which becomes hidden
-set diffopt+=indent-heuristic           " use the indent heuristic for the internal diff library
-set diffopt+=algorithm:patience         " use the `patience` diff algorithm
+silent! set diffopt+=hiddenoff          " turn off diff mode automatically for a buffer which becomes hidden
+silent! set diffopt+=indent-heuristic   " use the indent heuristic for the internal diff library
+silent! set diffopt+=algorithm:patience " use the `patience` diff algorithm
 set formatoptions+=m                    " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                    " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                    " remove a comment leader when joining lines
@@ -125,19 +119,17 @@ set nrformats-=octal                    " treat numbers with a leading zero as d
 set shortmess+=a                        " enable all sort of abbreviations
 set shortmess+=c                        " don't give ins-completion-menu messages
 set shortmess-=S                        " helps to avoid all the hit-enter prompts caused by file messages
-if has('patch-8.2.0953')
-    set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
-endif
+silent! set spelloptions=camel          " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                    " vertical separators
 set listchars=eol:¬                     " end of line
 set listchars+=extends:»                " unwrapped text to screen right
 set listchars+=precedes:«               " unwrapped text to screen left
-set listchars+=tab:<->                  " tab characters, preserve width
 set listchars+=nbsp:∅                   " non-breaking spaces
+silent! set listchars+=tab:<->          " tab characters, preserve width
 set breakat+=)]}                        " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                   " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]           " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
-set matchpairs+=<:>,《:》,「:」,（:）,【:】     " pairs characters that the `%` command jumps from one to the other
+set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the `%` command jumps from one to the other
 
 set dictionary+=/usr/share/dict/words   " files that are used to lookup words for keyword completion commands
 set path=.,**5                          " look in the directory of the current buffer non-recursively, and in the working directory recursively
@@ -1030,7 +1022,7 @@ augroup VimTricks
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
-    if !g:nvim
+    if exists('##TerminalOpen')
         autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
     endif
 augroup END
