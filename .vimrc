@@ -222,7 +222,6 @@ Plug 'itchyny/lightline.vim'
 " Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
-Plug 'tommcdo/vim-exchange'
 Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
 Plug 'tpope/vim-fugitive'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
