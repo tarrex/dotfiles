@@ -1,63 +1,63 @@
 {
-    "coc.preferences.enableMarkdown": true,
-    "coc.preferences.extensionUpdateCheck": "weekly",
-    "coc.preferences.rootPatterns": [
-        ".root/",
-        ".git/",
-        ".svn/",
-        ".hg/",
-        ".project/",
-        "Cargo.toml",
-        "go.mod",
-        "Makefile",
-        "tsconfig.js",
-        "jsconfig.js"
-    ],
+  "coc.preferences.enableMarkdown": true,
+  "coc.preferences.extensionUpdateCheck": "weekly",
+  "coc.preferences.rootPatterns": [
+    ".root/",
+    ".git/",
+    ".svn/",
+    ".hg/",
+    ".project/",
+    "Cargo.toml",
+    "go.mod",
+    "Makefile",
+    "tsconfig.js",
+    "jsconfig.js"
+  ],
 
-    "diagnostic.enable": false,
-    "diagnostic.displayByAle": true,
+  "diagnostic.enable": false,
+  "diagnostic.displayByAle": true,
 
-    "suggest.asciiCharactersOnly": false,
-    "suggest.autoTrigger": "always",
-    "suggest.enablePreselect": true,
-    "suggest.languageSourcePriority": 90,
-    "suggest.maxCompleteItemCount": 20,
-    "suggest.minTriggerInputLength": 2,
-    "suggest.noselect": false,
+  "suggest.asciiCharactersOnly": false,
+  "suggest.autoTrigger": "always",
+  "suggest.enablePreselect": true,
+  "suggest.languageSourcePriority": 90,
+  "suggest.maxCompleteItemCount": 20,
+  "suggest.minTriggerInputLength": 2,
+  "suggest.noselect": false,
 
-    "html.format.enable": false,
-    "html.autoClosingTags": true,
+  "html.format.enable": false,
+  "html.autoClosingTags": true,
 
-    "yaml.format.enable": false,
-    "yaml.schemaStore.enable": true,
-    "yaml.schemas": {
-        "kubernetes": "/*.yaml",
-        "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
-        "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
-        "https://json.schemastore.org/github-workflow.json": "/.github/workflow/*.y?(a)ml"
+  "yaml.format.enable": false,
+  "yaml.schemaStore.enable": true,
+  "yaml.schemas": {
+    "kubernetes": "/*.yaml",
+    "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
+    "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
+    "https://json.schemastore.org/github-workflow.json": "/.github/workflow/*.y?(a)ml"
+  },
+
+  "languageserver": {
+    "golang": {
+      "command": "gopls",
+      "filetypes": ["go"],
+      "rootPatterns": [".git/", "go.mod", "Makefile"],
+      "initializationOptions": {
+        "usePlaceholders": false,
+        "completeUnimported": true
+      }
     },
-
-    "languageserver": {
-        "golang": {
-            "command": "gopls",
-            "filetypes": ["go"],
-            "rootPatterns": [".git/", "go.mod", "Makefile"],
-            "initializationOptions": {
-                "usePlaceholders": false,
-                "completeUnimported": true
-            }
-        },
-        "rust": {
-            "command": "rust-analyzer",
-            "filetypes": ["rust"],
-            "rootPatterns": [".git/", "Cargo.toml"]
-        },
-        "clangd": {
-            "command": "clangd",
-            "rootPatterns": [".git/"],
-            "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
-        }
+    "rust": {
+      "command": "rust-analyzer",
+      "filetypes": ["rust"],
+      "rootPatterns": [".git/", "Cargo.toml"]
     },
+    "clangd": {
+      "command": "clangd",
+      "rootPatterns": [".git/"],
+      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
+    }
+  },
 
-    "translator.engines": ["bing", "youdao"]
+  "translator.engines": ["bing", "youdao"]
 }
