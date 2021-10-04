@@ -212,14 +212,12 @@ if empty(glob(s:coc))
     endif
 endif
 
-let g:plug_url_format = 'git@github.com:%s.git'
-
 call plug#begin(g:vimdir . '/plugged')
 
-" Plug 'lifepillar/vim-gruvbox8'
+Plug 'lifepillar/vim-gruvbox8'
 Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
-" Plug 'easymotion/vim-easymotion'
+Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
 Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
@@ -231,7 +229,7 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-if g:dep.node | Plug 'neoclide/coc.nvim' | else | Plug 'skywind3000/vim-auto-popmenu' | endif
+if g:dep.node | Plug 'neoclide/coc.nvim', { 'branch': 'release', 'do': 'npm install' } | else | Plug 'skywind3000/vim-auto-popmenu' | endif
 if g:feat.py3 || g:nvim | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
