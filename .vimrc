@@ -44,9 +44,7 @@ if has('patch-8.1.1564')
     set signcolumn=number               " display signs in the 'number' column if could else 'auto'
 endif
 set background=dark                     " try to use colors that look good on a dark background
-if $TERM_PROGRAM !=# 'Apple_Terminal'
-    set termguicolors                       " enable GUI colors for the terminal to get truecolor
-endif
+set termguicolors                       " enable GUI colors for the terminal to get truecolor
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -221,7 +219,7 @@ call plug#begin(g:vimdir . '/plugged')
 " Plug 'lifepillar/vim-gruvbox8'
 Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
-Plug 'easymotion/vim-easymotion'
+" Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
 Plug 'tommcdo/vim-exchange'
@@ -235,7 +233,7 @@ Plug 'tmsvg/pear-tree'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 if g:dep.node | Plug 'neoclide/coc.nvim' | else | Plug 'skywind3000/vim-auto-popmenu' | endif
-if g:feat.py3 | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
+if g:feat.py3 || g:nvim | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
@@ -726,10 +724,10 @@ if HasPlug('ale')
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
     let s:ale_prettier_common_options     = '--print-width 120 --single-quote true --trailing-comma all --bracket-same-line'
-    let g:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
+    let g:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
     augroup PrettierForFileTypes
         autocmd!
-        autocmd FileType html,css,scss,sass,yaml,markdown let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
+        autocmd FileType javascript let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
     augroup END
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
@@ -842,18 +840,18 @@ endif
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal        ctermbg=NONE guibg=NONE
-    highlight NonText       ctermbg=NONE guibg=NONE
-    highlight CursorLineNr  ctermbg=NONE guibg=NONE
-    highlight LineNr        ctermbg=NONE guibg=NONE
-    highlight CursorLine    ctermbg=NONE guibg=NONE
-    highlight SpecialKey    ctermbg=NONE guibg=NONE
-    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
-    highlight Folded        ctermbg=NONE guibg=NONE
-    highlight FoldColumn    ctermbg=NONE guibg=NONE
-    highlight DiffAdd       ctermbg=NONE guibg=NONE
-    highlight DiffChange    ctermbg=NONE guibg=NONE
-    highlight DiffDelete    ctermbg=NONE guibg=NONE
+    highlight Normal        ctermbg=NONE guibg=Black
+    highlight NonText       ctermbg=NONE guibg=Black
+    highlight CursorLineNr  ctermbg=NONE guibg=Black
+    highlight LineNr        ctermbg=NONE guibg=Black
+    highlight CursorLine    ctermbg=NONE guibg=Black
+    highlight SpecialKey    ctermbg=NONE guibg=Black
+    highlight EndOfBuffer   ctermbg=NONE guibg=Black
+    highlight Folded        ctermbg=NONE guibg=Black
+    highlight FoldColumn    ctermbg=NONE guibg=Black
+    highlight DiffAdd       ctermbg=NONE guibg=Black
+    highlight DiffChange    ctermbg=NONE guibg=Black
+    highlight DiffDelete    ctermbg=NONE guibg=Black
 endfunction
 
 augroup Highlights
@@ -946,10 +944,10 @@ endif
 " nnoremap N Nzzzv
 
 " Move lines left or right
-nnoremap < <<
-nnoremap > >>
-vnoremap < <gv
-vnoremap > >gv
+nnoremap <silent> < <<
+nnoremap <silent> > >>
+vnoremap <silent> < <gv
+vnoremap <silent> > >gv
 
 " Move lines up or down
 " nnoremap <silent> <up>   :m-2<cr>==
@@ -965,8 +963,8 @@ noremap  <silent> <c-s> :update<cr>
 inoremap <silent> <c-s> <esc>:update<cr>
 
 " Move vertically by visual line
-noremap  <silent> <expr> j v:count ? 'j' : 'gj'
-noremap  <silent> <expr> k v:count ? 'k' : 'gk'
+nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
+nnoremap <silent> <expr> k v:count ? 'k' : 'gk'
 vnoremap <silent> <expr> j v:count ? 'j' : 'gj'
 vnoremap <silent> <expr> k v:count ? 'k' : 'gk'
 
@@ -1015,18 +1013,10 @@ cnoreabbrev W       w
 cnoreabbrev Q       q
 cnoreabbrev Qall    qall
 
-" ----> Vim build
-nnoremap <buffer> <space>m :w!<cr>:make<cr>
-augroup VimBuild
+" ----> Filetype detect and custom
+augroup FileTypeDetectAndCustom
     autocmd!
-    autocmd FileType go      setl makeprg=go\ run\ %
-    autocmd FileType python  setl makeprg=python3\ %
-    autocmd FileType scheme  setl makeprg=chez\ --script\ %
-augroup END
-
-" ----> Filetype
-augroup CustomByFileType
-    autocmd!
+    autocmd BufRead,BufNewFile *.bean,*.beancount if &ft != 'beancount' | setf beancount | endif
     autocmd FileType qf setl nonu nornu
     autocmd FileType gitcommit setl spell
 augroup END

@@ -39,9 +39,7 @@ if has('patch-8.1.1564')
     set signcolumn=number               " display signs in the 'number' column if could else 'auto'
 endif
 set background=dark                     " try to use colors that look good on a dark background
-if $TERM_PROGRAM !=# 'Apple_Terminal'
-    set termguicolors                       " enable GUI colors for the terminal to get truecolor
-endif
+set termguicolors                       " enable GUI colors for the terminal to get truecolor
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -476,18 +474,18 @@ endif
 " ----> Highlights
 " Some custom highlights
 function! MyHighlights() abort
-    highlight Normal        ctermbg=NONE guibg=NONE
-    highlight NonText       ctermbg=NONE guibg=NONE
-    highlight CursorLineNr  ctermbg=NONE guibg=NONE
-    highlight LineNr        ctermbg=NONE guibg=NONE
-    highlight CursorLine    ctermbg=NONE guibg=NONE
-    highlight SpecialKey    ctermbg=NONE guibg=NONE
-    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
-    highlight Folded        ctermbg=NONE guibg=NONE
-    highlight FoldColumn    ctermbg=NONE guibg=NONE
-    highlight DiffAdd       ctermbg=NONE guibg=NONE
-    highlight DiffChange    ctermbg=NONE guibg=NONE
-    highlight DiffDelete    ctermbg=NONE guibg=NONE
+    highlight Normal        ctermbg=NONE guibg=Black
+    highlight NonText       ctermbg=NONE guibg=Black
+    highlight CursorLineNr  ctermbg=NONE guibg=Black
+    highlight LineNr        ctermbg=NONE guibg=Black
+    highlight CursorLine    ctermbg=NONE guibg=Black
+    highlight SpecialKey    ctermbg=NONE guibg=Black
+    highlight EndOfBuffer   ctermbg=NONE guibg=Black
+    highlight Folded        ctermbg=NONE guibg=Black
+    highlight FoldColumn    ctermbg=NONE guibg=Black
+    highlight DiffAdd       ctermbg=NONE guibg=Black
+    highlight DiffChange    ctermbg=NONE guibg=Black
+    highlight DiffDelete    ctermbg=NONE guibg=Black
 
     highlight StatusLine       ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
     highlight StatuslineNC     ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
@@ -589,10 +587,10 @@ endif
 " nnoremap N Nzzzv
 
 " Move lines left or right
-nnoremap < <<
-nnoremap > >>
-vnoremap < <gv
-vnoremap > >gv
+nnoremap <silent> < <<
+nnoremap <silent> > >>
+vnoremap <silent> < <gv
+vnoremap <silent> > >gv
 
 " Move lines up or down
 " nnoremap <silent> <up>   :m-2<cr>==
@@ -608,8 +606,8 @@ noremap  <silent> <c-s> :update<cr>
 inoremap <silent> <c-s> <esc>:update<cr>
 
 " Move vertically by visual line
-noremap  <silent> <expr> j v:count ? 'j' : 'gj'
-noremap  <silent> <expr> k v:count ? 'k' : 'gk'
+nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
+nnoremap <silent> <expr> k v:count ? 'k' : 'gk'
 vnoremap <silent> <expr> j v:count ? 'j' : 'gj'
 vnoremap <silent> <expr> k v:count ? 'k' : 'gk'
 
@@ -658,18 +656,10 @@ cnoreabbrev W       w
 cnoreabbrev Q       q
 cnoreabbrev Qall    qall
 
-" ----> Vim build
-nnoremap <buffer> <space>m :w!<cr>:make<cr>
-augroup VimBuild
+" ----> Filetype detect and custom
+augroup FileTypeDetectAndCustom
     autocmd!
-    autocmd FileType go      setl makeprg=go\ run\ %
-    autocmd FileType python  setl makeprg=python3\ %
-    autocmd FileType scheme  setl makeprg=chez\ --script\ %
-augroup END
-
-" ----> Filetype
-augroup CustomByFileType
-    autocmd!
+    autocmd BufRead,BufNewFile *.bean,*.beancount if &ft != 'beancount' | setf beancount | endif
     autocmd FileType qf setl nonu nornu
     autocmd FileType gitcommit setl spell
 augroup END
