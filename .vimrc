@@ -178,8 +178,8 @@ set wildignore+=*.chm,*.epub,*.pdf,*.mobi,*.ttf,*.azw*,*.xps
 set wildignore+=*.ppt*,*.doc*,*.xls*,*.od[tspg],*.pages,*.numbers,*.key,*.wps
 set wildignore+=*.msi,*.exe,*.crx,*.deb,*.vfd,*.apk,*.ipa,*.bin,*.msu
 set wildignore+=*/node_modules/*,*/nginx_runtime/*,*/build/*,*/logs/*
-set wildignore+=*/dist/*,*/tmp/*,*/.Trash/*,*/.rbenv/*,*/__pycache__/*
-set wildignore+=.git,*.git,.svn,.idea,.vscode,.vim
+set wildignore+=*/tmp/*,*/.Trash/*,*/.rbenv/*,*/__pycache__/*
+set wildignore+=*/.git/*,*/.svn/*,*/.idea/*,*/.vscode/*
 set wildignore+=*DS_Store,*Thumbs.db
 
 " ============> Plugins <============
@@ -314,9 +314,8 @@ if HasPlug('lightline.vim')
                 \ all_non_errors,
                 \ all_errors
             \ )
-        else
-            return ''
         endif
+        return ''
     endfunction
 
     function! LightlineFileSize() abort
