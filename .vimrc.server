@@ -762,14 +762,12 @@ elseif g:env.linux
 endif
 
 " ----> Echo start time when starting
-if has('reltime')
-    let s:startuptime = reltime()
-    augroup StartupTime
-        autocmd!
-        autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
-                            \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
-    augroup END
-endif
+let s:startuptime = reltime()
+augroup StartupTime
+    autocmd!
+    autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
+                        \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
+augroup END
 
 " ---> Generate security strings
 function! GenUUID() abort
