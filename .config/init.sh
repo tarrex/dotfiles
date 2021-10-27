@@ -1,7 +1,7 @@
 # Tarrex's bash/zsh initialization file.
 
 # ============> Prepare <============
-# if not running interactively, don't do anything
+# If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 # Disable Ctrl+S and Ctrl+Q in terminal
@@ -18,31 +18,35 @@ export XDG_RUNTIME_DIR=/tmp
 export XDG_DATA_DIRS=/usr/local/share:/usr/share
 export XDG_CONFIG_DIRS=/etc/xdg
 
+# Dependencies
+command -v curl >/dev/null && _INSTALLED_CURL=true
+command -v git >/dev/null  && _INSTALLED_GIT=true
+
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
 _Z_CMD=z
 if [[ -n $_Z_CMD ]]; then
-    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]]; then
+    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]] && [[ $_INSTALLED_CURL = true ]]; then
         echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
         echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
             $XDG_DATA_HOME/z/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
     fi
-    _Z_DATA=$XDG_DATA_HOME/z/zdata
-    [[ -f $_Z_DATA ]] || command touch $_Z_DATA
-    source $XDG_DATA_HOME/z/z.sh
+    if [[ -f $XDG_DATA_HOME/z/z.sh ]]; then
+        _Z_DATA=$XDG_DATA_HOME/z/zdata
+        [[ -f $_Z_DATA ]] || command touch $_Z_DATA
+        source $XDG_DATA_HOME/z/z.sh
+    fi
 fi
 
 # git-prompt.sh initialize
-if command -v git > /dev/null; then
-    if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]]; then
-        echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
-        echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
-    fi
-    source $XDG_DATA_HOME/git/git-prompt.sh
+if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]] && [[ $_INSTALLED_CURL = true ]] && [[ $_INSTALLED_GIT = true ]]; then
+    echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
+    echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
+    echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
+        $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
 fi
+[[ -f $XDG_DATA_HOME/git/git-prompt.sh ]] && source $XDG_DATA_HOME/git/git-prompt.sh
 
 # ============> Prompt <============
 # fish like collapse pwd
@@ -111,7 +115,7 @@ _retval() {
 
 # git branch
 _gitbranch() {
-    if command -v git > /dev/null; then
+    if [[ $_INSTALLED_GIT = true ]]; then
         echo $(__git_ps1 '(%s)')
     else
         echo ''
@@ -296,12 +300,16 @@ if [[ -n $ZSH_VERSION ]]; then
     # -----> Completion
     # Load and initialize the zsh completion system.
     # If you use zinit, comment below to avoid compinit duplicate initialization.
-    # autoload -Uz compinit
-    # if [[ -f $_comp_path ]]; then
-    #     compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump" # -C: skip function check
-    # else
-    #     compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump" # -i: skip security check
-    # fi
+    if [[ ! -f $XDG_DATA_HOME/zsh/zinit/bin/zinit.zsh ]]; then
+        autoload -Uz compinit
+        if [[ -f $_comp_path ]]; then
+            compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump" # -C: skip function check
+        else
+            compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump" # -i: skip security check
+        fi
+    fi
+
+    [[ -d $XDG_CACHE_HOME/zsh ]] || command mkdir -p $XDG_CACHE_HOME/zsh
 
     # use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
@@ -425,47 +433,49 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # -----> Plugin
     # zinit
-    typeset -A ZINIT=(
-        HOME_DIR        $XDG_DATA_HOME/zsh/zinit
-        ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
-        COMPINIT_OPTS   -C
-    )
+    if [[ $_INSTALLED_GIT = true ]]; then
+        typeset -A ZINIT=(
+            HOME_DIR        $XDG_DATA_HOME/zsh/zinit
+            ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
+            COMPINIT_OPTS   -C
+        )
 
-    # zinit install
-    [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
-    if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-        command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+        # zinit install
+        [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
+        if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
+            command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+        fi
+        source $ZINIT[HOME_DIR]/bin/zinit.zsh
+
+        # zinit compinit
+        autoload -Uz _zinit
+        (( ${+_comps} )) && _comps[zinit]=_zinit
+
+        # zinit plugin
+        zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
+        zinit light zdharma/fast-syntax-highlighting
+
+        zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
+        zinit light zsh-users/zsh-autosuggestions
+
+        zinit ice wait lucid blockf depth'1'
+        zinit light zsh-users/zsh-completions
+
+        zinit ice lucid depth'1'
+        zinit light zdharma/history-search-multi-word
+
+        zinit ice lucid has'docker' as'completion'
+        zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+
+        zinit ice lucid has'docker-compose' as'completion'
+        zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+
+        zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+            atclone'kubectl completion zsh >! _kubectl' \
+            atpull'%atclone' src"_kubectl" run-atpull \
+            atload'zicdreplay'
+        zinit light zdharma/null
     fi
-    source $ZINIT[HOME_DIR]/bin/zinit.zsh
-
-    # zinit compinit
-    autoload -Uz _zinit
-    (( ${+_comps} )) && _comps[zinit]=_zinit
-
-    # zinit plugin
-    zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
-    zinit light zdharma/fast-syntax-highlighting
-
-    zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
-    zinit light zsh-users/zsh-autosuggestions
-
-    zinit ice wait lucid blockf depth'1'
-    zinit light zsh-users/zsh-completions
-
-    zinit ice lucid depth'1'
-    zinit light zdharma/history-search-multi-word
-
-    zinit ice lucid has'docker' as'completion'
-    zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
-
-    zinit ice lucid has'docker-compose' as'completion'
-    zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
-
-    zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
-        atclone'kubectl completion zsh >! _kubectl' \
-        atpull'%atclone' src"_kubectl" run-atpull \
-        atload'zicdreplay'
-    zinit light zdharma/null
 
     # -----> Command-not-found
     [[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
@@ -484,8 +494,7 @@ if [[ -n $BASH_VERSION ]]; then
     export HISTCONTROL=ignoreboth
     export HISTIGNORE='ls:ll:la:ls -a:ls -l:ls -al:ls -alh:pwd:clear:cd:cd ..:history'
     export HISTFILE=$HOME/.bash_history
-fi
-if [[ -n $ZSH_VERSION ]]; then
+elif [[ -n $ZSH_VERSION ]]; then
     export HISTORY_IGNORE='(ls|ll|la|ls -a|ls -l|ls -al|ls -alh|pwd|clear|cd|cd ..|history)'
     export HISTFILE=$HOME/.zsh_history
 fi
@@ -508,7 +517,13 @@ export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_so=$'\e[1;44;33m'
 export LESS_TERMCAP_se=$'\e[0m'
 
-export MANPAGER="vim -M +MANPAGER --not-a-term -"
+command -v vim >/dev/null && export MANPAGER="vim -M +MANPAGER --not-a-term -"
+
+# Disable bash/zsh sessions on macOS
+[[ $OSTYPE == darwin* ]] && export SHELL_SESSION_DID_INIT=1
+
+# Nvim
+export PATH=$HOME/.local/bin/nvim/bin:$PATH
 
 # Language
 export LANG=en_US.UTF-8
@@ -527,11 +542,12 @@ fi
 
 # Golang
 case $OSTYPE in
-     linux*) export \
-        GOROOT=$XDG_DATA_HOME/go/go1.16.5 \
-        GOBASEPATH=$HOME/projects/go;;
     darwin*) export \
+        GOROOT=/usr/local/opt/go/libexec \
         GOBASEPATH=$HOME/Projects/Go;;
+     linux*) export \
+        GOROOT=/usr/local/go \
+        GOBASEPATH=$HOME/projects/go;;
 esac
 export GO111MODULE=on
 # export GOPROXY=https://goproxy.cn,direct
@@ -545,10 +561,14 @@ alias gohere='export GOPATH=`pwd`'
 alias gobase='export GOPATH=$GOBASEPATH'
 
 # Rust
-if [[ $OSTYPE == darwin* ]]; then
-    export RUST_TOOLCHAIN=stable-x86_64-apple-darwin
-    export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-fi
+case $OSTYPE in
+    darwin*) export RUST_TOOLCHAIN=stable-x86_64-apple-darwin;;
+     linux*) export RUST_TOOLCHAIN=stable-x86_64-unknown-linux-gnu;;
+esac
+# export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+# export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
+export RUSTUP_DIST_SERVER=https://static.rust-lang.org
+export RUSTUP_UPDATE_ROOT=https://static.rust-lang.org/rustup
 export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export CARGO_HOME=$XDG_DATA_HOME/cargo
 export PATH=$CARGO_HOME/bin:$PATH
@@ -559,11 +579,10 @@ export IPYTHONDIR=$XDG_CONFIG_HOME/jupyter
 export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
 export PYLINTHOME=$XDG_CACHE_HOME/pylint
 
-# Ruby -> gems
+# Ruby / gems / bundler
 export GEM_HOME=$XDG_DATA_HOME/gem
 export GEM_SPEC_CACHE=$XDG_CACHE_HOME/gem
 
-# Ruby -> bundler
 export BUNDLE_USER_CONFIG=$XDG_CONFIG_HOME/bundle
 export BUNDLE_USER_CACHE=$XDG_CACHE_HOME/bundle
 export BUNDLE_USER_PLUGIN=$XDG_DATA_HOME/bundle
@@ -576,8 +595,12 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 # LLVM
-if [[ -d /usr/local/opt/llvm/bin ]]; then
-    export PATH=/usr/local/opt/llvm/bin:$PATH
+if [[ $OSTYPE == darwin* ]]; then
+    if [[ -d /usr/local/opt/llvm ]]; then
+        export LDFLAGS="-L/usr/local/opt/llvm/lib"
+        export CPPFLAGS="-I/usr/local/opt/llvm/include"
+        export PATH=/usr/local/opt/llvm/bin:$PATH
+    fi
 fi
 
 # Node / npm / yarn / nvm
@@ -640,7 +663,7 @@ if [[ -f $NVM_DIR/nvm.sh ]]; then
 fi
 
 install_nvm() {
-    if [[ ! -f $NVM_DIR/nvm.sh ]]; then
+    if [[ ! -f $NVM_DIR/nvm.sh ]] && [[ $_INSTALLED_CURL = true ]]; then
         echo "$NVM_DIR/nvm.sh doesn't exists."
         echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
@@ -654,7 +677,7 @@ export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
-if [[ ! -d $GNUPGHOME ]] && command -v gpg > /dev/null; then
+if [[ ! -d $GNUPGHOME ]] && command -v gpg >/dev/null; then
     command mkdir -m700 -p $GNUPGHOME
 fi
 
@@ -736,16 +759,6 @@ cmdrank() {
         | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
 }
 
-# Display a random quote
-quote() {
-    Q=$(curl -s --connect-timeout 2 "http://www.quotationspage.com/random.php" | iconv -c -f ISO-8859-1 -t UTF-8 | grep -m 1 "dt ")
-
-    TXT=$(echo "$Q" | sed -e 's/<\/dt>.*//g' -e 's/.*html//g' -e 's/^[^a-zA-Z]*//' -e 's/<\/a..*$//g')
-    WHO=$(echo "$Q" | sed -e 's/.*\/quotes\///g' -e 's/<.*//g' -e 's/.*">//g')
-
-    [[ -n $WHO && -n $TXT ]] && print -P "%F{3}${WHO}%f: \"%F{5}${TXT}%f\""
-}
-
 # Web search
 websearch() {
     typeset -A urls
@@ -753,12 +766,8 @@ websearch() {
         google          "https://www.google.com/search?q="
         bing            "https://www.bing.com/search?q="
         github          "https://github.com/search?q="
-        baidu           "https://www.baidu.com/s?wd="
-        goodreads       "https://www.goodreads.com/search?q="
         stackoverflow   "https://stackoverflow.com/search?q="
-        wolframalpha    "https://www.wolframalpha.com/input/?i="
-        archive         "https://web.archive.org/web/*/"
-        scholar         "https://scholar.google.com/scholar?q="
+        goodreads       "https://www.goodreads.com/search?q="
         doubanbook      "https://search.douban.com/book/subject_search?search_text="
     )
 
@@ -777,19 +786,6 @@ websearch() {
         esac
     fi
 }
-
-if [[ $OSTYPE == linux* || $OSTYPE == darwin* ]]; then
-    alias bing='websearch bing'
-    alias google='websearch google'
-    alias github='websearch github'
-    alias baidu='websearch baidu'
-    alias goodreads='websearch goodreads'
-    alias sof='websearch stackoverflow'
-    alias wolframalpha='websearch wolframalpha'
-    alias archive='websearch archive'
-    alias scholar='websearch scholar'
-    alias doubanbook='websearch doubanbook'
-fi
 
 # ============> Finally <============
 # Remove duplicate path
