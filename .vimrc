@@ -39,7 +39,9 @@ if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't sho
     silent! set cursorlineopt=number    " highlight the line number of the cursor if could
 endif
 set background=dark                     " try to use colors that look good on a dark background
-silent! set termguicolors               " enable GUI colors for the terminal to get truecolor
+if $TERM_PROGRAM !=# 'Apple_Terminal'
+    silent! set termguicolors           " enable GUI colors for the terminal to get truecolor
+endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -209,6 +211,7 @@ call plug#begin(g:vimdir . '/plugged')
 Plug 'lifepillar/vim-gruvbox8'
 Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
+Plug 'editorconfig/editorconfig-vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align'
@@ -219,10 +222,10 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
-Plug 'tpope/vim-surround'
+Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-repeat'
 if g:dep.node | Plug 'neoclide/coc.nvim', { 'branch': 'release', 'do': 'npm install' } | else | Plug 'skywind3000/vim-auto-popmenu' | endif
-if g:feat.py3 || g:nvim | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
+if g:feat.py3 | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
@@ -277,15 +280,12 @@ if HasPlug('lightline.vim')
         \ }
     \ }
 
-    let s:specific_fts = ['qf', 'help', 'man', 'netrw', 'vista']
+    let s:fts = ['qf', 'help', 'man', 'netrw', 'vista']
 
     function! LightLineMode() abort
-        return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
+        return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'LocList' :
             \ &ft ==? 'qf' ? 'QuickFix' :
-            \ &ft ==? 'help' ? 'Help' :
-            \ &ft ==? 'man' ? 'Man' :
-            \ &ft ==? 'netrw' ? 'Netrw' :
-            \ &ft ==? 'vista' ? 'Vista' :
+            \ index(s:fts, &ft) >= 0 ? substitute(&ft, '\v<(.)', '\u\1', '') :
             \ lightline#mode()
     endfunction
 
@@ -298,7 +298,7 @@ if HasPlug('lightline.vim')
         else
             let fname = pathshorten(expand('%'))
         endif
-        return index(s:specific_fts, &ft) >= 0 ? '' :
+        return index(s:fts, &ft) >= 0 ? '' :
             \ ('' !=? fname ? fname : '[No Name]') .
             \ (&modified ? ' +' : '')
     endfunction
@@ -328,25 +328,25 @@ if HasPlug('lightline.vim')
             let l:bytes = l:bytes / 1024.0
             let l:idx += 1
         endwhile
-        return index(s:specific_fts, &ft) >= 0 ? ''
+        return index(s:fts, &ft) >= 0 ? ''
             \ : printf('%.1f%s', l:bytes, l:units[l:idx])
     endfunction
 
     function! LightLineFileFormat() abort
         if (winwidth(0) < 60 || mode() == 't') | return '' | endif
-        return index(s:specific_fts, &ft) >= 0 ? ''
+        return index(s:fts, &ft) >= 0 ? ''
             \ : &fileformat
     endfunction
 
     function! LightLineFileEncoding() abort
         if (winwidth(0) < 50 || mode() == 't') | return '' | endif
-        return index(s:specific_fts, &ft) >= 0 ? '' :
+        return index(s:fts, &ft) >= 0 ? '' :
             \ &fenc !=# '' ? &fenc : &enc
     endfunction
 
     function! LightLineFileType() abort
         if (winwidth(0) < 40 || mode() == 't') | return '' | endif
-        return index(s:specific_fts, &ft) >= 0 ? '' :
+        return index(s:fts, &ft) >= 0 ? '' :
             \ &ft !=# '' ? &ft : 'no ft'
     endfunction
 endif
@@ -392,6 +392,15 @@ if HasPlug('vim-multiple-cursors')
     let g:multi_cursor_quit_key            = '<esc>'
 endif
 
+" ----> editorconfig/editorconfig-vim
+if HasPlug('editorconfig-vim')
+    let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+    augroup EditorConfig
+        autocmd!
+        autocmd FileType gitcommit let b:EditorConfig_disable = 1
+    augroup END
+endif
+
 " ----> dhruvasagar/vim-table-mode
 if HasPlug('vim-table-mode')
     let g:table_mode_corner = '|'
@@ -417,9 +426,9 @@ if HasPlug('vista.vim')
     let g:vista#renderer#enable_icon     = 0
 
     if HasPlug('coc.nvim')
-        nnoremap <localleader>t :Vista coc<cr>
+        nnoremap <silent> <localleader>t :Vista coc<cr>
     else
-        nnoremap <localleader>t :Vista<cr>
+        nnoremap <silent> <localleader>t :Vista<cr>
     end
 endif
 
@@ -569,7 +578,7 @@ if HasPlug('coc.nvim')
         autocmd FileType scss setl iskeyword+=@-@
     augroup END
 
-    nnoremap <coc> <Nop>
+    nnoremap <coc> <nop>
     nmap     ;     <coc>
 
     " Symbol renaming.
@@ -691,57 +700,61 @@ if HasPlug('ale')
     let g:ale_open_list                   = 'on_save'
     let g:ale_fix_on_save                 = 1
     let g:ale_fixers                      = {
-        \ 'go':         ['goimports'],
-        \ 'python':     ['black'],
-        \ 'rust':       ['rustfmt'],
-        \ 'c':          ['clang-format'],
-        \ 'cpp':        ['clang-format'],
-        \ 'javascript': ['eslint'],
-        \ 'typescript': ['tslint'],
-        \ 'vue':        ['prettier'],
-        \ 'html':       ['prettier'],
-        \ 'css':        ['prettier'],
-        \ 'less':       ['prettier'],
-        \ 'sass':       ['prettier'],
-        \ 'scss':       ['prettier'],
-        \ 'json':       ['prettier'],
-        \ 'yaml':       ['prettier'],
-        \ 'graphql':    ['prettier'],
-        \ 'sh':         ['shfmt'],
-        \ 'markdown':   ['prettier']
+        \ 'go':              ['goimports'],
+        \ 'python':          ['black'],
+        \ 'rust':            ['rustfmt'],
+        \ 'c':               ['clang-format'],
+        \ 'cpp':             ['clang-format'],
+        \ 'javascript':      ['prettier'],
+        \ 'javascriptreact': ['prettier'],
+        \ 'typescript':      ['prettier'],
+        \ 'typescriptreact': ['prettier'],
+        \ 'vue':             ['prettier'],
+        \ 'html':            ['prettier'],
+        \ 'css':             ['prettier'],
+        \ 'less':            ['prettier'],
+        \ 'sass':            ['prettier'],
+        \ 'scss':            ['prettier'],
+        \ 'json':            ['prettier'],
+        \ 'yaml':            ['prettier'],
+        \ 'graphql':         ['prettier'],
+        \ 'markdown':        ['prettier'],
+        \ 'sh':              ['shfmt']
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
-    let s:ale_prettier_common_options     = '--print-width 120 --single-quote true --trailing-comma all --bracket-same-line'
+    let s:ale_prettier_common_options     = '--print-width 180 --single-quote true --trailing-comma all'
     let g:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
-    augroup PrettierForFileTypes
-        autocmd!
-        autocmd FileType javascript let b:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
-    augroup END
+    " augroup PrettierForFileTypes
+    "     autocmd!
+    "     autocmd FileType javascript,typescript let b:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
+    " augroup END
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
     let g:ale_lint_on_text_changed        = 0
     let g:ale_linters_explicit            = 1
     let g:ale_linters                     = {
-        \ 'go':         ['golangci-lint', 'gopls'],
-        \ 'python':     ['pyflakes'],
-        \ 'rust':       ['analyzer', 'rls'],
-        \ 'java':       ['javac'],
-        \ 'c':          ['cc', 'clangd'],
-        \ 'cpp':        ['cc', 'clangd'],
-        \ 'javascript': ['eslint'],
-        \ 'typescript': ['tslint'],
-        \ 'vue':        ['eslint'],
-        \ 'html':       ['stylelint'],
-        \ 'css':        ['stylelint'],
-        \ 'less':       ['stylelint'],
-        \ 'sass':       ['stylelint'],
-        \ 'scss':       ['stylelint'],
-        \ 'json':       ['prettier'],
-        \ 'yaml':       ['yamllint'],
-        \ 'graphql':    ['eslint'],
-        \ 'sh':         ['shell'],
-        \ 'markdown':   ['languagetool'],
-        \ 'text':       ['languagetool']
+        \ 'go':              ['golangci-lint', 'gopls'],
+        \ 'python':          ['pyflakes'],
+        \ 'rust':            ['analyzer', 'rls'],
+        \ 'java':            ['javac'],
+        \ 'c':               ['cc', 'clangd'],
+        \ 'cpp':             ['cc', 'clangd'],
+        \ 'javascript':      ['eslint'],
+        \ 'javascriptreact': ['eslint'],
+        \ 'typescript':      ['eslint'],
+        \ 'typescriptreact': ['eslint'],
+        \ 'vue':             ['eslint'],
+        \ 'html':            ['stylelint'],
+        \ 'css':             ['stylelint'],
+        \ 'less':            ['stylelint'],
+        \ 'sass':            ['stylelint'],
+        \ 'scss':            ['stylelint'],
+        \ 'json':            ['prettier'],
+        \ 'yaml':            ['yamllint'],
+        \ 'graphql':         ['eslint'],
+        \ 'markdown':        ['languagetool'],
+        \ 'text':            ['languagetool'],
+        \ 'sh':              ['shell']
     \ }
     let g:ale_go_golangci_lint_options    = ''
 
@@ -1004,10 +1017,24 @@ cnoreabbrev Qall    qall
 " ----> Filetype detect and custom
 augroup FileTypeDetectAndCustom
     autocmd!
-    autocmd BufRead,BufNewFile *.bean,*.beancount if &ft != 'beancount' | setf beancount | endif
-    autocmd FileType qf setl nonu nornu
-    autocmd FileType gitcommit setl spell
+    autocmd BufRead,BufNewFile nginx.*.conf       setf nginx
+    autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
+    autocmd FileType qf                           setl nonu nornu
+    autocmd FileType gitcommit                    setl spell
+    autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
+    autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
+    autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
+    autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
 augroup END
+
+" ----> Templates
+let s:templatesdir = g:vimdir . '/templates'
+if isdirectory(s:templatesdir)
+    augroup Templates
+        autocmd!
+        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig.spec'
+    augroup END
+endif
 
 " ----> Tricks
 augroup VimTricks
@@ -1022,7 +1049,10 @@ augroup VimTricks
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
     if exists('##TerminalOpen')
-        autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
+        autocmd TerminalOpen * if &bt ==# 'terminal' | setl nobl | endif
+    endif
+    if g:nvim && exists('##TermOpen')
+        autocmd TermOpen * if &bt ==# 'terminal' | setl nobl nonu nornu | startinsert | endif
     endif
 augroup END
 
@@ -1032,6 +1062,7 @@ command! RemoveBlankLine sil g/^$/d | noh | normal! ``
 command! RTP echo substitute(&runtimepath, ',', "\n", 'g')
 command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
+command! CurrentPath echo expand('%:p')
 
 " ----> Disable some vim built-in plugins
 let g:loaded_2html_plugin    = 1        " tohtml
@@ -1040,6 +1071,17 @@ let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat         = 1        " logipat
 let g:loaded_vimball         = 1        " vimball
 let g:loaded_vimballPlugin   = 1
+
+if g:nvim
+    let g:python_host_prog        = 'python'
+    let g:python3_host_prog       = 'python3'
+    let g:loaded_pythonx_provider = 0
+    let g:loaded_python_provider  = 0
+    let g:loaded_python3_provider = 0
+    let g:loaded_ruby_provider    = 0
+    let g:loaded_perl_provider    = 0
+    let g:loaded_node_provider    = 0
+endif
 
 " ----> Netrw
 let g:netrw_altfile      = 1
@@ -1051,10 +1093,10 @@ let g:netrw_sort_options = 'i'
 let g:netrw_winsize      = 25
 
 function! NetrwToggle() abort
-    if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
-        silent! execute "bd" . g:netrw_buffer | unlet g:netrw_buffer
+    if exists('g:netrw_buffer') && bufexists(g:netrw_buffer)
+        silent! execute 'bd' . g:netrw_buffer | unlet g:netrw_buffer
     else
-        silent! Lexplore | let g:netrw_buffer=bufnr("%")
+        silent! Lexplore | let g:netrw_buffer=bufnr('%')
     endif
 endfunction
 noremap <silent> <localleader>f :call NetrwToggle()<cr>

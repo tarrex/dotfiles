@@ -34,7 +34,9 @@ if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't sho
     silent! set cursorlineopt=number    " highlight the line number of the cursor if could
 endif
 set background=dark                     " try to use colors that look good on a dark background
-silent! set termguicolors               " enable GUI colors for the terminal to get truecolor
+if $TERM_PROGRAM !=# 'Apple_Terminal'
+    silent! set termguicolors           " enable GUI colors for the terminal to get truecolor
+endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
 set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
@@ -188,16 +190,14 @@ let g:currentmode = {
     \ 'c': 'COMMAND', 'r?': 'CONFIRM', 't': 'TERMINAL'
 \ }
 
+let s:fts = ['qf', 'help', 'man', 'netrw']
+
 function! Mode() abort
-    return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'Location' :
+    return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'LocList' :
         \ &ft ==? 'qf' ? 'QuickFix' :
-        \ &ft ==? 'help' ? 'Help' :
-        \ &ft ==? 'man' ? 'Man' :
-        \ &ft ==? 'netrw' ? 'Netrw' :
+        \ index(s:fts, &ft) >= 0 ? substitute(&ft, '\v<(.)', '\u\1', '') :
         \ get(g:currentmode, mode(), mode())
 endfunction
-
-let s:specific_fts = ['qf', 'help', 'man', 'netrw']
 
 " file name
 function! FileName() abort
@@ -209,7 +209,7 @@ function! FileName() abort
     else
         let fname = pathshorten(expand('%'))
     endif
-    return index(s:specific_fts, &ft) >= 0 ? '' :
+    return index(s:fts, &ft) >= 0 ? '' :
         \ ('' !=? fname ? '| '.fname : '| [No Name]') .
         \ (&modified ? ' +' : '')
 endfunction
@@ -225,25 +225,25 @@ function! FileSize() abort
         let l:bytes = l:bytes / 1024.0
         let l:idx += 1
     endwhile
-    return index(s:specific_fts, &ft) >= 0 ? ''
+    return index(s:fts, &ft) >= 0 ? ''
         \ : printf('%.1f%s | ', l:bytes, l:units[l:idx])
 endfunction
 
 function! FileFormat() abort
     if (winwidth(0) < 60 || mode() == 't') | return '' | endif
-    return index(s:specific_fts, &ft) >= 0 ? ''
+    return index(s:fts, &ft) >= 0 ? ''
         \ : &fileformat . ' | '
 endfunction
 
 function! FileEncoding() abort
     if (winwidth(0) < 50 || mode() == 't') | return '' | endif
-    return index(s:specific_fts, &ft) >= 0 ? '' :
+    return index(s:fts, &ft) >= 0 ? '' :
         \ &fenc !=# '' ? &fenc.' | ' : &enc.' | '
 endfunction
 
 function! FileType() abort
     if (winwidth(0) < 40 || mode() == 't') | return '' | endif
-    return index(s:specific_fts, &ft) >= 0 ? '' :
+    return index(s:fts, &ft) >= 0 ? '' :
         \ &ft !=# '' ? &ft.' | ' : 'no ft | '
 endfunction
 
@@ -651,10 +651,24 @@ cnoreabbrev Qall    qall
 " ----> Filetype detect and custom
 augroup FileTypeDetectAndCustom
     autocmd!
-    autocmd BufRead,BufNewFile *.bean,*.beancount if &ft != 'beancount' | setf beancount | endif
-    autocmd FileType qf setl nonu nornu
-    autocmd FileType gitcommit setl spell
+    autocmd BufRead,BufNewFile nginx.*.conf       setf nginx
+    autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
+    autocmd FileType qf                           setl nonu nornu
+    autocmd FileType gitcommit                    setl spell
+    autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
+    autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
+    autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
+    autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
 augroup END
+
+" ----> Templates
+let s:templatesdir = g:vimdir . '/templates'
+if isdirectory(s:templatesdir)
+    augroup Templates
+        autocmd!
+        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig.spec'
+    augroup END
+endif
 
 " ----> Tricks
 augroup VimTricks
@@ -669,7 +683,10 @@ augroup VimTricks
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
     " don't list terminal buffer at buffer list
     if exists('##TerminalOpen')
-        autocmd TerminalOpen * if &bt == 'terminal' | sil set nobl | endif
+        autocmd TerminalOpen * if &bt ==# 'terminal' | setl nobl | endif
+    endif
+    if g:nvim && exists('##TermOpen')
+        autocmd TermOpen * if &bt ==# 'terminal' | setl nobl nonu nornu | startinsert | endif
     endif
 augroup END
 
@@ -679,6 +696,7 @@ command! RemoveBlankLine sil g/^$/d | noh | normal! ``
 command! RTP echo substitute(&runtimepath, ',', "\n", 'g')
 command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
+command! CurrentPath echo expand('%:p')
 
 " ----> Disable some vim built-in plugins
 let g:loaded_2html_plugin    = 1        " tohtml
@@ -687,6 +705,17 @@ let g:loaded_getscriptPlugin = 1
 let g:loaded_logiPat         = 1        " logipat
 let g:loaded_vimball         = 1        " vimball
 let g:loaded_vimballPlugin   = 1
+
+if g:nvim
+    let g:python_host_prog        = 'python'
+    let g:python3_host_prog       = 'python3'
+    let g:loaded_pythonx_provider = 0
+    let g:loaded_python_provider  = 0
+    let g:loaded_python3_provider = 0
+    let g:loaded_ruby_provider    = 0
+    let g:loaded_perl_provider    = 0
+    let g:loaded_node_provider    = 0
+endif
 
 " ----> Netrw
 let g:netrw_altfile      = 1
@@ -698,10 +727,10 @@ let g:netrw_sort_options = 'i'
 let g:netrw_winsize      = 25
 
 function! NetrwToggle() abort
-    if exists("g:netrw_buffer") && bufexists(g:netrw_buffer)
-        silent! execute "bd" . g:netrw_buffer | unlet g:netrw_buffer
+    if exists('g:netrw_buffer') && bufexists(g:netrw_buffer)
+        silent! execute 'bd' . g:netrw_buffer | unlet g:netrw_buffer
     else
-        silent! Lexplore | let g:netrw_buffer=bufnr("%")
+        silent! Lexplore | let g:netrw_buffer=bufnr('%')
     endif
 endfunction
 noremap <silent> <localleader>f :call NetrwToggle()<cr>

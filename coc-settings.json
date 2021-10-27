@@ -23,7 +23,7 @@
   "suggest.languageSourcePriority": 90,
   "suggest.maxCompleteItemCount": 20,
   "suggest.minTriggerInputLength": 2,
-  "suggest.noselect": false,
+  "suggest.noselect": true,
 
   "html.format.enable": false,
   "html.autoClosingTags": true,
@@ -42,10 +42,7 @@
       "command": "gopls",
       "filetypes": ["go"],
       "rootPatterns": [".git/", "go.mod", "Makefile"],
-      "initializationOptions": {
-        "usePlaceholders": false,
-        "completeUnimported": true
-      }
+      "initializationOptions": {}
     },
     "rust": {
       "command": "rust-analyzer",
