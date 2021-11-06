@@ -27,7 +27,7 @@ nmap
 opencc
 openjdk
 pandoc
-qemu
+podman
 rename
 ripgrep
 rustup-init
