@@ -38,15 +38,16 @@ if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't sho
     set cursorline                      " show underline for the cursor's line
     silent! set cursorlineopt=number    " highlight the line number of the cursor if could
 endif
+silent! set signcolumn=number           " display signs in the 'number' column if could else 'auto'
 set background=dark                     " try to use colors that look good on a dark background
 if $TERM_PROGRAM !=# 'Apple_Terminal'
     silent! set termguicolors           " enable GUI colors for the terminal to get truecolor
 endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
-set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
 set shiftwidth=4                        " number of spaces to use for each step of (auto)indent
+set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set tabstop=4                           " number of spaces that a <tab> in the file counts for
 set softtabstop=4                       " number of spaces that a <tab> counts for while performing editing operations
 set smarttab                            " be smart when use tabs
@@ -224,8 +225,14 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'tmsvg/pear-tree'
 Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-repeat'
-if g:dep.node | Plug 'neoclide/coc.nvim', { 'branch': 'release', 'do': 'npm install' } | else | Plug 'skywind3000/vim-auto-popmenu' | endif
-if g:feat.py3 | Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets' | endif
+if g:dep.node
+    Plug 'neoclide/coc.nvim', { 'branch': 'release', 'do': 'npm install' }
+else
+    Plug 'skywind3000/vim-auto-popmenu'
+endif
+if g:feat.py3
+    Plug 'sirver/ultisnips' | Plug 'honza/vim-snippets'
+endif
 Plug 'dense-analysis/ale'
 Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
 Plug 'yianwillis/vimcdoc'
@@ -237,7 +244,11 @@ Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' 
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
 Plug 'cespare/vim-toml',           { 'for': 'toml' }
-if g:nvim | Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} | endif
+if g:nvim
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plug 'github/copilot.vim'
+endif
+Plug 'wakatime/vim-wakatime'
 
 call plug#end()
 
@@ -394,6 +405,7 @@ endif
 
 " ----> editorconfig/editorconfig-vim
 if HasPlug('editorconfig-vim')
+    let g:EditorConfig_disable_rules    = ['trim_trailing_whitespace']
     let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
     augroup EditorConfig
         autocmd!
@@ -691,9 +703,9 @@ if HasPlug('ale')
     let g:ale_echo_msg_log_str            = 'L'
     let g:ale_echo_msg_format             = '%severity%: [%linter%] %s'
     let g:ale_loclist_msg_format          = '[%linter%] %code: %%s'
-    let g:ale_sign_error                  = '>>'
-    let g:ale_sign_warning                = '--'
-    let g:ale_sign_info                   = '~~'
+    let g:ale_sign_error                  = '✖'
+    let g:ale_sign_warning                = '⚠'
+    let g:ale_sign_info                   = '•'
     let g:ale_set_highlights              = 0
     let g:ale_set_quickfix                = 1
     let g:ale_list_window_size            = 6
@@ -722,12 +734,7 @@ if HasPlug('ale')
         \ 'sh':              ['shfmt']
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
-    let s:ale_prettier_common_options     = '--print-width 180 --single-quote true --trailing-comma all'
-    let g:ale_javascript_prettier_options = '--tab-width 2 '.s:ale_prettier_common_options
-    " augroup PrettierForFileTypes
-    "     autocmd!
-    "     autocmd FileType javascript,typescript let b:ale_javascript_prettier_options = '--tab-width 4 '.s:ale_prettier_common_options
-    " augroup END
+    let g:ale_javascript_prettier_options = '--print-width 180 --single-quote true --trailing-comma all'
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
     let g:ale_lint_on_text_changed        = 0
@@ -1032,7 +1039,7 @@ let s:templatesdir = g:vimdir . '/templates'
 if isdirectory(s:templatesdir)
     augroup Templates
         autocmd!
-        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig.spec'
+        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig'
     augroup END
 endif
 

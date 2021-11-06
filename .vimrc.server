@@ -33,15 +33,16 @@ if getfsize(@%) < 10 * 1024 * 1024      " if file size more than 10MB, don't sho
     set cursorline                      " show underline for the cursor's line
     silent! set cursorlineopt=number    " highlight the line number of the cursor if could
 endif
+silent! set signcolumn=number           " display signs in the 'number' column if could else 'auto'
 set background=dark                     " try to use colors that look good on a dark background
 if $TERM_PROGRAM !=# 'Apple_Terminal'
     silent! set termguicolors           " enable GUI colors for the terminal to get truecolor
 endif
 set visualbell t_vb=                    " no beep or flash is wanted
 
-set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set shiftround                          " round indent to multiple of 'shiftwidth'
 set shiftwidth=4                        " number of spaces to use for each step of (auto)indent
+set expandtab                           " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
 set tabstop=4                           " number of spaces that a <tab> in the file counts for
 set softtabstop=4                       " number of spaces that a <tab> counts for while performing editing operations
 set smarttab                            " be smart when use tabs
@@ -666,7 +667,7 @@ let s:templatesdir = g:vimdir . '/templates'
 if isdirectory(s:templatesdir)
     augroup Templates
         autocmd!
-        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig.spec'
+        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig'
     augroup END
 endif
 
