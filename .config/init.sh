@@ -150,15 +150,20 @@ if [[ -n $BASH_VERSION ]]; then
     shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing  buffer for further modification.
 
     # -----> Key binding
-    bind '"\eh": "\C-b"'
-    bind '"\el": "\C-f"'
-    bind '"\ej": "\C-n"'
-    bind '"\ek": "\C-p"'
-    bind '"\eH": "\eb"'
-    bind '"\eL": "\ef"'
-    bind '"\eJ": "\C-a"'
-    bind '"\eK": "\C-e"'
-    bind '"\e;":"ll\n"'
+    set -o emacs            # Use emacs key bindings in bash
+    # set -o vi               # Use vim key bindings in bash
+    # bind -m vi-command 'Control-l: clear-screen'
+    # bind -m vi-insert  'Control-l: clear-screen'
+
+    bind '"\eh":  "\C-b"'
+    bind '"\el":  "\C-f"'
+    bind '"\ej":  "\C-n"'
+    bind '"\ek":  "\C-p"'
+    bind '"\eH":  "\eb"'
+    bind '"\eL":  "\ef"'
+    bind '"\eJ":  "\C-a"'
+    bind '"\eK":  "\C-e"'
+    bind '"\e;":  "ll\n"'
     bind '"\e[A": history-search-backward'
     bind '"\e[B": history-search-forward'
 
@@ -221,7 +226,8 @@ if [[ -n $ZSH_VERSION ]]; then
     unsetopt BEEP                   # Do not beep on error in line editor.
 
     # -----> Key binding
-    bindkey -e                      # Use Emacs key bindings
+    bindkey -e                      # Use emacs key bindings in zsh
+    # bindkey -v                      # Use vim key bindings in zsh
 
     # create a zkbd compatible hash;
     # to add other keys to this hash, see: man 5 terminfo
@@ -435,7 +441,7 @@ if [[ -n $ZSH_VERSION ]]; then
     # zinit
     if [[ $_INSTALLED_GIT = true ]]; then
         typeset -A ZINIT=(
-            HOME_DIR        $XDG_DATA_HOME/zsh/zinit
+            HOME_DIR        $XDG_DATA_HOME/zinit
             ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
             COMPINIT_OPTS   -C
         )
@@ -443,38 +449,42 @@ if [[ -n $ZSH_VERSION ]]; then
         # zinit install
         [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
         if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-            command git clone --depth=1 https://github.com/zdharma/zinit.git $ZINIT[HOME_DIR]/bin
+            command git clone --depth 1 https://github.com/zdharma-continuum/zinit.git $ZINIT[HOME_DIR]/bin
         fi
-        source $ZINIT[HOME_DIR]/bin/zinit.zsh
 
-        # zinit compinit
-        autoload -Uz _zinit
-        (( ${+_comps} )) && _comps[zinit]=_zinit
+        # zinit initial
+        if [[ -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
+            source $ZINIT[HOME_DIR]/bin/zinit.zsh
 
-        # zinit plugin
-        zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
-        zinit light zdharma/fast-syntax-highlighting
+            # zinit compinit
+            autoload -Uz _zinit
+            (( ${+_comps} )) && _comps[zinit]=_zinit
 
-        zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
-        zinit light zsh-users/zsh-autosuggestions
+            # zinit plugin
+            zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
+            zinit light zdharma-continuum/fast-syntax-highlighting
 
-        zinit ice wait lucid blockf depth'1'
-        zinit light zsh-users/zsh-completions
+            zinit ice lucid depth'1'
+            zinit light zdharma-continuum/history-search-multi-word
 
-        zinit ice lucid depth'1'
-        zinit light zdharma/history-search-multi-word
+            zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
+            zinit light zsh-users/zsh-autosuggestions
 
-        zinit ice lucid has'docker' as'completion'
-        zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+            zinit ice wait lucid blockf depth'1'
+            zinit light zsh-users/zsh-completions
 
-        zinit ice lucid has'docker-compose' as'completion'
-        zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+            zinit ice lucid has'docker' as'completion'
+            zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
 
-        zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
-            atclone'kubectl completion zsh >! _kubectl' \
-            atpull'%atclone' src"_kubectl" run-atpull \
-            atload'zicdreplay'
-        zinit light zdharma/null
+            zinit ice lucid has'docker-compose' as'completion'
+            zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
+
+            zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+                atclone'kubectl completion zsh >! _kubectl' \
+                atpull'%atclone' src"_kubectl" run-atpull \
+                atload'zicdreplay'
+            zinit light zdharma-continuum/null
+        fi
     fi
 
     # -----> Command-not-found
@@ -498,7 +508,7 @@ elif [[ -n $ZSH_VERSION ]]; then
     export HISTORY_IGNORE='(ls|ll|la|ls -a|ls -l|ls -al|ls -alh|pwd|clear|cd|cd ..|history)'
     export HISTFILE=$HOME/.zsh_history
 fi
-export HISTSIZE=100000
+export HISTSIZE=10000000
 export SAVEHIST=$HISTSIZE
 
 # Editor
@@ -680,6 +690,9 @@ export GNUPGHOME=$XDG_DATA_HOME/gnupg
 if [[ ! -d $GNUPGHOME ]] && command -v gpg >/dev/null; then
     command mkdir -m700 -p $GNUPGHOME
 fi
+
+# Wakatime
+export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
 
 # Common alias
 case $OSTYPE in
