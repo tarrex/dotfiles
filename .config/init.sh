@@ -305,8 +305,8 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # -----> Completion
     # Load and initialize the zsh completion system.
-    # If you use zinit, comment below to avoid compinit duplicate initialization.
-    if [[ ! -f $XDG_DATA_HOME/zsh/zinit/bin/zinit.zsh ]]; then
+    # If use zinit, don't load compinit to avoid compinit duplicate initialization.
+    if [[ ! -f $XDG_DATA_HOME/zinit/bin/zinit.zsh ]]; then
         autoload -Uz compinit
         if [[ -f $_comp_path ]]; then
             compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump" # -C: skip function check
