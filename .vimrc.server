@@ -122,8 +122,6 @@ set noswapfile                              " don't create swapfile for the buff
 "     call mkdir(&directory, 'p', 0700)
 " endif
 set nobackup                                " don't make a backup before overwriting a file
-" set backupext=.bak                          " string which is appended to a file name to make the name of the backup file
-" set backupskip+=/etc/cron.*/*               " list of file patterns that do not create backup file
 " let &backupdir = g:vimdir . '/tmp/backup'
 " if !isdirectory(&backupdir)
 "     call mkdir(&backupdir, 'p', 0700)
@@ -515,9 +513,12 @@ endif
 " ----> Netrw
 let g:netrw_altfile      = 1
 let g:netrw_banner       = 1
+let g:netrw_dirhistmax   = 0
 let g:netrw_liststyle    = 1
-let g:netrw_list_hide    = &wildignore
+let s:escape             = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
+let g:netrw_list_hide    = join(map(split(&wildignore, ','), '"^".' . s:escape . '. "$"'), ',')
 let g:netrw_preview      = 0
+let g:netrw_sizestyle    = 'H'
 let g:netrw_sort_options = 'i'
 let g:netrw_winsize      = 25
 
