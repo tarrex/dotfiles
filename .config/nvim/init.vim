@@ -91,8 +91,6 @@ set dictionary+=/usr/share/dict/words       " files that are used to lookup word
 set path=.,**5                              " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set noswapfile                              " don't create swapfile for the buffer
 set nobackup                                " don't make a backup before overwriting a file
-" set backupext=.bak                          " string which is appended to a file name to make the name of the backup file
-" set backupskip+=/etc/cron.*/*               " list of file patterns that do not create backup file
 set undofile                                " automatically saves undo history to an undo file
 
 set wildignorecase                          " ignore case when completing file names and directories
