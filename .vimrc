@@ -1055,7 +1055,6 @@ noremap <silent> <localleader>e :call NetrwToggle()<cr>
 function! ZenModeToggle() abort
     if exists('s:zen_mode')
         set smd ru sc nu ls=2
-        highlight clear Normal
         syntax on
         unlet s:zen_mode
     else
