@@ -23,6 +23,7 @@ set showcmd                                 " show (partial) command in the last
 set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
 if getfsize(@%) < 10 * 1024 * 1024          " if file size more than 10MB, don't show cursorline and cursorcolumn
     set cursorline                          " show underline for the cursor's line
+    set cursorlineopt=number                " highlight the line number of the cursor if could
 endif
 set signcolumn=number                       " display signs in the 'number' column if could else 'auto'
 if $TERM_PROGRAM !=# 'Apple_Terminal'
