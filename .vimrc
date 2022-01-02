@@ -109,10 +109,10 @@ set shortmess=acoO                          " hit-enter prompts caused by file m
 silent! set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                        " vertical separators
 set listchars=eol:¬                         " end of line
-set listchars+=extends:»                    " unwrapped text to screen right
-set listchars+=precedes:«                   " unwrapped text to screen left
+set listchars+=extends:❯                    " unwrapped text to screen right
+set listchars+=precedes:❮                   " unwrapped text to screen left
 set listchars+=nbsp:∅                       " non-breaking spaces
-silent! set listchars+=tab:<->              " tab characters, preserve width
+set listchars+=tab:\|\                      " tab characters, preserve width
 set breakat+=)]}                            " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                       " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
@@ -200,10 +200,12 @@ Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-repeat'
 Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release', 'do': 'npm install' })
 Plug 'dense-analysis/ale'
-Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
+" Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
+" Plug 'dstein64/vim-startuptime', { 'on': 'StartupTime' }
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'rust-lang/rust.vim',         { 'for': 'rust' }
 Plug 'kovisoft/paredit',           { 'for': 'scheme' }
+Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
@@ -252,7 +254,7 @@ if HasPlug('lightline.vim')
         \ }
     \ }
 
-    let s:fts = ['qf', 'help', 'man', 'netrw', 'vista']
+    let s:fts = ['qf', 'help', 'man', 'vista']
 
     function! LightLineMode() abort
         return (&ft ==? 'qf' && getwininfo(win_getid())[0].loclist) ? 'LocList' :
@@ -947,9 +949,6 @@ noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 
 " Reselect the text that has just been pasted
 nnoremap <silent> <space>p `[V`]
 
-" Send output of previous global command to a new window
-nnoremap <silent> <space>s :redir @a<cr>:g//<cr>:redir END<cr>:new<cr>:put! a<cr><cr>
-
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
 noremap <silent> <space>= :resize +2<cr>
@@ -1003,6 +1002,8 @@ augroup VimTricks
     if exists('##TerminalOpen')
         autocmd TerminalOpen * if &bt ==# 'terminal' | setl nobl | endif
     endif
+    " automatically equalize windows when vim is resized
+    autocmd VimResized * wincmd =
 augroup END
 
 " ----> Commands
@@ -1019,38 +1020,21 @@ let g:loaded_getscript        = 1           " getscript
 let g:loaded_getscriptPlugin  = 1
 let g:loaded_gzip             = 1           " gzip
 let g:loaded_logiPat          = 1           " logipat
+let g:loaded_netrw            = 1           " netrw
+let g:loaded_netrwPlugin      = 1
 let g:loaded_rrhelper         = 1           " rrhelper
 let g:loaded_spellfile_plugin = 1           " spellfile
-let g:loaded_tarPlugin        = 1           " tar
+let g:loaded_tar              = 1           " tar
+let g:loaded_tarPlugin        = 1
 let g:loaded_vimball          = 1           " vimball
 let g:loaded_vimballPlugin    = 1
-let g:loaded_zipPlugin        = 1           " zip
+let g:loaded_zip              = 1           " zip
+let g:loaded_zipPlugin        = 1
 
 " ----> Matchit
 if !exists('g:loaded_matchit')
     silent! packadd matchit
 endif
-
-" ----> Netrw
-let g:netrw_altfile      = 1
-let g:netrw_banner       = 1
-let g:netrw_dirhistmax   = 0
-let g:netrw_liststyle    = 1
-let s:escape             = 'substitute(escape(v:val, ".$~"), "*", ".*", "g")'
-let g:netrw_list_hide    = join(map(split(&wildignore, ','), '"^".' . s:escape . '. "$"'), ',')
-let g:netrw_preview      = 0
-let g:netrw_sizestyle    = 'H'
-let g:netrw_sort_options = 'i'
-let g:netrw_winsize      = 25
-
-function! NetrwToggle() abort
-    if exists('g:netrw_buffer') && bufexists(g:netrw_buffer)
-        silent! execute 'bd' . g:netrw_buffer | unlet g:netrw_buffer
-    else
-        silent! Lexplore | let g:netrw_buffer=bufnr('%')
-    endif
-endfunction
-noremap <silent> <localleader>e :call NetrwToggle()<cr>
 
 " ----> Zen mode
 function! ZenModeToggle() abort
