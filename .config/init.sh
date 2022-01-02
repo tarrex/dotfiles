@@ -709,6 +709,12 @@ alias egrep='egrep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 
+alias cp='cp -v'
+alias mv='mv -v'
+alias rm='rm -v'
+alias mkdir='mkdir -v'
+alias ln='ln -v'
+
 alias dud='du -d 1 -h'
 alias duf='du -sh *'
 alias job='jobs -l'
