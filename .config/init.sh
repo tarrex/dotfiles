@@ -473,13 +473,19 @@ if [[ -n $ZSH_VERSION ]]; then
             zinit ice wait lucid blockf depth'1'
             zinit light zsh-users/zsh-completions
 
+            zinit ice as'program' wait lucid depth'1' \
+                pick'$ZPFX/bin/git-*' \
+                src'etc/git-extras-completion.zsh' \
+                make'PREFIX=$ZPFX'
+            zinit light tj/git-extras
+
             zinit ice lucid has'docker' as'completion'
             zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
 
             zinit ice lucid has'docker-compose' as'completion'
             zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
 
-            zinit ice has'kubectl' id-as'kubectl' as"null" wait silent nocompile \
+            zinit ice has'kubectl' id-as'kubectl' as'null' wait silent nocompile \
                 atclone'kubectl completion zsh >! _kubectl' \
                 atpull'%atclone' src"_kubectl" run-atpull \
                 atload'zicdreplay'
@@ -516,7 +522,7 @@ export EDITOR='vim'
 export VISUAL='vim'
 
 # Less
-export PAGER='less -FRX'
+export PAGER='less -FRXM'
 export LESSCHARSET=utf-8
 export LESSHISTFILE=-
 export LESS_TERMCAP_mb=$'\e[1;31m'
@@ -720,6 +726,7 @@ alias duf='du -sh *'
 alias job='jobs -l'
 
 alias vi='vim -N -u NONE -i NONE'
+alias tmux='tmux -2'
 
 # Proxy
 proxy_addr="127.0.0.1:7890"
@@ -746,6 +753,7 @@ if [[ $OSTYPE == darwin* ]]; then
     alias typora='open -a typora'
     alias blog='open -a typora ~/Workspace/Github/blog'
     alias wiki='open -a typora ~/Workspace/Github/wiki'
+    alias diary='open -a typora ~/Workspace/Github/diary'
 fi
 
 # Frequently
