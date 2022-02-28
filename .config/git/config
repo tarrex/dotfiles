@@ -1,28 +1,22 @@
-[user]
-    name  = tarrex
-    email = tarrexchen@gmail.com
-[github]
-    user = tarrex
-[gist]
-    private = true
+# Tarrex's git config file.
+# Reference:
+#   https://git-scm.com/docs/git-config
+
+# Basic options
 [core]
     fileMode          = false
-    precomposeunicode = false
-    quotepath         = false
-    trustctime        = false
-    untrackedCache    = true
-    compression       = 1
+    precomposeUnicode = false
+    quotePath         = false
     excludesFile      = ~/.config/git/ignore
     attributesfile    = ~/.config/git/attributes
     editor            = vim
-    pager             = less -FRX
-    whitespace        = space-before-tab,indent-with-non-tab,trailing-space
-[advice]
-    statusHints = false
+    pager             = less -FRXM
+
 [alias]
     st                    = status -sb
     prune                 = fetch --prune
-    undo                  = reset --soft HEAD^
+    undopush              = push -f origin HEAD^:master
+    undocommit            = reset --soft HEAD^
     unstage               = reset HEAD --
     stash-all             = stash save --include-untracked
     rank                  = shortlog -sn --no-merges
@@ -33,23 +27,25 @@
     serve                 = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
     cloc                  = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
     delete-merged-branchs = !git branch --merged | grep -v '*' | xargs -n 1 git branch -d
+    search                = "!f() { git log -p -G$1 --all; }; f"
+    searchcommit          = "!f() { git log -G$1 --all; }; f"
+    searchmessage         = "!f() { git log --grep=$1; }; f"
+    filehistory           = "!f() { git log --follow -p -- $1; }; f"
 [apply]
     whitespace = fix
-[blame]
-    coloring = repeatedLines
-    date     = short
+
+[branch]
+    autoSetupRebase = always
+
 [color]
-    branch      = auto
-    diff        = auto
-    grep        = auto
-    interactive = auto
-    status      = auto
-    ui          = auto
+    ui = auto
+[color "advice"]
+    hint = yellow
 [color "blame"]
     repeatedLines = green
 [color "branch"]
-    current  = yellow
-    local    = green
+    current  = yellow reverse
+    local    = yellow
     remote   = cyan
     upstream = magenta
     plain    = red
@@ -65,37 +61,115 @@
     added     = green
     changed   = yellow
     untracked = red
+
 [commit]
     gpgSign  = false
     template = ~/.config/git/message
     verbose  = true
+
 [credential]
     helper = cache --timeout=14400
+[credential "https://github.com"]
+	username = tarrex
+
 [diff]
     tool            = vimdiff
     indentHeuristic = true
     algorithm       = patience
+    colorMoved      = default
+
 [filter "lfs"]
-    process = git-lfs filter-process
-    required = true
-    clean = git-lfs clean -- %f
-    smudge = git-lfs smudge -- %f
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
 [http]
     postBuffer = 1048576000
-[merge]
-    log  = true
-    tool = vimdiff
-[pull]
-    rebase = true
-[push]
-    default    = simple
-    followTags = false
-[rerere]
-    enabled    = 1
-    autoupdate = 1
-[status]
-    short              = true
-    showUntrackedFiles = all
+[http "https://github.com"]
+    proxy     = http://127.0.0.1:7890
+    # proxy     = socks5://127.0.0.1:7890
+    sslVerify = false
+
 [i18n]
     commitEncoding    = utf-8
     logOutputEncoding = utf-8
+
+[init]
+    defaultBranch = master
+
+[instaweb]
+    httpd = python
+    local = true
+    port  = 1234
+
+[merge]
+    log  = true
+    tool = vimdiff
+
+[pull]
+    ff     = only
+    rebase = true
+
+[push]
+    default    = current
+    followTags = true
+
+[rerere]
+    autoUpdate = 1
+    enabled    = 1
+
+[sequence]
+    editor = interactive-rebase-tool
+
+[status]
+    short              = true
+    showUntrackedFiles = normal
+
+[user]
+    name  = tarrex
+    email = tarrexchen@gmail.com
+    useConfigOnly = true
+
+# Github
+[github]
+    user = tarrex
+[gist]
+    private = true
+
+# Delta - A syntax-highlighting pager for git, diff, and grep output
+# Reference:
+#   https://dandavison.github.io/delta/
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    line-numbers = true
+    features = decorations
+[delta "decorations"]
+    commit-decoration-style = 232 130 box
+    commit-style = 232 bold italic 130
+    dark = true
+    file-added-label = [+]
+    file-copied-label = [C]
+    file-decoration-style = yellow ul
+    file-modified-label = [M]
+    file-removed-label = [-]
+    file-renamed-label = [R]
+    file-style = yellow
+    hunk-header-decoration-style = box blue
+    hunk-header-file-style = bold reverse purple
+    hunk-header-line-number-style = bold blue
+    hunk-header-style = line-number
+    # the following is from --diff-so-fancy emulation
+    minus-style                   = bold red
+    minus-non-emph-style          = bold red
+    minus-emph-style              = bold red 52
+    minus-empty-line-marker-style = normal "#3f0001"
+    zero-style                    = normal
+    plus-style                    = bold green
+    plus-non-emph-style           = bold green
+    plus-emph-style               = bold green 22
+    plus-empty-line-marker-style  = normal "#002800"
