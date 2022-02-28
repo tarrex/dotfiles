@@ -1,6 +1,4 @@
 # Tarrex's git config file.
-# Reference:
-#   https://git-scm.com/docs/git-config
 
 # Basic options
 [core]
@@ -78,12 +76,6 @@
     algorithm       = patience
     colorMoved      = default
 
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-
 [http]
     postBuffer = 1048576000
 # [http "https://github.com"]
@@ -135,6 +127,13 @@
     user = tarrex
 [gist]
     private = true
+
+# Git LFS
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
 
 # Delta - A syntax-highlighting pager for git, diff, and grep output
 # Reference:
