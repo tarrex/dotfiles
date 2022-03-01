@@ -1,3 +1,5 @@
+adobe-acrobat-reader
+alacritty
 anki
 appcleaner
 baidunetdisk
@@ -10,6 +12,7 @@ dingtalk
 dropbox
 eudic
 evernote
+exodus
 ezip
 figma
 firefox
@@ -20,11 +23,17 @@ java
 keka
 keycastr
 kindlegen
+landrop
+logseq
+mark-text
 neteasemusic
 notion
 obsidian
 pdf-expert
+rectangle
+resilio-sync
 sequel-ace
+spotify
 squirrel
 sublime-merge
 sublime-text
@@ -37,7 +46,6 @@ tencent-meeting
 thunder
 thunderbird
 tor-browser
-typora
 virtualbox
 virtualbox-extension-pack
 visual-studio-code
