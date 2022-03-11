@@ -70,6 +70,7 @@ set lazyredraw                              " don't redraw while executing macro
 set splitbelow                              " horizontally split below
 set splitright                              " vertically split to the right
 set ttyfast                                 " indicates a fast terminal connection
+set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
 set mouse=a                                 " enable the mouse in all five modes
 set ttymouse=sgr                            " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 silent! set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
@@ -109,10 +110,10 @@ set shortmess=acoO                          " hit-enter prompts caused by file m
 silent! set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                        " vertical separators
 set listchars=eol:¬                         " end of line
+set listchars+=tab:\|\                      " tab characters, preserve width
 set listchars+=extends:❯                    " unwrapped text to screen right
 set listchars+=precedes:❮                   " unwrapped text to screen left
 set listchars+=nbsp:∅                       " non-breaking spaces
-set listchars+=tab:\|\                      " tab characters, preserve width
 set breakat+=)]}                            " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                       " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
@@ -199,19 +200,17 @@ Plug 'tmsvg/pear-tree'
 Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-repeat'
 Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release', 'do': 'npm install' })
+Plug 'antoinemadec/coc-fzf', Cond(g:dep.node, {'branch': 'release'})
 Plug 'dense-analysis/ale'
-" Plug 'tweekmonster/startuptime.vim', { 'on': 'StartupTime' }
-" Plug 'dstein64/vim-startuptime', { 'on': 'StartupTime' }
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
-Plug 'rust-lang/rust.vim',         { 'for': 'rust' }
 Plug 'kovisoft/paredit',           { 'for': 'scheme' }
 Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
-Plug 'cespare/vim-toml',           { 'for': 'toml' }
 Plug 'wakatime/vim-wakatime'
-Plug 'yianwillis/vimcdoc'
+" Plug 'tweekmonster/startuptime.vim'
+" Plug 'dstein64/vim-startuptime'
 
 call plug#end()
 
@@ -227,6 +226,8 @@ if HasPlug('lightline.vim')
         \   'tabline': 1
         \ },
         \ 'colorscheme': 'gruvbox8',
+        \ 'separator': {'left': '', 'right': '' },
+        \ 'subseparator': { 'left': '⎢', 'right': '⎥' },
         \ 'active': {
         \   'left': [[ 'mode', 'paste', 'spell' ],
         \           [ 'bufnum' ],
@@ -408,7 +409,7 @@ endif
 " ----> junegunn/fzf.vim
 if HasPlug('fzf.vim')
     let g:fzf_command_prefix = 'FZF'
-    let g:fzf_layout         = { 'down': '40%' }
+    let g:fzf_layout         = { 'window': { 'width': 0.9, 'height': 0.8 } }
     function! s:build_quickfix_list(lines)
         call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
         copen
@@ -613,6 +614,8 @@ if HasPlug('coc.nvim')
     " Resume latest coc list.
     nnoremap <silent><nowait> <coc>p :<c-u>CocListResume<cr>
 
+    nnoremap <silent><nowait> <coc>l :<c-u>CocFzfList location<cr>
+
     function! s:coc_uninstall_all() abort
         for e in g:coc_global_extensions
             execute 'CocUninstall ' . e
@@ -644,11 +647,11 @@ if HasPlug('ale')
     let g:ale_echo_msg_log_str            = 'L'
     let g:ale_echo_msg_format             = '%severity%: [%linter%] %s'
     let g:ale_loclist_msg_format          = '[%linter%] %code: %%s'
-    let g:ale_sign_error                  = '✖'
-    let g:ale_sign_warning                = '⚠'
-    let g:ale_sign_info                   = '•'
-    let g:ale_set_highlights              = 0
-    let g:ale_set_quickfix                = 1
+    let g:ale_sign_error                  = '>>'
+    let g:ale_sign_warning                = '--'
+    let g:ale_sign_info                   = '~~'
+    let g:ale_set_highlights              = 1
+    let g:ale_set_quickfix                = 0
     let g:ale_list_window_size            = 6
     let g:ale_open_list                   = 'on_save'
     let g:ale_fix_on_save                 = 1
@@ -704,16 +707,32 @@ if HasPlug('ale')
         \ 'text':            ['languagetool'],
         \ 'sh':              ['shell']
     \ }
+    let g:ale_linter_alias = {
+        \ 'javascriptreact': ['javascript', 'jsx'],
+        \ 'typescriptreact': ['typescript', 'tsx'],
+        \ 'vue': ['vue', 'javascript'],
+        \ 'html': ['html', 'javascript', 'css']
+    \ }
     let g:ale_go_golangci_lint_options    = ''
+
+    " let g:ale_cursor_detail = 1
+    let g:ale_echo_cursor = 0
+    let g:ale_set_loclist = 0
+    " let g:ale_floating_preview = 1
+    " let g:ale_floating_window_border = []
+    let g:ale_virtualtext_cursor = 1
+    let g:ale_virtualtext_prefix = '    ■ '
 
     nmap <silent> [a <Plug>(ale_previous)
     nmap <silent> ]a <Plug>(ale_next)
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
 
-    highlight link ALEErrorSign CursorLineNr
-    highlight link ALEWarningSign CursorLineNr
-    highlight link ALEInfoSign CursorLineNr
+    highlight link ALEVirtualTextError ALEError
+    highlight link ALEVirtualTextWarning ALEError
+    highlight link ALEVirtualTextInfo ALEError
+    highlight link ALEVirtualTextStyleError ALEError
+    highlight link ALEVirtualTextStyleWarning ALEError
 endif
 
 " ----> fatih/vim-go
@@ -777,55 +796,16 @@ if HasPlug('vim-go')
     augroup END
 endif
 
-" ----> rust-lang/rust.vim
-if HasPlug('rust.vim')
-    augroup Rust
-        autocmd!
-        autocmd FileType rust nmap <space>rb :Cbuild<cr>
-        autocmd FileType rust nmap <space>rr :Crun<cr>
-    augroup END
+" ----> tpope/vim-markdown
+if HasPlug('vim-markdown')
+    let g:markdown_fenced_languages = ['html', 'python', 'bash=sh', 'go']
+    let g:markdown_syntax_conceal   = 1
+    let g:markdown_minlines         = 100
 endif
 
-" ============> Custom <============
-" ----> Highlights
-" Some custom highlights
-function! MyHighlights() abort
-    highlight Normal        ctermbg=NONE guibg=Black
-    highlight NonText       ctermbg=NONE guibg=Black
-    highlight CursorLineNr  ctermbg=NONE guibg=Black
-    highlight LineNr        ctermbg=NONE guibg=Black
-    highlight CursorLine    ctermbg=NONE guibg=Black
-    highlight SpecialKey    ctermbg=NONE guibg=Black
-    highlight EndOfBuffer   ctermbg=NONE guibg=Black
-    highlight Folded        ctermbg=NONE guibg=Black
-    highlight FoldColumn    ctermbg=NONE guibg=Black
-    highlight DiffAdd       ctermbg=NONE guibg=Black
-    highlight DiffChange    ctermbg=NONE guibg=Black
-    highlight DiffDelete    ctermbg=NONE guibg=Black
-endfunction
-
-augroup Highlights
-    autocmd!
-    autocmd ColorScheme * call MyHighlights()
-augroup END
-
-" ----> Color
-silent! colorscheme gruvbox8_hard
-
-" ----> Key maps
+" ============> key mappings <============
 let g:mapleader      = ','                  " set vim map leader, <leader>
 let g:maplocalleader = '\'                  " set vim local map leader, <localleader>
-
-" Clipboard
-if g:env.mac
-    set clipboard=unnamed
-    noremap <leader>y "*y
-    noremap <leader>p "*p
-elseif g:env.linux
-    set clipboard=unnamedplus
-    noremap <leader>y "+y
-    noremap <leader>p "+p
-endif
 
 " Disable Ex mode and command history key bindings
 nnoremap Q  <nop>
@@ -965,6 +945,32 @@ cnoreabbrev W       w
 cnoreabbrev Q       q
 cnoreabbrev Qall    qall
 
+" ============> Custom <============
+" ----> Highlights
+" Some custom highlights
+function! MyHighlights() abort
+    highlight Normal        ctermbg=NONE guibg=NONE
+    highlight NonText       ctermbg=NONE guibg=NONE
+    highlight CursorLineNr  ctermbg=NONE guibg=NONE
+    highlight LineNr        ctermbg=NONE guibg=NONE
+    highlight CursorLine    ctermbg=NONE guibg=NONE
+    highlight SpecialKey    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
+    highlight Folded        ctermbg=NONE guibg=NONE
+    highlight FoldColumn    ctermbg=NONE guibg=NONE
+    highlight DiffAdd       ctermbg=NONE guibg=NONE
+    highlight DiffChange    ctermbg=NONE guibg=NONE
+    highlight DiffDelete    ctermbg=NONE guibg=NONE
+endfunction
+
+augroup Highlights
+    autocmd!
+    autocmd ColorScheme * call MyHighlights()
+augroup END
+
+" ----> Color
+silent! colorscheme gruvbox8_hard
+
 " ----> Filetype detect and custom
 augroup FileTypeDetectAndCustom
     autocmd!
@@ -976,6 +982,7 @@ augroup FileTypeDetectAndCustom
     autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
     autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
     autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
+    autocmd FileType lua                          setl sw=2 ts=2 sts=2
 augroup END
 
 " ----> Templates
@@ -1014,14 +1021,14 @@ command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
 command! CurrentPath echo expand('%:p')
 
-" ----> Disable some vim built-in plugins
+" ----> Disable some built-in plugins
 let g:loaded_2html_plugin     = 1           " tohtml
 let g:loaded_getscript        = 1           " getscript
 let g:loaded_getscriptPlugin  = 1
 let g:loaded_gzip             = 1           " gzip
 let g:loaded_logiPat          = 1           " logipat
-let g:loaded_netrw            = 1           " netrw
-let g:loaded_netrwPlugin      = 1
+" let g:loaded_netrw            = 1           " netrw
+" let g:loaded_netrwPlugin      = 1
 let g:loaded_rrhelper         = 1           " rrhelper
 let g:loaded_spellfile_plugin = 1           " spellfile
 let g:loaded_tar              = 1           " tar
@@ -1040,11 +1047,9 @@ endif
 function! ZenModeToggle() abort
     if exists('s:zen_mode')
         set smd ru sc nu ls=2
-        syntax on
         unlet s:zen_mode
     else
         set nosmd noru nosc nonu ls=0
-        syntax off
         let s:zen_mode = 1
     endif
 endfunction

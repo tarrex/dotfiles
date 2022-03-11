@@ -1,21 +1,11 @@
 {
   "coc.preferences.enableMarkdown": true,
   "coc.preferences.extensionUpdateCheck": "weekly",
-  "coc.preferences.rootPatterns": [
-    ".root/",
-    ".git/",
-    ".svn/",
-    ".hg/",
-    ".project/",
-    "Cargo.toml",
-    "go.mod",
-    "Makefile",
-    "tsconfig.js",
-    "jsconfig.js"
-  ],
+  "coc.preferences.rootPatterns": [".root/", ".git/", ".svn/", ".hg/", ".project/", "Cargo.toml", "go.mod", "Makefile", "tsconfig.js", "jsconfig.js"],
 
   "diagnostic.enable": false,
   "diagnostic.displayByAle": true,
+  "diagnostic.format": "%message~",
 
   "suggest.asciiCharactersOnly": false,
   "suggest.autoTrigger": "always",
@@ -34,7 +24,7 @@
     "kubernetes": "/*.yaml",
     "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
     "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
-    "https://json.schemastore.org/github-workflow.json": "/.github/workflow/*.y?(a)ml"
+    "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.y?(a)ml"
   },
 
   "languageserver": {

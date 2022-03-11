@@ -65,6 +65,7 @@ set lazyredraw                              " don't redraw while executing macro
 set splitbelow                              " horizontally split below
 set splitright                              " vertically split to the right
 set ttyfast                                 " indicates a fast terminal connection
+set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
 set mouse=a                                 " enable the mouse in all five modes
 set ttymouse=sgr                            " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 silent! set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
@@ -104,10 +105,10 @@ set shortmess=acoO                          " hit-enter prompts caused by file m
 silent! set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                        " vertical separators
 set listchars=eol:¬                         " end of line
+set listchars+=tab:\|\                      " tab characters, preserve width
 set listchars+=extends:❯                    " unwrapped text to screen right
 set listchars+=precedes:❮                   " unwrapped text to screen left
 set listchars+=nbsp:∅                       " non-breaking spaces
-set listchars+=tab:\|\                      " tab characters, preserve width
 set breakat+=)]}                            " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                       " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
@@ -254,55 +255,9 @@ augroup MyQuickFix
     autocmd QuickFixCmdPost lgetexpr lwindow
 augroup END
 
-" ============> Custom <============
-" ----> Highlights
-" Some custom highlights
-function! MyHighlights() abort
-    highlight Normal        ctermbg=NONE guibg=Black
-    highlight NonText       ctermbg=NONE guibg=Black
-    highlight CursorLineNr  ctermbg=NONE guibg=Black
-    highlight LineNr        ctermbg=NONE guibg=Black
-    highlight CursorLine    ctermbg=NONE guibg=Black
-    highlight SpecialKey    ctermbg=NONE guibg=Black
-    highlight EndOfBuffer   ctermbg=NONE guibg=Black
-    highlight Folded        ctermbg=NONE guibg=Black
-    highlight FoldColumn    ctermbg=NONE guibg=Black
-    highlight DiffAdd       ctermbg=NONE guibg=Black
-    highlight DiffChange    ctermbg=NONE guibg=Black
-    highlight DiffDelete    ctermbg=NONE guibg=Black
-
-    highlight StatusLine       ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
-    highlight StatuslineNC     ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
-    highlight StatuslineTerm   ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
-    highlight StatuslineTermNC ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
-    highlight Pmenu            ctermbg=8   ctermfg=0   guibg=#808080 guifg=#000000
-    highlight PmenuSel         ctermbg=36  ctermfg=0   guibg=#00af87 guifg=#000000
-    highlight PmenuSbar        ctermbg=7   ctermfg=15  guibg=#c0c0c0 guifg=#ffffff
-    highlight PmenuThumb       ctermbg=15  ctermfg=7   guibg=#ffffff guifg=#c0c0c0
-endfunction
-
-augroup Highlights
-    autocmd!
-    autocmd ColorScheme * call MyHighlights()
-augroup END
-
-" ----> Color
-silent! colorscheme desert
-
-" ----> Key maps
+" ============> key mappings <============
 let g:mapleader      = ','                  " set vim map leader, <leader>
 let g:maplocalleader = '\'                  " set vim local map leader, <localleader>
-
-" Clipboard
-if g:env.mac
-    set clipboard=unnamed
-    noremap <leader>y "*y
-    noremap <leader>p "*p
-elseif g:env.linux
-    set clipboard=unnamedplus
-    noremap <leader>y "+y
-    noremap <leader>p "+p
-endif
 
 " Disable Ex mode and command history key bindings
 nnoremap Q  <nop>
@@ -442,6 +397,41 @@ cnoreabbrev W       w
 cnoreabbrev Q       q
 cnoreabbrev Qall    qall
 
+" ============> Custom <============
+" ----> Highlights
+" Some custom highlights
+function! MyHighlights() abort
+    highlight Normal        ctermbg=NONE guibg=NONE
+    highlight NonText       ctermbg=NONE guibg=NONE
+    highlight CursorLineNr  ctermbg=NONE guibg=NONE
+    highlight LineNr        ctermbg=NONE guibg=NONE
+    highlight CursorLine    ctermbg=NONE guibg=NONE
+    highlight SpecialKey    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer   ctermbg=NONE guibg=NONE
+    highlight Folded        ctermbg=NONE guibg=NONE
+    highlight FoldColumn    ctermbg=NONE guibg=NONE
+    highlight DiffAdd       ctermbg=NONE guibg=NONE
+    highlight DiffChange    ctermbg=NONE guibg=NONE
+    highlight DiffDelete    ctermbg=NONE guibg=NONE
+
+    highlight StatusLine       ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineNC     ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineTerm   ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight StatuslineTermNC ctermbg=247 ctermfg=234 guibg=#9e9e9e guifg=#1c1c1c
+    highlight Pmenu            ctermbg=8   ctermfg=0   guibg=#808080 guifg=#000000
+    highlight PmenuSel         ctermbg=36  ctermfg=0   guibg=#00af87 guifg=#000000
+    highlight PmenuSbar        ctermbg=7   ctermfg=15  guibg=#c0c0c0 guifg=#ffffff
+    highlight PmenuThumb       ctermbg=15  ctermfg=7   guibg=#ffffff guifg=#c0c0c0
+endfunction
+
+augroup Highlights
+    autocmd!
+    autocmd ColorScheme * call MyHighlights()
+augroup END
+
+" ----> Color
+silent! colorscheme desert
+
 " ----> Filetype detect and custom
 augroup FileTypeDetectAndCustom
     autocmd!
@@ -453,6 +443,7 @@ augroup FileTypeDetectAndCustom
     autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
     autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
     autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
+    autocmd FileType lua                          setl sw=2 ts=2 sts=2
 augroup END
 
 " ----> Templates
@@ -491,14 +482,14 @@ command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
 command! CurrentPath echo expand('%:p')
 
-" ----> Disable some vim built-in plugins
+" ----> Disable some built-in plugins
 let g:loaded_2html_plugin     = 1           " tohtml
 let g:loaded_getscript        = 1           " getscript
 let g:loaded_getscriptPlugin  = 1
 let g:loaded_gzip             = 1           " gzip
 let g:loaded_logiPat          = 1           " logipat
-let g:loaded_netrw            = 1           " netrw
-let g:loaded_netrwPlugin      = 1
+" let g:loaded_netrw            = 1           " netrw
+" let g:loaded_netrwPlugin      = 1
 let g:loaded_rrhelper         = 1           " rrhelper
 let g:loaded_spellfile_plugin = 1           " spellfile
 let g:loaded_tar              = 1           " tar
@@ -517,11 +508,9 @@ endif
 function! ZenModeToggle() abort
     if exists('s:zen_mode')
         set smd ru sc nu ls=2
-        syntax on
         unlet s:zen_mode
     else
         set nosmd noru nosc nonu ls=0
-        syntax off
         let s:zen_mode = 1
     endif
 endfunction
