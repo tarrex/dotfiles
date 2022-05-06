@@ -28,8 +28,19 @@
   },
 
   "languageserver": {
+    "clangd": {
+      "command": "clangd",
+      "rootPatterns": [".git/", "compile_flags.txt", "compile_commands.json"],
+      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
+    },
+    "dockerfile": {
+      "command": "docker-langserver",
+      "filetypes": ["dockerfile"],
+      "args": ["--stdio"]
+    },
     "golang": {
       "command": "gopls",
+      "args": ["serve", "-debug", "0.0.0.0:8484", "-rpc.trace"],
       "filetypes": ["go"],
       "rootPatterns": [".git/", "go.mod", "Makefile"],
       "initializationOptions": {}
@@ -38,11 +49,6 @@
       "command": "rust-analyzer",
       "filetypes": ["rust"],
       "rootPatterns": [".git/", "Cargo.toml"]
-    },
-    "clangd": {
-      "command": "clangd",
-      "rootPatterns": [".git/"],
-      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
     }
   },
 
