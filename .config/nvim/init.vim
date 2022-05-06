@@ -9,7 +9,7 @@ let g:env.linux = has('linux')
 let g:dep       = {}
 let g:dep.rg    = executable('rg')
 let g:dep.curl  = executable('curl')
-let g:dep.node  = executable('npm')
+let g:dep.node  = executable('node')
 
 let g:vimdir    = $XDG_CONFIG_HOME . '/nvim'
 
@@ -52,6 +52,7 @@ set splitbelow                              " horizontally split below
 set splitright                              " vertically split to the right
 set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
 set mouse=a                                 " enable the mouse in all five modes
+set scrolloff=1                             " minimal number of screen lines to keep above and below the cursor
 set sidescroll=5                            " minimal number of columns to scroll horizontally
 set sidescrolloff=1                         " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
 
@@ -75,7 +76,7 @@ set diffopt+=algorithm:patience             " use the `patience` diff algorithm
 set formatoptions+=m                        " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                        " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                        " remove a comment leader when joining lines
-set shortmess=acoO                          " hit-enter prompts caused by file messages
+set shortmess=aoOcF                         " hit-enter prompts caused by file messages
 set spelloptions=camel                      " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                        " vertical separators
 set listchars=eol:¬                         " end of line
@@ -136,23 +137,26 @@ endfunction
 call plug#begin(g:vimdir . '/plugged')
 
 Plug 'lifepillar/vim-gruvbox8'
-Plug 'haishanh/night-owl.vim'
+" Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
-Plug 'editorconfig/editorconfig-vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align', { 'on': 'EasyAlign' }
 Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
-Plug 'tpope/vim-fugitive'
-Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
-Plug 'tmsvg/pear-tree'
+Plug 'raimondi/delimitmate'
 Plug 'machakann/vim-sandwich'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-fugitive'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release', 'do': 'npm install' })
 Plug 'antoinemadec/coc-fzf', Cond(g:dep.node, {'branch': 'release'})
+Plug 'github/copilot.vim', Cond(g:dep.node)
 Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'kovisoft/paredit',           { 'for': 'scheme' }
@@ -160,8 +164,7 @@ Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
 Plug 'mtdl9/vim-log-highlighting', { 'for': 'log' }
-Plug 'github/copilot.vim', Cond(g:dep.node)
-Plug 'wakatime/vim-wakatime'
+" Plug 'wakatime/vim-wakatime'
 " Plug 'tweekmonster/startuptime.vim'
 " Plug 'dstein64/vim-startuptime'
 
@@ -295,12 +298,12 @@ if HasPlug('vim-easymotion')
     xmap <em>j <Plug>(easymotion-s2)
     nmap <em>/ <Plug>(easymotion-sn)
     xmap <em>/ <Plug>(easymotion-sn)
-    map  <em>k <Plug>(easymotion-bd-jk)
-    nmap <em>k <Plug>(easymotion-overwin-line)
-    map  <em>S <Plug>(easymotion-bd-w)
-    nmap <em>S <Plug>(easymotion-overwin-w)
-    map  <em>w <Plug>(easymotion-bd-w)
+    nmap <em>l <Plug>(easymotion-overwin-line)
+    xmap <em>l <Plug>(easymotion-bd-jk)
+    omap <em>l <Plug>(easymotion-bd-jk)
     nmap <em>w <Plug>(easymotion-overwin-w)
+    xmap <em>w <Plug>(easymotion-bd-w)
+    omap <em>w <Plug>(easymotion-bd-w)
 endif
 
 " ----> terryma/vim-multiple-cursors
@@ -318,43 +321,6 @@ if HasPlug('vim-multiple-cursors')
     let g:multi_cursor_prev_key            = '<c-p>'
     let g:multi_cursor_skip_key            = '<c-x>'
     let g:multi_cursor_quit_key            = '<esc>'
-endif
-
-" ----> editorconfig/editorconfig-vim
-if HasPlug('editorconfig-vim')
-    let g:EditorConfig_disable_rules    = ['trim_trailing_whitespace']
-    let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
-    augroup EditorConfig
-        autocmd!
-        autocmd FileType gitcommit let b:EditorConfig_disable = 1
-    augroup END
-endif
-
-" ----> dhruvasagar/vim-table-mode
-if HasPlug('vim-table-mode')
-    let g:table_mode_corner = '|'
-endif
-
-" ----> liuchengxu/vista.vim
-if HasPlug('vista.vim')
-    let g:vista_sidebar_position     = 'vertical botright'
-    let g:vista_sidebar_width        = 30
-    let g:vista_echo_cursor          = 1
-    let g:vista_cursor_delay         = 400
-    let g:vista_echo_cursor_strategy = 'floating_win'
-    let g:vista_close_on_jump        = 0
-    let g:vista_stay_on_open         = 1
-    let g:vista_blink                = [2, 100]
-    let g:vista_default_executive    = 'ctags'
-    let g:vista_fzf_preview          = ['right:50%']
-    let g:vista_disable_statusline   = 1
-    let g:vista#renderer#enable_icon = 0
-
-    if HasPlug('coc.nvim')
-        nnoremap <silent> <localleader>t :Vista coc<cr>
-    else
-        nnoremap <silent> <localleader>t :Vista<cr>
-    end
 endif
 
 " ----> junegunn/fzf.vim
@@ -382,14 +348,17 @@ if HasPlug('fzf.vim')
         \   "rg --column --line-number --no-heading --color=always --smart-case " .
         \   "--hidden --glob '!{".&wildignore."}' -- ".shellescape(<q-args>), 1,
         \   fzf#vim#with_preview(), <bang>0)
+    command! -bang -nargs=* FZFGGrep
+        \ call fzf#vim#grep(
+        \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+        \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 
     nnoremap <silent> <space>fb  :FZFBuffers<cr>
     nnoremap <silent> <space>fc  :FZFBCommits<cr>
     nnoremap <silent> <space>ff  :FZFFiles<cr>
     nnoremap <silent> <space>fg  :FZFGFiles?<cr>
-    nnoremap <silent> <space>fh  :FZFHistory<cr>
-    nnoremap <silent> <space>fhc :FZFHistory:<cr>
-    nnoremap <silent> <space>fhs :FZFHistory/<cr>
+    nnoremap <silent> <space>fh  :FZFHelptags<cr>
+    nnoremap <silent> <space>fm  :FZFMaps<cr>
     nnoremap <silent> <space>fr  :FZFRg<cr>
     nnoremap <silent> <space>ft  :FZFBTags<cr>
 
@@ -400,28 +369,48 @@ if HasPlug('fzf.vim')
     command! -bar -bang FZFMapsX call fzf#vim#maps("x", <bang>0)
 endif
 
-" ----> tmsvg/pear-tree
-if HasPlug('pear-tree')
-    let g:pear_tree_pairs = {
-        \ '(': {'closer': ')'},
-        \ '[': {'closer': ']'},
-        \ '{': {'closer': '}'},
-        \ "'": {'closer': "'"},
-        \ '"': {'closer': '"'}
-    \ }
-    let g:pear_tree_repeatable_expand = 0
-    augroup PearTree
-        autocmd!
-        autocmd FileType markdown let b:pear_tree_pairs = {
-                                      \ '$': {'closer': '$'},
-                                      \ '$$': {'closer': '$$'}
-                                  \ }
-    augroup END
-endif
-
 " ----> mbbill/undotree
 if HasPlug('undotree')
     nnoremap <silent> <localleader>u :UndotreeToggle<cr>
+endif
+
+" ----> raimondi/delimitmate
+if HasPlug('delimitmate')
+    let delimitMate_offByDefault = 0
+    let delimitMate_expand_cr = 1
+    let delimitMate_expand_space = 1
+endif
+
+" ----> editorconfig/editorconfig-vim
+if HasPlug('editorconfig-vim')
+    let g:EditorConfig_disable_rules    = ['trim_trailing_whitespace']
+    let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+    augroup EditorConfig
+        autocmd!
+        autocmd FileType gitcommit let b:EditorConfig_disable = 1
+    augroup END
+endif
+
+" ----> liuchengxu/vista.vim
+if HasPlug('vista.vim')
+    let g:vista_sidebar_position     = 'vertical botright'
+    let g:vista_sidebar_width        = 30
+    let g:vista_echo_cursor          = 1
+    let g:vista_cursor_delay         = 400
+    let g:vista_echo_cursor_strategy = 'floating_win'
+    let g:vista_close_on_jump        = 0
+    let g:vista_stay_on_open         = 1
+    let g:vista_blink                = [2, 100]
+    let g:vista_default_executive    = 'ctags'
+    let g:vista_fzf_preview          = ['right:50%']
+    let g:vista_disable_statusline   = 1
+    let g:vista#renderer#enable_icon = 0
+
+    if HasPlug('coc.nvim')
+        nnoremap <silent> <localleader>t :Vista coc<cr>
+    else
+        nnoremap <silent> <localleader>t :Vista<cr>
+    end
 endif
 
 " ----> neoclide/coc.nvim
@@ -586,6 +575,12 @@ if HasPlug('coc.nvim')
     endif
 endif
 
+" ----> github/copilot.vim
+if HasPlug('copilot.vim')
+    imap <silent><script><expr> <c-j> copilot#Accept("\<cr>")
+    let g:copilot_no_tab_map = v:true
+endif
+
 " ----> dense-analysis/ale
 if HasPlug('ale')
     let g:ale_command_wrapper             = 'nice -n5'
@@ -686,36 +681,45 @@ endif
 
 " ----> fatih/vim-go
 if HasPlug('vim-go')
-    let g:go_version_warning               = 0
-    let g:go_code_completion_enabled       = 0
-    let g:go_updatetime                    = 0
-    let g:go_jump_to_error                 = 0
-    let g:go_fmt_autosave                  = 0
-    let g:go_imports_autosave              = 0
-    let g:go_mod_fmt_autosave              = 0
-    let g:go_doc_keywordprg_enabled        = 0
-    let g:go_doc_popup_window              = 1
-    let g:go_def_mapping_enabled           = 0
-    let g:go_textobj_enabled               = 0
-    let g:go_list_height                   = 6
-    let g:go_list_type                     = 'quickfix'
-    let g:go_alternate_mode                = 'vsplit'
-    let g:go_echo_command_info             = 0
-    let g:go_echo_go_info                  = 0
-    let g:go_addtags_transform             = 'camelcase'
-    let g:go_highlight_extra_types         = 1
-    let g:go_highlight_functions           = 1
-    let g:go_highlight_function_parameters = 1
-    let g:go_highlight_function_calls      = 1
-    let g:go_highlight_types               = 1
-    let g:go_highlight_fields              = 1
-    let g:go_highlight_build_constraints   = 1
-    let g:go_highlight_generate_tags       = 1
-    let g:go_highlight_string_spellcheck   = 0
-    let g:go_highlight_diagnostic_errors   = 0
-    let g:go_highlight_diagnostic_warnings = 0
-    let g:go_debug_address                 = '127.0.0.1:8181'
-    let g:go_debug_log_output              = 'debugger'
+    let g:go_version_warning            = 0
+    let g:go_code_completion_enabled    = 0
+    let g:go_test_show_name             = 0
+    let g:go_jump_to_error              = 0
+    let g:go_fmt_autosave               = 0
+    let g:go_imports_autosave           = 0
+    let g:go_mod_fmt_autosave           = 0
+    let g:go_doc_max_height             = 20
+    let go_doc_balloon                  = 1
+    if has('patch-8.2.0012')
+        let g:go_doc_popup_window       = 1
+    endif
+    let g:go_def_mapping_enabled        = 0
+    let g:go_textobj_enabled            = 0
+    let g:go_list_type                  = 'quickfix'
+    let g:go_alternate_mode             = 'vsplit'
+    " let g:go_gopls_enabled              = 0
+    let g:go_echo_command_info          = 0
+    let g:go_echo_go_info               = 0
+    let g:go_addtags_transform          = 'camelcase'
+    let g:go_debug_windows              = {
+        \ 'vars': 'leftabove 35vnew',
+        \ 'stack': 'botright 10new',
+        \ 'goroutines': 'rightbelow 10new',
+    \ }
+    let g:go_debug_mappings = {
+        \ '(go-debug-continue)':   {'key': 'c', 'arguments': '<nowait>'},
+        \ '(go-debug-stop)':       {'key': 'q'},
+        \ '(go-debug-next)':       {'key': 'n', 'arguments': '<nowait>'},
+        \ '(go-debug-step)':       {'key': 's'},
+        \ '(go-debug-breakpoint)': {'key': 'b'},
+        \ '(go-debug-print)':      {'key': 'p'},
+        \ '(go-debug-halt)':       {'key': 'h'},
+    \}
+
+    let g:go_debug_address              = '127.0.0.1:8181'
+    let g:go_debug_log_output           = 'debugger'
+    let g:go_highlight_debug            = 1
+    let g:go_debug_breakpoint_sign_text = '>'
 
     augroup Go
         autocmd!
@@ -738,7 +742,8 @@ if HasPlug('vim-go')
         autocmd FileType go nmap <space>gk :GoKeyify<cr>
         autocmd FileType go nmap <space>gf :GoFillStruct<cr>
         autocmd FileType go nmap <space>ge :GoIfErr<cr>
-        autocmd FileType go nmap <space>gd :GoDebugStart<cr>
+        autocmd FileType go nmap <space>gd :GoDebugStar<cr>
+        autocmd FileType go nmap <space>gb :GoDebugBreakpoint<cr>
         autocmd FileType go nmap <space>gq :GoDebugStop<cr>
     augroup END
 endif
@@ -750,10 +755,9 @@ if HasPlug('vim-markdown')
     let g:markdown_minlines         = 100
 endif
 
-" ----> github/copilot.vim
-if HasPlug('copilot.vim')
-    imap <silent><script><expr> <c-j> copilot#Accept("\<cr>")
-    let g:copilot_no_tab_map = v:true
+" ----> dhruvasagar/vim-table-mode
+if HasPlug('vim-table-mode')
+    let g:table_mode_corner = '|'
 endif
 
 " ============> key mappings <============
@@ -850,6 +854,10 @@ vnoremap / :<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<
 noremap  <silent> <c-s> :update<cr>
 inoremap <silent> <c-s> <esc>:update<cr>
 
+" Replace a word
+noremap <silent> <space>y yiw
+noremap <silent> <space>p viw"0p
+
 " Move vertically by visual line
 nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
 nnoremap <silent> <expr> k v:count ? 'k' : 'gk'
@@ -880,7 +888,10 @@ nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:"
 noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz'
 
 " Reselect the text that has just been pasted
-nnoremap <silent> <space>p `[V`]
+nnoremap <silent> <space>s `[V`]
+
+" Select all content
+noremap <silent> <space>aa ggVG
 
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
@@ -900,7 +911,6 @@ cnoreabbrev Qall    qall
 
 " ============> Custom <============
 " ----> Highlights
-" Some custom highlights
 function! MyHighlights() abort
     highlight Normal        ctermbg=NONE guibg=NONE
     highlight NonText       ctermbg=NONE guibg=NONE
@@ -931,6 +941,7 @@ augroup FileTypeDetectAndCustom
     autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
     autocmd FileType qf                           setl nonu nornu
     autocmd FileType gitcommit                    setl spell
+    autocmd FileType json                         syntax match Comment +\/\/.\+$+
     autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
     autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
     autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
@@ -967,7 +978,7 @@ augroup END
 " ----> Commands
 command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
 command! RemoveBlankLine sil g/^$/d | noh | normal! ``
-command! RTP echo substitute(&runtimepath, ',', "\n", 'g')
+command! RTP echo substitute(&runtimepath, ',', '\n', 'g')
 command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
 command! CurrentPath echo expand('%:p')
@@ -1053,7 +1064,7 @@ augroup StartupTime
                         \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
 augroup END
 
-" ---> Generate security strings
+" ----> Generate security strings
 function! GenUUID() abort
 python3 << EOF
 import uuid
