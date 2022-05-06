@@ -1,6 +1,6 @@
 -- Tarrex's WezTerm config file.
 
-local wezterm = require 'wezterm';
+local wezterm = require 'wezterm'
 
 return {
   -- Laughing Programs
@@ -9,7 +9,8 @@ return {
   -- Fonts
   font = wezterm.font_with_fallback({
     {
-      family = 'JetBrains Mono',
+      -- family = 'JetBrains Mono',
+      family = 'SF Mono',
       weight = 'Regular',
       harfbuzz_features = { 'calt=0', 'clig=1', 'liga=1' },
     },
@@ -21,10 +22,10 @@ return {
   -- Key Binding
   use_ime = true,
   keys = {
-    { key = 'l',  mods = 'CMD', action = 'ShowLauncher' },
-    { key = 'w',  mods = 'CMD', action = wezterm.action({ CloseCurrentPane = { confirm = false } }) },
-    { key = '\\', mods = "CMD", action = wezterm.action{ SplitHorizontal = { domain = 'CurrentPaneDomain' } } },
-    { key = '-',  mods = "CMD", action = wezterm.action{ SplitVertical = { domain = 'CurrentPaneDomain' } } },
+    { key = 'l',  mods = 'SUPER', action = 'ShowLauncher' },
+    { key = 'w',  mods = 'SUPER', action = wezterm.action({ CloseCurrentPane = { confirm = false } }) },
+    { key = '\\', mods = 'SUPER', action = wezterm.action{ SplitHorizontal = { domain = 'CurrentPaneDomain' } } },
+    { key = '-',  mods = 'SUPER', action = wezterm.action{ SplitVertical = { domain = 'CurrentPaneDomain' } } },
   },
 
   -- Mouse Binding
@@ -41,9 +42,11 @@ return {
     top = 2,
     bottom = 2,
   },
-  window_background_opacity = 0.8,
-  text_background_opacity = 0.8,
+  -- window_decorations = 'RESIZE',
+  window_background_opacity = 0.9,
+  text_background_opacity = 0.9,
 
+  native_macos_fullscreen_mode = true,
   force_reverse_video_cursor = true,
   initial_cols = 80,
   initial_rows = 40,
