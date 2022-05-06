@@ -100,15 +100,15 @@ _fish_collapsed_pwd() {
 _retval() {
     if [[ $? -ne 0 ]]; then
         if [[ -n $BASH_VERSION ]]; then
-            echo -e " \033[38;5;9mλ"
+            echo -e "\033[38;5;9mλ"
         else
-            echo "%f %F{9}%Bλ%b%f"
+            echo "%f%F{9}%Bλ%b%f"
         fi
     else
         if [[ -n $BASH_VERSION ]]; then
-            echo -e " \033[38;5;190mλ"
+            echo -e "\033[38;5;190mλ"
         else
-            echo "%f %F{190}%Bλ%b%f"
+            echo "%f%F{190}%Bλ%b%f"
         fi
     fi
 }
@@ -124,15 +124,26 @@ _gitbranch() {
 
 if [[ -n $BASH_VERSION ]]; then
     if [[ $UID -eq 0 ]]; then
-        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;197m\]#\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;197m\]\n#\[\e[0m\] '
     else
-        export PS1='\[\e[38;5;111m\]\h$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;83m\]>\[\e[0m\] '
+        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;83m\]\n>\[\e[0m\] '
     fi
 else
+    NEWLINE=$'\n'
     if [[ $UID -eq 0 ]]; then
-        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{197}#%f '
+        export PROMPT='%f$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{197}${NEWLINE}#%f '
     else
-        export PROMPT='%f%F{111}%m$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}>%f '
+        export PROMPT='%f$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}${NEWLINE}>%f '
+    fi
+fi
+
+# starship
+if command -v starship >/dev/null; then
+    export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
+    if [[ -n $BASH_VERSION ]]; then
+        eval "$(starship init bash)"
+    elif [[ -n $ZSH_VERSION ]]; then
+        eval "$(starship init zsh)"
     fi
 fi
 
@@ -224,6 +235,9 @@ if [[ -n $ZSH_VERSION ]]; then
     # Zle
     setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
     unsetopt BEEP                   # Do not beep on error in line editor.
+
+    # -----> Environments
+    PROMPT_EOL_MARK=''
 
     # -----> Key binding
     bindkey -e                      # Use emacs key bindings in zsh
@@ -533,13 +547,13 @@ export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_so=$'\e[1;44;33m'
 export LESS_TERMCAP_se=$'\e[0m'
 
-command -v vim >/dev/null && export MANPAGER="vim -M +MANPAGER --not-a-term -"
+# command -v vim >/dev/null && export MANPAGER="vim -M +MANPAGER --not-a-term -"
 
 # Disable bash/zsh sessions on macOS
 [[ $OSTYPE == darwin* ]] && export SHELL_SESSION_DID_INIT=1
 
 # Nvim
-export PATH=$HOME/.local/bin/nvim/bin:$PATH
+[[ -d $HOME/.local/nvim ]] && export PATH=$HOME/.local/nvim/bin:$PATH
 
 # Language
 export LANG=en_US.UTF-8
@@ -619,77 +633,21 @@ if [[ $OSTYPE == darwin* ]]; then
     fi
 fi
 
-# Node / npm / yarn / nvm
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/config
+# Node / npm
+[[ -d $HOME/.local/node ]] && export PATH=$HOME/.local/node/bin:$PATH
+export NODE_REPL_HISTORY=-
+
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
 export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
 export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
 
-export NODE_REPL_HISTORY=-
-export NVM_DIR=$XDG_DATA_HOME/nvm
-
-if [[ -f $NVM_DIR/nvm.sh ]]; then
-    export NVM_NO_USE=false
-    export NVM_LAZY_LOAD=true
-    export NVM_LAZY_LOAD_EXTRA_COMMANDS=(vim nvim)
-
-    _nvm_load() {
-        if [[ $NVM_NO_USE == true ]]; then
-            source $NVM_DIR/nvm.sh --no-use
-        else
-            source $NVM_DIR/nvm.sh
-        fi
-    }
-
-    _nvm_global_binaries() {
-        [[ -n $ZSH_VERSION ]] && unsetopt NOMATCH
-        echo $NVM_DIR/v0*/bin/* $NVM_DIR/versions/*/*/bin/* |
-            xargs -n 1 basename | sort | uniq | tr -d '*'
-    }
-
-    _nvm_lazy_load() {
-        local global_binaries
-        if [[ $NVM_NO_USE == true ]]; then
-            global_binaries=()
-        else
-            global_binaries=($(_nvm_global_binaries))
-        fi
-        global_binaries+=(nvm)
-        global_binaries+=($NVM_LAZY_LOAD_EXTRA_COMMANDS)
-
-        local cmds
-        cmds=()
-        for bin in ${global_binaries[@]}; do
-            [[ $(which $bin 2> /dev/null) = "$bin: aliased to "* ]] || cmds+=($bin)
-        done
-
-        for cmd in ${cmds[@]}; do
-            eval "$cmd(){
-                unset -f ${cmds[@]} > /dev/null 2>&1
-                _nvm_load
-                $cmd \"\$@\"
-            }"
-        done
-    }
-
-    if [[ $NVM_LAZY_LOAD == true ]]; then
-        _nvm_lazy_load
-    else
-        _nvm_load
-    fi
-fi
-
-install_nvm() {
-    if [[ ! -f $NVM_DIR/nvm.sh ]] && [[ $_INSTALLED_CURL = true ]]; then
-        echo "$NVM_DIR/nvm.sh doesn't exists."
-        echo "Downloading nvm.sh from github to $NVM_DIR/nvm.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $NVM_DIR/nvm.sh https://raw.githubusercontent.com/nvm-sh/nvm/master/nvm.sh`
-    fi
-    source $XDG_CONFIG_HOME/init.sh
-}
-
 # Docker
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
+
+# Lima
+if command -v lima >/dev/null; then
+    alias docker='lima nerdctl'
+fi
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
@@ -705,8 +663,14 @@ case $OSTYPE in
      linux*|cygwin*|msys*) alias ls='ls --color -h';;
     darwin*|*bsd*|FreeBSD) alias ls='ls -Gh';;
 esac
-alias ll='ls -l'
-alias la='ll -a'
+
+if command -v exa >/dev/null; then
+    alias ll='exa -lF --icons'
+    alias la='exa -alF --icons'
+else
+    alias ll='ls -l'
+    alias la='ll -a'
+fi
 
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -730,7 +694,6 @@ alias tmux='tmux -2'
 
 # Proxy
 proxy_addr="127.0.0.1:7890"
-# proxy_addr="10.0.0.4:7890"
 no_proxy_addr="localhost,127.0.0.0/8,*.local"
 
 alias httpproxy="all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
