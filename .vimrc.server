@@ -101,7 +101,7 @@ set formatoptions+=m                        " also break at a multibyte characte
 set formatoptions+=B                        " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                        " remove a comment leader when joining lines
 set nrformats-=octal                        " treat numbers with a leading zero as decimal, not octal
-set shortmess=acoO                          " hit-enter prompts caused by file messages
+set shortmess=aoOcF                         " hit-enter prompts caused by file messages
 silent! set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
 set fillchars=vert:┃                        " vertical separators
 set listchars=eol:¬                         " end of line
@@ -349,6 +349,10 @@ vnoremap / :<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<
 noremap  <silent> <c-s> :update<cr>
 inoremap <silent> <c-s> <esc>:update<cr>
 
+" Replace a word
+noremap <silent> <space>y yiw
+noremap <silent> <space>p viw"0p
+
 " Move vertically by visual line
 nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
 nnoremap <silent> <expr> k v:count ? 'k' : 'gk'
@@ -379,7 +383,10 @@ nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:"
 noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz'
 
 " Reselect the text that has just been pasted
-nnoremap <silent> <space>p `[V`]
+nnoremap <silent> <space>s `[V`]
+
+" Select all content
+noremap <silent> <space>aa ggVG
 
 " Resize window
 noremap <silent> <space>- :resize -2<cr>
@@ -399,7 +406,6 @@ cnoreabbrev Qall    qall
 
 " ============> Custom <============
 " ----> Highlights
-" Some custom highlights
 function! MyHighlights() abort
     highlight Normal        ctermbg=NONE guibg=NONE
     highlight NonText       ctermbg=NONE guibg=NONE
@@ -439,6 +445,7 @@ augroup FileTypeDetectAndCustom
     autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
     autocmd FileType qf                           setl nonu nornu
     autocmd FileType gitcommit                    setl spell
+    autocmd FileType json                         syntax match Comment +\/\/.\+$+
     autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
     autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
     autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
@@ -477,7 +484,7 @@ augroup END
 " ----> Commands
 command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
 command! RemoveBlankLine sil g/^$/d | noh | normal! ``
-command! RTP echo substitute(&runtimepath, ',', "\n", 'g')
+command! RTP echo substitute(&runtimepath, ',', '\n', 'g')
 command! SaveAsUTF8 setl fenc=utf-8 | w
 command! Tab2Space sil %s/\t/    /g | noh | normal! ``
 command! CurrentPath echo expand('%:p')
@@ -565,7 +572,7 @@ augroup StartupTime
                         \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
 augroup END
 
-" ---> Generate security strings
+" ----> Generate security strings
 function! GenUUID() abort
 python3 << EOF
 import uuid
