@@ -80,6 +80,7 @@
     postBuffer = 1048576000
 # [http "https://github.com"]
 #     proxy     = http://127.0.0.1:7890
+#     # proxy     = socks5://127.0.0.1:7890
 #     sslVerify = false
 
 [i18n]
