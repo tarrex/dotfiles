@@ -153,14 +153,14 @@ if utils.executable('gopls') then
   })
 end
 
-if utils.executable('vscode-html-languageserver') then
+if utils.executable('vscode-html-language-server') then
   lspconfig.html.setup({
     on_attach = custom_attach,
     capabilities = capabilities,
   })
 end
 
-if utils.executable('vscode-json-languageserver') then
+if utils.executable('vscode-json-language-server') then
   lspconfig.jsonls.setup({
     on_attach = custom_attach,
     capabilities = capabilities,
