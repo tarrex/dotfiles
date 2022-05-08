@@ -42,13 +42,13 @@ return {
     top = 2,
     bottom = 2,
   },
-  -- window_decorations = 'RESIZE',
+  window_decorations = 'RESIZE',
   window_background_opacity = 0.9,
   text_background_opacity = 0.9,
 
-  native_macos_fullscreen_mode = true,
+  native_macos_fullscreen_mode = false,
   force_reverse_video_cursor = true,
-  initial_cols = 80,
+  initial_cols = 120,
   initial_rows = 40,
 
   -- Color Schemes
