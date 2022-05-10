@@ -55,8 +55,8 @@ return {
   color_scheme = 'Gruvbox Dark',
 
   -- Additional Options
-  -- scrollback
   scrollback_lines = 100000,
+  exit_behavior = 'Close',
 
   -- quick select mode
   quick_select_patterns = {
