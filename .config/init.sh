@@ -20,13 +20,15 @@ export XDG_CONFIG_DIRS=/etc/xdg
 
 # Dependencies
 command -v curl >/dev/null && _INSTALLED_CURL=true
-command -v git >/dev/null  && _INSTALLED_GIT=true
+command -v git  >/dev/null && _INSTALLED_GIT=true
+command -v tmux >/dev/null && _INSTALLED_TMUX=true
+command -v fzf  >/dev/null && _INSTALLED_FZF=true
 
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
 _Z_CMD=z
 if [[ -n $_Z_CMD ]]; then
-    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]] && [[ $_INSTALLED_CURL = true ]]; then
+    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]] && [[ $_INSTALLED_CURL ]]; then
         echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
         echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
         echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
@@ -40,7 +42,7 @@ if [[ -n $_Z_CMD ]]; then
 fi
 
 # git-prompt.sh initialize
-if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]] && [[ $_INSTALLED_CURL = true ]] && [[ $_INSTALLED_GIT = true ]]; then
+if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]] && [[ $_INSTALLED_CURL ]] && [[ $_INSTALLED_GIT ]]; then
     echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
     echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
     echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
@@ -115,7 +117,7 @@ _retval() {
 
 # git branch
 _gitbranch() {
-    if [[ $_INSTALLED_GIT = true ]]; then
+    if [[ $_INSTALLED_GIT ]]; then
         echo $(__git_ps1 '(%s)')
     else
         echo ''
@@ -453,7 +455,7 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # -----> Plugin
     # zinit
-    if [[ $_INSTALLED_GIT = true ]]; then
+    if [[ $_INSTALLED_GIT ]]; then
         typeset -A ZINIT=(
             HOME_DIR        $XDG_DATA_HOME/zinit
             ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
@@ -492,6 +494,9 @@ if [[ -n $ZSH_VERSION ]]; then
                 src'etc/git-extras-completion.zsh' \
                 make'PREFIX=$ZPFX'
             zinit light tj/git-extras
+
+            zinit ice wait lucid depth'1'
+            zinit light wfxr/forgit
 
             zinit ice lucid has'docker' as'completion'
             zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
@@ -634,7 +639,11 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 # Node / npm
-[[ -d $HOME/.local/node ]] && export PATH=$HOME/.local/node/bin:$PATH
+if [[ -d $HOME/.local/node ]]; then
+    export PATH=$HOME/.local/node/bin:$PATH
+elif [[ -d /usr/local/node ]]; then
+    export PATH=/usr/local/node/bin:$PATH
+fi
 export NODE_REPL_HISTORY=-
 
 export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
@@ -657,6 +666,78 @@ fi
 
 # Wakatime
 export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
+
+# FZF
+if [[ $_INSTALLED_FZF ]]; then
+    export FZF_COMPLETION_TRIGGER='~~'
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+    --height 40%
+    --reverse
+    --bind "ctrl-f:preview-page-down,ctrl-b:preview-page-up"
+    --color=light
+    --color=fg:-1,bg:-1,hl+:#ffaf5f
+    --color=fg+:-1,bg+:-1,hl+:#ffaf5f
+    --color=info:#af87ff,prompt:#5fff87,pointer:#ff87d7
+    --color=marker:#ff87d7,spinner:#ff87d7,header:#af87ff
+    '
+
+    if [[ $_INSTALLED_TMUX ]]; then
+        # tm - create new tmux session, or switch to existing one
+        tm() {
+            [[ -n $TMUX ]] && cmd='switchc' || cmd='attach'
+            if [[ $1 ]]; then
+                tmux $cmd -t $1 2>/dev/null || (tmux new -d -s $1 && tmux $cmd -t $1); return
+            fi
+
+            # session=$(tmux ls -F '#S' 2>/dev/null | fzf --exit-0) &&
+            #     tmux $cmd -t $session ||
+            #     echo 'No sessions found.'
+
+            tmux ls -F '#S' 2>/dev/null | fzf --bind=enter:replace-query+print-query |
+                read session &&
+                tmux $cmd -t $session 2>/dev/null ||
+                (tmux new -d -s ${session} 2>/dev/null && tmux $cmd -t ${session} 2>/dev/null) ||
+                return 0
+        }
+    fi
+
+    # ch - browse chrome history
+    ch() {
+        local cols sep chrome_history open
+        cols=$(( COLUMNS / 3 ))
+        sep='{::}'
+
+        case $OSTYPE in
+            linux*)
+                chrome_history="$HOME/.config/google-chrome/Default/History"
+                open=xdg-open;;
+            darwin*)
+                chrome_history="$HOME/Library/Application Support/Google/Chrome/Default/History"
+                open=open;;
+        esac
+        cp -f $chrome_history /tmp/h
+        sqlite3 -separator $sep /tmp/h \
+            "select substr(title, 1, $cols), url
+             from urls order by last_visit_time desc" |
+        awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
+        fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
+    }
+
+    # cb - browse chrome bookmarks
+    cb() {
+        chrome_bookmarks=~/Library/Application\ Support/Google/Chrome/Default/Bookmarks
+
+        jq_script='
+            def ancestors: while(. | length >= 2; del(.[-1,-2]));
+            . as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path: [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] | reverse | join("/") } | .path + "/" + .name + "\t" + .url'
+
+        jq -r "$jq_script" < "$chrome_bookmarks" \
+            | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
+            | fzf --ansi \
+            | cut -d$'\t' -f2 \
+            | xargs open
+    }
+fi
 
 # Common alias
 case $OSTYPE in
