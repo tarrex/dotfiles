@@ -639,7 +639,7 @@ if HasPlug('ale')
     let g:ale_sign_warning                = '--'
     let g:ale_sign_info                   = '~~'
     let g:ale_set_highlights              = 1
-    let g:ale_set_quickfix                = 0
+    let g:ale_set_quickfix                = 1
     let g:ale_list_window_size            = 6
     let g:ale_open_list                   = 'on_save'
     let g:ale_fix_on_save                 = 1
@@ -703,11 +703,8 @@ if HasPlug('ale')
     \ }
     let g:ale_go_golangci_lint_options    = ''
 
-    " let g:ale_cursor_detail = 1
     let g:ale_echo_cursor = 0
     let g:ale_set_loclist = 0
-    " let g:ale_floating_preview = 1
-    " let g:ale_floating_window_border = []
     let g:ale_virtualtext_cursor = 1
     let g:ale_virtualtext_prefix = '    ■ '
 
