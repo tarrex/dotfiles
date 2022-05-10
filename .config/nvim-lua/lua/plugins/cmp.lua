@@ -13,6 +13,11 @@ local lspkind = require('lspkind')
 --   end))
 -- end
 
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
+end
+
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -21,34 +26,40 @@ cmp.setup({
   },
 
   mapping = {
-    ['<C-e>'] = cmp.mapping{
+    ['<Esc>'] = cmp.mapping{
       i = cmp.mapping.abort(),
       c = cmp.mapping.abort(),
     },
-    ['<Esc>'] = cmp.mapping{
+    ['<C-e>'] = cmp.mapping{
       i = cmp.mapping.close(),
       c = cmp.mapping.close(),
     },
-    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<CR>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    },
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
-        cmp.select_next_item({ behaviour = cmp.SelectBehavior.Select })
+        cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '')
+        luasnip.expand_or_jump()
+      elseif has_words_before() then
+        cmp.complete()
       else
         fallback()
       end
-    end, { 'i', 'c' }),
+    end, { 'i', 's' }),
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
-        cmp.select_prev_item({ behaviour = cmp.SelectBehavior.Select })
+        cmp.select_prev_item()
       elseif luasnip.jumpable(-1) then
-        vim.fn.feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-jump-prev', true, true, true), '')
+        luasnip.jump(-1)
       else
         fallback()
       end
-    end, { 'i', 'c' })
+    end, { 'i', 's' }),
   },
 
   completion = {
@@ -58,11 +69,11 @@ cmp.setup({
   },
 
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'nvim_lsp_signature_help' },
-    { name = 'nvim_lua' },
-    { name = 'luasnip' },
-    { name = 'path' },
+    { name = 'nvim_lsp', max_item_count = 10 },
+    { name = 'nvim_lsp_signature_help', max_item_count = 10 },
+    { name = 'nvim_lua', max_item_count = 10 },
+    { name = 'luasnip', max_item_count = 5 },
+    { name = 'path', max_item_count = 5 },
     { name = 'buffer', keyword_length = 5 },
   },
 
@@ -90,15 +101,16 @@ cmp.setup({
 -- ]])
 
 cmp.setup.cmdline('/', {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = {
-    { name = 'buffer' }
+    { name = 'buffer', max_item_count = 10 },
   }
 })
 
 cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
-    { name = 'path' }
-  }, {
-    { name = 'cmdline' }
+    { name = 'path', max_item_count = 10 },
+    { name = 'cmdline', max_item_count = 10 },
   })
 })

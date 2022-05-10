@@ -46,7 +46,7 @@ opt.sidescrolloff = 1
 
 opt.timeoutlen = 3000
 opt.ttimeoutlen = 6
-opt.updatetime = 2000
+opt.updatetime = 250
 
 opt.comments = ''
 opt.commentstring = ''
@@ -116,3 +116,7 @@ opt.wildignore = {
   '[Dd]esktop.ini', '*.lnk', '$RECYCLE.BIN/*', '*.stackdump', 'Thumbs.db',
   '.git/*', '.github/*', '.hg/*', '.idea/*', '.svn/*', '.vscode/*',
 }
+
+opt.wildoptions = 'pum'
+opt.winblend = 0
+opt.pumblend = 5

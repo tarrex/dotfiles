@@ -12,7 +12,7 @@ telescope.setup({
     use_less = false,
     mappings = {
       i = {
-        ['<esc>'] = actions.close,
+        ['<Esc>'] = actions.close,
         ['<C-j>'] = actions.move_selection_next,
         ['<C-k>'] = actions.move_selection_previous,
         ['<C-h>'] = { '<Left>', type = 'command' },

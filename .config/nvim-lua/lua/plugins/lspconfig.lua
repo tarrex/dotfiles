@@ -7,7 +7,7 @@ local api = vim.api
 local lsp = vim.lsp
 
 local custom_attach = function(client, bufnr)
-  -- Mappings.
+  -- Mappings
   local opts = { silent = true, buffer = bufnr }
   -- vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
   vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
@@ -29,6 +29,7 @@ local custom_attach = function(client, bufnr)
   vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
   vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, opts)
 
+  -- Show line diagnostics automatically in hover window
   vim.api.nvim_create_autocmd('CursorHold', {
     buffer = bufnr,
     callback = function()
@@ -36,8 +37,9 @@ local custom_attach = function(client, bufnr)
         focusable = false,
         close_events = { 'BufLeave', 'CursorMoved', 'InsertEnter', 'FocusLost' },
         border = 'rounded',
-        source = 'always', -- show source in diagnostic popup window
-        prefix = ' '
+        source = 'always',
+        prefix = ' ',
+        scope = 'cursor',
       }
       vim.diagnostic.open_float(nil, opts)
     end
@@ -51,18 +53,24 @@ local custom_attach = function(client, bufnr)
     vim.keymap.set('x', 'ff', vim.lsp.buf.range_formatting, opts)
   end
 
-  -- The blow command will highlight the current variable and its usages in the buffer.
+  -- Highlight symbol under cursor
   if client.resolved_capabilities.document_highlight then
     vim.cmd([[
       hi! link LspReferenceRead Visual
       hi! link LspReferenceText Visual
       hi! link LspReferenceWrite Visual
-      augroup lsp_document_highlight
-        autocmd! * <buffer>
-        autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-        autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-      augroup END
     ]])
+    vim.api.nvim_create_augroup('lsp_document_highlight', {})
+    vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+      group = 'lsp_document_highlight',
+      buffer = 0,
+      callback = vim.lsp.buf.document_highlight,
+    })
+    vim.api.nvim_create_autocmd('CursorMoved', {
+      group = 'lsp_document_highlight',
+      buffer = 0,
+      callback = vim.lsp.buf.clear_references,
+    })
   end
 
   if vim.g.logging_level == 'debug' then
@@ -71,22 +79,24 @@ local custom_attach = function(client, bufnr)
   end
 end
 
+-- Add additional capabilities supported by nvim-cmp
 local capabilities = lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-
 -- Change diagnostic signs.
-vim.fn.sign_define('DiagnosticSignError', { text = '✗', texthl = 'DiagnosticSignError' })
-vim.fn.sign_define('DiagnosticSignWarn',  { text = '!', texthl = 'DiagnosticSignWarn' })
-vim.fn.sign_define('DiagnosticSignInfo',  { text = '', texthl = 'DiagnosticSignInfo' })
-vim.fn.sign_define('DiagnosticSignHint',  { text = '', texthl = 'DiagnosticSignHint' })
+local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
 
--- global config for diagnostic
+-- Global config for diagnostic
 vim.diagnostic.config({
-  underline = false,
   virtual_text = false,
   signs = true,
+  underline = true,
+  update_in_insert = false,
   severity_sort = true,
 })
 
@@ -102,7 +112,7 @@ lsp.handlers['textDocument/hover'] = lsp.with(vim.lsp.handlers.hover, {
   border = 'rounded',
 })
 
--- language server configuration
+-- Language server configuration
 if utils.executable('bash-language-server') then
   lspconfig.bashls.setup({
     on_attach = custom_attach,
@@ -150,6 +160,18 @@ if utils.executable('gopls') then
   lspconfig.gopls.setup({
     on_attach = custom_attach,
     capabilities = capabilities,
+    settings = {
+      gopls = {
+        analyses = {
+          unusedparams = true,
+          shadow = true,
+        },
+        staticcheck = true,
+      },
+    },
+    init_options = {
+      usePlaceholders = true,
+    }
   })
 end
 

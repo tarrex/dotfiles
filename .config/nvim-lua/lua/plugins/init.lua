@@ -36,14 +36,17 @@ packer.startup(function(use)
   -- packer itself
   use { 'wbthomason/packer.nvim' }
 
+  -- useful dependencies
+  use { 'nvim-lua/plenary.nvim' }
+  use { 'kyazdani42/nvim-web-devicons' }
+
   -- colorscheme
-  use { 'lifepillar/vim-gruvbox8', opt = true }
-  use { 'haishanh/night-owl.vim', opt = true }
-  use { 'mofiqul/vscode.nvim', opt = true }
-  use { 'tomasiser/vim-code-dark', opt = true }
+  use { 'lifepillar/vim-gruvbox8' }
+  use { 'haishanh/night-owl.vim' }
+  use { 'mofiqul/vscode.nvim' }
+  use { 'tomasiser/vim-code-dark' }
 
   -- statusline
-  use { 'kyazdani42/nvim-web-devicons' }
   use {
     'nvim-lualine/lualine.nvim',
     after = 'nvim-web-devicons',
@@ -126,7 +129,6 @@ packer.startup(function(use)
   -- telescope
   use {
     'nvim-telescope/telescope.nvim',
-    requires = { 'nvim-lua/plenary.nvim', opt = true },
     config = function()
       require('plugins.telescope')
     end
@@ -156,6 +158,7 @@ packer.startup(function(use)
   use 'tpope/vim-commentary'
   use 'tpope/vim-sleuth'
   use 'tpope/vim-fugitive'
+  use 'tpope/vim-rhubarb'
 
   use {
     'editorconfig/editorconfig-vim',
@@ -198,12 +201,14 @@ packer.startup(function(use)
       'hrsh7th/cmp-nvim-lua',
       {
         'l3mon4d3/luasnip',
-        requires = { 'rafamadriz/friendly-snippets' },
+        requires = {
+          'saadparwaiz1/cmp_luasnip',
+          'rafamadriz/friendly-snippets'
+        },
         config = function()
           require('plugins.luasnip')
         end
       },
-      'hrsh7th/cmp-emoji',
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-cmdline',
@@ -223,9 +228,10 @@ packer.startup(function(use)
   }
 
   use {
-    'sbdchd/neoformat',
+    'jose-elias-alvarez/null-ls.nvim',
+    after = 'plenary.nvim',
     config = function()
-      require('plugins.neoformat')
+      require('plugins.null-ls')
     end
   }
 
@@ -250,7 +256,7 @@ packer.startup(function(use)
   use { 'mtdl9/vim-log-highlighting', ft = 'log' }
 
   -- use 'wakatime/vim-wakatime'
-  use 'tweekmonster/startuptime.vim'
+  -- use 'tweekmonster/startuptime.vim'
   -- use 'dstein64/vim-startuptime'
 
   -- Automatically set up your configuration after cloning packer.nvim
