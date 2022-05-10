@@ -68,7 +68,7 @@
 [credential]
     helper = cache --timeout=14400
 [credential "https://github.com"]
-	username = tarrex
+    username = tarrex
 
 [diff]
     tool            = vimdiff
@@ -118,6 +118,18 @@
     short              = true
     showUntrackedFiles = normal
 
+# using ssh for git
+# [url "git@github.com:"]
+#     insteadOf = https://github.com/
+# [url "git://"]
+#     insteadOf = https://
+
+# using https for git
+# [url "https://github.com/"]
+#     insteadOf = git@github.com:
+# [url "https://"]
+#     insteadOf = git://
+
 [user]
     name  = tarrex
     email = tarrexchen@gmail.com
@@ -131,10 +143,10 @@
 
 # Git LFS
 [filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
 
 # Delta - A syntax-highlighting pager for git, diff, and grep output
 # Reference:
