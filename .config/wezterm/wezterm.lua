@@ -11,6 +11,7 @@ return {
     {
       -- family = 'JetBrains Mono',
       family = 'SF Mono',
+      stretch = 'Expanded',
       weight = 'Regular',
       harfbuzz_features = { 'calt=0', 'clig=1', 'liga=1' },
     },
@@ -20,12 +21,14 @@ return {
   line_height = 1.0,
 
   -- Key Binding
-  use_ime = true,
   keys = {
-    { key = 'l',  mods = 'SUPER', action = 'ShowLauncher' },
-    { key = 'w',  mods = 'SUPER', action = wezterm.action({ CloseCurrentPane = { confirm = false } }) },
-    { key = '\\', mods = 'SUPER', action = wezterm.action{ SplitHorizontal = { domain = 'CurrentPaneDomain' } } },
-    { key = '-',  mods = 'SUPER', action = wezterm.action{ SplitVertical = { domain = 'CurrentPaneDomain' } } },
+    { key = 'l',     mods = 'SUPER', action = 'ShowLauncher' },
+    { key = 'Enter', mods = 'SUPER', action = 'ToggleFullScreen' },
+    { key = 'w',     mods = 'SUPER', action = wezterm.action({ CloseCurrentPane = { confirm = false } }) },
+    { key = '\\',    mods = 'SUPER', action = wezterm.action({ SplitHorizontal = { domain = 'CurrentPaneDomain' } }) },
+    { key = '-',     mods = 'SUPER', action = wezterm.action({ SplitVertical = { domain = 'CurrentPaneDomain' } }) },
+    { key = '[',     mods = 'SUPER', action = wezterm.action({ ActivatePaneDirection = 'Prev' }) },
+    { key = ']',     mods = 'SUPER', action = wezterm.action({ ActivatePaneDirection = 'Next' }) },
   },
 
   -- Mouse Binding
@@ -37,14 +40,33 @@ return {
   hide_tab_bar_if_only_one_tab = true,
   tab_bar_at_bottom = false,
   window_padding = {
-    left = 4,
-    right = 4,
-    top = 2,
-    bottom = 2,
+    left = 2,
+    right = 2,
+    top = 0,
+    bottom = 0,
   },
-  window_decorations = 'RESIZE',
+
   window_background_opacity = 0.9,
+  window_decorations = 'RESIZE',
+  -- window_close_confirmation = 'NeverPrompt',
+  -- window_background_image = wezterm.config_dir .. '/wallpaper.jpeg',
+  -- window_background_image_hsb = {
+  --   hue = 1.0,
+  --   saturation = 1.0,
+  --   brightness = 0.1,
+  -- },
+
   text_background_opacity = 0.9,
+  foreground_text_hsb = {
+    hue = 1.0,
+    saturation = 1.0,
+    brightness = 1.4,
+  },
+
+  default_cursor_style = 'BlinkingBar',
+  cursor_blink_rate = 800,
+  cursor_blink_ease_in = 'EaseIn',
+  cursor_blink_ease_out = 'EaseOut',
 
   native_macos_fullscreen_mode = false,
   force_reverse_video_cursor = true,
@@ -56,6 +78,7 @@ return {
 
   -- Additional Options
   scrollback_lines = 100000,
+  clean_exit_codes = { 0, 1, 130 },
   exit_behavior = 'Close',
 
   -- quick select mode
@@ -68,20 +91,20 @@ return {
   hyperlink_rules = {
     -- Linkify things that look like URLs
     {
-      regex = "\\b\\w+://(?:[\\w.-]+)\\.[a-z]{2,15}\\S*\\b",
-      format = "$0",
+      regex = '\\b\\w+://(?:[\\w.-]+)\\.[a-z]{2,15}\\S*\\b',
+      format = '$0',
     },
 
     -- linkify email addresses
     {
-      regex = "\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b",
-      format = "mailto:$0",
+      regex = '\\b\\w+@[\\w-]+(\\.[\\w-]+)+\\b',
+      format = 'mailto:$0',
     },
 
     -- file:// URI
     {
-      regex = "\\bfile://\\S*\\b",
-      format = "$0",
+      regex = '\\bfile://\\S*\\b',
+      format = '$0',
     },
   },
 
