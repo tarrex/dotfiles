@@ -18,6 +18,11 @@ export XDG_RUNTIME_DIR=/tmp
 export XDG_DATA_DIRS=/usr/local/share:/usr/share
 export XDG_CONFIG_DIRS=/etc/xdg
 
+# Add /usr/sbin, /usr/local/sbin, ~/.local/bin to PATH
+[[ -d /usr/sbin ]]        && export PATH=/usr/sbin:$PATH
+[[ -d /usr/local/sbin ]]  && export PATH=/usr/local/sbin:$PATH
+[[ -d $HOME/.local/bin ]] && export PATH=$HOME/.local/bin:$PATH
+
 # Dependencies
 command -v curl >/dev/null && _INSTALLED_CURL=true
 command -v git  >/dev/null && _INSTALLED_GIT=true
@@ -563,11 +568,6 @@ export LESS_TERMCAP_se=$'\e[0m'
 # Language
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-
-# /usr/sbin, /usr/local/sbin, ~/.local/bin
-[[ -d /usr/sbin ]]        && export PATH=/usr/sbin:$PATH
-[[ -d /usr/local/sbin ]]  && export PATH=/usr/local/sbin:$PATH
-[[ -d $HOME/.local/bin ]] && export PATH=$HOME/.local/bin:$PATH
 
 # Homebrew
 if [[ $OSTYPE == darwin* ]]; then
