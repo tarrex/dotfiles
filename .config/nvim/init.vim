@@ -91,7 +91,7 @@ set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the 
 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 set path=.,**5                              " look in the directory of the current buffer non-recursively, and in the working directory recursively
-set noswapfile                              " don't create swapfile for the buffer
+set swapfile                                " create swapfile for the buffer
 set nobackup                                " don't make a backup before overwriting a file
 set undofile                                " automatically saves undo history to an undo file
 

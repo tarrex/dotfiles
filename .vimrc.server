@@ -117,11 +117,11 @@ set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the 
 set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
 set path=.,**5                              " look in the directory of the current buffer non-recursively, and in the working directory recursively
 set tags=./tags;                            " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
-set noswapfile                              " don't create swapfile for the buffer
-" let &directory = g:vimdir . '/tmp/swap'
-" if !isdirectory(&directory)
-"     call mkdir(&directory, 'p', 0700)
-" endif
+set swapfile                                " create swapfile for the buffer
+let &directory = g:vimdir . '/tmp/swap'
+if !isdirectory(&directory)
+    call mkdir(&directory, 'p', 0700)
+endif
 set nobackup                                " don't make a backup before overwriting a file
 " let &backupdir = g:vimdir . '/tmp/backup'
 " if !isdirectory(&backupdir)
