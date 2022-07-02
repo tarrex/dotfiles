@@ -1,3 +1,4 @@
+aria2
 arping
 automake
 bat
@@ -5,6 +6,7 @@ chezscheme
 cloc
 cmake
 emacs
+exa
 fd
 ffmpeg
 fzf
@@ -23,9 +25,12 @@ htop
 httrack
 hugo
 iperf
+jq
+kubernetes-cli
 languagetool
 lima
 llvm
+lua-language-server
 mtr
 mycli
 neofetch
@@ -33,11 +38,12 @@ nmap
 opencc
 openjdk
 pandoc
-podman
+python-tabulate
 rename
 ripgrep
 rustup-init
 socat
+starship
 tcpdump
 tmux
 tokei
