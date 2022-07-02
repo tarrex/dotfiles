@@ -649,24 +649,9 @@ if HasPlug('ale')
         \ 'rust':            ['rustfmt'],
         \ 'c':               ['clang-format'],
         \ 'cpp':             ['clang-format'],
-        \ 'javascript':      ['prettier'],
-        \ 'javascriptreact': ['prettier'],
-        \ 'typescript':      ['prettier'],
-        \ 'typescriptreact': ['prettier'],
-        \ 'vue':             ['prettier'],
-        \ 'html':            ['prettier'],
-        \ 'css':             ['prettier'],
-        \ 'less':            ['prettier'],
-        \ 'sass':            ['prettier'],
-        \ 'scss':            ['prettier'],
-        \ 'json':            ['prettier'],
-        \ 'yaml':            ['prettier'],
-        \ 'graphql':         ['prettier'],
-        \ 'markdown':        ['prettier'],
         \ 'sh':              ['shfmt']
     \}
     let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
-    let g:ale_javascript_prettier_options = '--print-width 1800 --single-quote --trailing-comma all'
     let g:ale_lint_on_enter               = 0
     let g:ale_lint_on_save                = 1
     let g:ale_lint_on_text_changed        = 0
@@ -674,7 +659,7 @@ if HasPlug('ale')
     let g:ale_linters                     = {
         \ 'go':              ['golangci-lint', 'gopls'],
         \ 'python':          ['pyflakes'],
-        \ 'rust':            ['analyzer', 'rls'],
+        \ 'rust':            ['analyzer'],
         \ 'java':            ['javac'],
         \ 'c':               ['cc', 'clangd'],
         \ 'cpp':             ['cc', 'clangd'],
@@ -688,7 +673,6 @@ if HasPlug('ale')
         \ 'less':            ['stylelint'],
         \ 'sass':            ['stylelint'],
         \ 'scss':            ['stylelint'],
-        \ 'json':            ['prettier'],
         \ 'yaml':            ['yamllint'],
         \ 'graphql':         ['eslint'],
         \ 'markdown':        ['languagetool'],
