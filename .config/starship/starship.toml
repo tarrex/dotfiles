@@ -1,0 +1,38 @@
+# Starship config file
+# Get editor completions based on the config schema
+'$schema' = 'https://starship.rs/config-schema.json'
+
+# Prompt
+format = '[λ](bold fg:33) $all'
+scan_timeout = 30
+command_timeout = 800
+add_newline = false
+continuation_prompt = '▶▶'
+
+[character]
+format = '$symbol '
+success_symbol = '[❯](bold green)'
+error_symbol = '[❯](bold red)'
+
+[cmd_duration]
+min_time = 2_000
+format = 'took [$duration]($style) '
+style = 'bold yellow'
+
+[directory]
+truncation_length = 1
+truncate_to_repo = false
+format = '[$path]($style)[$read_only]($read_only_style) '
+style = 'bold cyan'
+fish_style_pwd_dir_length = 1
+
+[hostname]
+ssh_only = false
+format = '[$ssh_symbol$hostname]($style): '
+style = 'bold fg:140'
+
+[username]
+style_root = 'bold fg:9'
+style_user = 'bold fg:140'
+format = '[$user]($style)[@](bold fg:140)'
+show_always = true
