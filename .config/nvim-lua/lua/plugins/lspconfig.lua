@@ -100,12 +100,12 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
--- lsp.handlers["textDocument/publishDiagnostics"] = lsp.with(lsp.diagnostic.on_publish_diagnostics, {
---   underline = false,
---   virtual_text = false,
---   signs = true,
---   update_in_insert = false,
--- })
+lsp.handlers["textDocument/publishDiagnostics"] = lsp.with(lsp.diagnostic.on_publish_diagnostics, {
+  virtual_text = false,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+})
 
 -- Change border of documentation hover window, See https://github.com/neovim/neovim/pull/13998.
 lsp.handlers['textDocument/hover'] = lsp.with(vim.lsp.handlers.hover, {

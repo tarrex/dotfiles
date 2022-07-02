@@ -100,7 +100,7 @@ opt.matchpairs:append({ '<:>', '《:》', '「:」', '（:）', '【:】' })
 
 opt.dictionary:append('/usr/share/dict/words')
 opt.path = { '.', '**5' }
-opt.swapfile = false
+opt.swapfile = true
 opt.backup = false
 opt.undofile = true
 

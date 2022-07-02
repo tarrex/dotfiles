@@ -1,12 +1,9 @@
-local g   = vim.g
-local cmd = vim.cmd
+vim.g.EditorConfig_disable_rules = { 'trim_trailing_whitespace' }
+vim.g.EditorConfig_exclude_patterns = { 'fugitive://.*', 'scp://.*' }
 
-g.EditorConfig_disable_rules = { 'trim_trailing_whitespace' }
-g.EditorConfig_exclude_patterns = { 'fugitive://.*', 'scp://.*' }
-
-cmd([[
-  augroup EditorConfig
-    autocmd!
-    autocmd FileType gitcommit let b:EditorConfig_disable = 1
-  augroup END
-]])
+vim.api.nvim_create_augroup('EditorConfig', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'EditorConfig',
+  pattern = 'gitcommit',
+  command = 'let b:EditorConfig_disable = 1'
+})

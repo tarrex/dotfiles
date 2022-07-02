@@ -174,11 +174,11 @@ elseif utils.ostype.linux then
 end
 
 ----> Echo start time when starting
--- cmd([[
--- let s:startuptime = reltime()
--- augroup StartupTime
---   autocmd!
---   autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
---                       \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
--- augroup END
--- ]])
+cmd([[
+let s:startuptime = reltime()
+augroup StartupTime
+  autocmd!
+  autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
+                      \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
+augroup END
+]])

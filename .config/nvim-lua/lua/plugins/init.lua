@@ -1,20 +1,19 @@
 -- Packer init
 local fn  = vim.fn
-local cmd = vim.cmd
 
 local install_path = string.format('%s/site/pack/packer/start/packer.nvim', fn.stdpath('data'))
 if fn.empty(fn.glob(install_path)) > 0 then
   PACKER_BOOTSTRAP = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
-  cmd('packadd packer.nvim')
+  vim.cmd('packadd packer.nvim')
 end
 
 -- Autocommand that reloads neovim whenever you save the plugins module file
-cmd([[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost ~/.config/nvim/lua/plugins/*.lua source <afile> | PackerCompile
-  augroup end
-]])
+vim.api.nvim_create_augroup('packer_user_config', { clear = true })
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = 'packer_user_config',
+  pattern = '~/.config/nvim/lua/plugins/*.lua',
+  command = 'source <afile> | PackerComplete'
+})
 
 -- Use a protected call so we don't error out on first use
 local ok, packer = pcall(require, 'packer')
@@ -42,9 +41,9 @@ packer.startup(function(use)
 
   -- colorscheme
   use { 'lifepillar/vim-gruvbox8' }
-  use { 'haishanh/night-owl.vim' }
-  use { 'mofiqul/vscode.nvim' }
-  use { 'tomasiser/vim-code-dark' }
+  -- use { 'haishanh/night-owl.vim' }
+  -- use { 'mofiqul/vscode.nvim' }
+  -- use { 'tomasiser/vim-code-dark' }
 
   -- statusline
   use {
@@ -215,15 +214,6 @@ packer.startup(function(use)
     },
     config = function()
       require('plugins.cmp')
-    end
-  }
-  use 'onsails/lspkind-nvim'
-
-  -- github copilot
-  use {
-    'github/copilot.vim',
-    config = function()
-      require('plugins.copilot')
     end
   }
 

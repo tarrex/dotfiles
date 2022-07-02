@@ -2,7 +2,6 @@ local ok, cmp = pcall(require, 'cmp')
 if not ok then return end
 
 local luasnip = require('luasnip')
-local lspkind = require('lspkind')
 
 -- local timer = vim.loop.new_timer()
 
@@ -12,6 +11,62 @@ local lspkind = require('lspkind')
 --     cmp.complete({ reason = cmp.ContextReason.Auto })
 --   end))
 -- end
+
+local icons = {
+  Text = '',
+  Method = '',
+  Function = '',
+  Constructor = '⌘',
+  Field = 'ﰠ',
+  Variable = '',
+  Class = 'ﴯ',
+  Interface = '',
+  Module = '',
+  Property = 'ﰠ',
+  Unit = '塞',
+  Value = '',
+  Enum = '',
+  Keyword = '廓',
+  Snippet = '',
+  Color = '',
+  File = '',
+  Reference = '',
+  Folder = '',
+  EnumMember = '',
+  Constant = '',
+  Struct = 'פּ',
+  Event = '',
+  Operator = '',
+  TypeParameter = '',
+}
+
+local codicons = {
+  Text = ' ',
+  Method = ' ',
+  Function = ' ',
+  Constructor = ' ',
+  Field = ' ',
+  Variable = ' ',
+  Class = ' ',
+  Interface = ' ',
+  Module = ' ',
+  Property = ' ',
+  Unit = ' ',
+  Value = ' ',
+  Enum = ' ',
+  Keyword = ' ',
+  Snippet = ' ',
+  Color = ' ',
+  File = ' ',
+  Reference = ' ',
+  Folder = ' ',
+  EnumMember = ' ',
+  Constant = ' ',
+  Struct = ' ',
+  Event = ' ',
+  Operator = ' ',
+  TypeParameter = ' ',
+}
 
 local has_words_before = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -78,19 +133,26 @@ cmp.setup({
   },
 
   formatting = {
-    format = lspkind.cmp_format({
-      mode = 'symbol',
-      maxwidth = 50,
-      menu = {
+    fields = { 'kind', 'abbr', 'menu' },
+    format = function(entry, vim_item)
+      local icons_ = codicons or icons
+      vim_item.menu = vim_item.kind
+      vim_item.kind = icons_[vim_item.kind]
+      vim_item.menu = ({
         nvim_lsp = '[LSP]',
-        nvim_lsp_signature_help = '[SIG]',
         nvim_lua = '[LUA]',
-        luasnip = '[SNP]',
         path = '[PTH]',
+        luasnip = '[SNP]',
+        dictionary = '[DIC]',
         buffer = '[BUF]',
-      }
-    })
-  }
+        spell = '[SPL]',
+        cmdline = '[CMD]',
+        cmdline_history = '[HST]',
+      })[entry.source.name]
+
+      return vim_item
+    end,
+  },
 })
 
 -- vim.cmd([[
