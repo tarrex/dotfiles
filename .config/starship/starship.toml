@@ -28,6 +28,7 @@ fish_style_pwd_dir_length = 1
 
 [hostname]
 ssh_only = false
+ssh_symbol = ''
 format = '[$ssh_symbol$hostname]($style): '
 style = 'bold fg:140'
 
