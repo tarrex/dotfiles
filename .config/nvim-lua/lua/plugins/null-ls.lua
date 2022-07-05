@@ -15,9 +15,6 @@ null_ls.setup({
     null_ls.builtins.diagnostics.eslint,
     null_ls.builtins.formatting.eslint,
 
-    -- prettier
-    null_ls.builtins.formatting.prettier,
-
     -- c
     null_ls.builtins.formatting.clang_format,
   }

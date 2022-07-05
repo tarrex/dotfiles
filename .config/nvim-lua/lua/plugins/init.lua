@@ -177,6 +177,11 @@ packer.startup(function(use)
   -- treesitter
   use {
     'nvim-treesitter/nvim-treesitter',
+    cond = function ()
+      return fn.executable('cc') == 1
+        or fn.executable('gcc') == 1
+        or fn.executable('clang') == 1
+    end,
     run = ':TSUpdate',
     config = function()
       require('plugins.treesitter')
