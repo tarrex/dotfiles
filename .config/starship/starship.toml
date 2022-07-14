@@ -11,8 +11,8 @@ continuation_prompt = '▶▶'
 
 [character]
 format = '$symbol '
-success_symbol = '[❯](bold green)'
-error_symbol = '[❯](bold red)'
+success_symbol = '[❯](bold 47)'
+error_symbol = '[❯](bold 160)'
 
 [cmd_duration]
 min_time = 2_000
@@ -33,7 +33,7 @@ format = '[$ssh_symbol$hostname]($style): '
 style = 'bold fg:140'
 
 [username]
-style_root = 'bold fg:9'
+style_root = 'bold fg:202'
 style_user = 'bold fg:140'
 format = '[$user]($style)[@](bold fg:140)'
 show_always = true
