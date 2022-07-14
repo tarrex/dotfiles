@@ -105,54 +105,40 @@ _fish_collapsed_pwd() {
 
 # return value
 _retval() {
-    if [[ $? -ne 0 ]]; then
-        if [[ -n $BASH_VERSION ]]; then
-            echo -e "\033[38;5;9mλ"
-        else
-            echo "%f%F{9}%Bλ%b%f"
-        fi
-    else
-        if [[ -n $BASH_VERSION ]]; then
-            echo -e "\033[38;5;190mλ"
-        else
-            echo "%f%F{190}%Bλ%b%f"
-        fi
-    fi
+    case $? in
+        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;33mλ" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{33}%Bλ%b%f" && return;;
+        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;160mλ" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{160}%Bλ%b%f" && return;;
+    esac
 }
 
 # git branch
 _gitbranch() {
-    if [[ $_INSTALLED_GIT ]]; then
-        echo $(__git_ps1 '(%s)')
-    else
-        echo ''
-    fi
+    [[ $_INSTALLED_GIT ]] && echo $(__git_ps1 '(%s)')
 }
 
-if [[ -n $BASH_VERSION ]]; then
-    if [[ $UID -eq 0 ]]; then
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;197m\]\n#\[\e[0m\] '
-    else
-        export PS1='$(_retval) \[\e[38;5;51m\]$(_fish_collapsed_pwd)\[\e[38;5;135m\]$(_gitbranch)\[\e[38;5;83m\]\n>\[\e[0m\] '
-    fi
-else
+# prompt setting
+_prompt_setting() {
     NEWLINE=$'\n'
-    if [[ $UID -eq 0 ]]; then
-        export PROMPT='%f$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{197}${NEWLINE}#%f '
-    else
-        export PROMPT='%f$(_retval) %F{51}$(_fish_collapsed_pwd)%f%F{135}$(_gitbranch)%f%F{83}${NEWLINE}>%f '
-    fi
-fi
+    case $UID in
+        0) [[ -n $BASH_VERSION ]] && export PS1='$(_retval) \e[1;38;5;202m\u\e[1;38;5;140m@\h\e[0m: \e[1;38;5;51m$(_fish_collapsed_pwd)\e[38;5;135m$(_gitbranch)\n\e[1;38;5;47m❯\e[0m ' && return
+           [[ -n $ZSH_VERSION ]] && export PROMPT='$(_retval) %F{202}%B%n%f%F{140}@%m%b%f: %F{51}%B$(_fish_collapsed_pwd)%b%f%F{135}$(_gitbranch)%f${NEWLINE}%F{47}%B❯%b%f ' && return;;
+        *) [[ -n $BASH_VERSION ]] && export PS1='$(_retval) \e[1;38;5;140m\u\e[1;38;5;140m@\h\e[0m: \e[1;38;5;51m$(_fish_collapsed_pwd)\e[38;5;135m$(_gitbranch)\n\e[1;38;5;47m❯\e[0m ' && return
+           [[ -n $ZSH_VERSION ]] && export PROMPT='$(_retval) %F{140}%B%n%f%F{140}@%m%b%f: %F{51}%B$(_fish_collapsed_pwd)%b%f%F{135}$(_gitbranch)%f${NEWLINE}%F{47}%B❯%b%f ' && return;;
+    esac
+}
+_prompt_setting
 
 # starship
-if command -v starship >/dev/null; then
+_prompt_starship() {
+    command -v starship >/dev/null || return
     export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
-    if [[ -n $BASH_VERSION ]]; then
-        eval "$(starship init bash)"
-    elif [[ -n $ZSH_VERSION ]]; then
-        eval "$(starship init zsh)"
-    fi
-fi
+    [[ -n $BASH_VERSION ]] && eval "$(starship init bash)" && return
+    [[ -n $ZSH_VERSION ]] && eval "$(starship init zsh)" && return
+}
+_prompt_starship
+
 
 # ============> Shell <============
 # BASH
@@ -655,7 +641,10 @@ export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
 # Lima
 if command -v lima >/dev/null; then
-    alias docker='lima nerdctl'
+    export LIMA_HOME=$HOME/.config/lima
+    export LIMA_INSTANCE=default
+    alias docker='limactl shell $LIMA_INSTANCE nerdctl'
+    alias nerdctl='nerdctl.lima'
 fi
 
 # GnuPG
