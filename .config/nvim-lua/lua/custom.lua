@@ -1,10 +1,5 @@
-local utils = require('utils')
-
-local g   = vim.g
-local cmd = vim.cmd
-
 ----> Highlights
-cmd([[
+vim.cmd([[
 function! MyHighlights() abort
   highlight Normal        ctermbg=NONE guibg=NONE
   highlight NonText       ctermbg=NONE guibg=NONE
@@ -27,10 +22,10 @@ augroup END
 ]])
 
 ----> Color
-cmd([[silent! colorscheme gruvbox8_hard]])
+vim.cmd([[silent! colorscheme gruvbox8_hard]])
 
 ----> Filetype detect and custom
-cmd([[
+vim.cmd([[
 augroup FileTypeDetectAndCustom
   autocmd!
   autocmd BufRead,BufNewFile nginx.*.conf       setf nginx
@@ -46,7 +41,7 @@ augroup END
 ]])
 
 ----> Templates
-cmd([[
+vim.cmd([[
 let s:templatesdir = expand('~/.config/nvim/templates')
 if isdirectory(s:templatesdir)
   augroup Templates
@@ -57,7 +52,7 @@ endif
 ]])
 
 ----> Tricks
-cmd([[
+vim.cmd([[
 augroup VimTricks
   autocmd!
   " trim trailing whitespace on write
@@ -76,7 +71,7 @@ augroup END
 ]])
 
 ----> Commands
-cmd([[
+vim.cmd([[
 command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
 command! RemoveBlankLine sil g/^$/d | noh | normal! ``
 command! RTP echo substitute(&runtimepath, ',', '\n', 'g')
@@ -103,19 +98,37 @@ local disabled_built_ins = {
 }
 
 for _, plugin in pairs(disabled_built_ins) do
-  g[string.format('loaded_%s', plugin)] = 1
+  vim.g[string.format('loaded_%s', plugin)] = 1
 end
 
 ----> Providers config
-g.loaded_pythonx_provider = 0
-g.loaded_python_provider  = 0
-g.loaded_python3_provider = 0
-g.loaded_ruby_provider    = 0
-g.loaded_perl_provider    = 0
-g.loaded_node_provider    = 0
+vim.g.loaded_pythonx_provider = 0
+vim.g.loaded_python_provider  = 0
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider    = 0
+vim.g.loaded_perl_provider    = 0
+vim.g.loaded_node_provider    = 0
+
+----> Disable options for large files
+vim.cmd([[
+function! DisableForLargeFiles() abort
+  if getfsize(@%) < 10 * 1024 * 1024
+    return
+  endif
+  set nocursorline noswapfile nobackup noundofile
+  if exists(':TSDisable')
+    execute 'TSDisable'
+  endif
+endfunction
+
+augroup LargeFile
+  autocmd!
+  autocmd BufReadPre * call DisableForLargeFiles()
+augroup END
+]])
 
 ----> Zen mode
-cmd([[
+vim.cmd([[
 function! ZenModeToggle() abort
   if exists('s:zen_mode')
     set smd ru sc nu ls=2
@@ -129,7 +142,7 @@ nnoremap <silent> <space>z :call ZenModeToggle()<cr>
 ]])
 
 ----> View changes after the last save
-cmd([[
+vim.cmd([[
 function! DiffWithSaved() abort
   let l:save_pos = getpos('.')
   let l:filetype = &ft
@@ -144,7 +157,7 @@ nnoremap <silent> <space>d :call DiffWithSaved()<cr>
 ]])
 
 ----> Toggle Quickfix / LocationList window
-cmd([[
+vim.cmd([[
 function! QuickfixToggle() abort
   if len(filter(getwininfo(), 'v:val.quickfix'))
     silent! cclose
@@ -165,16 +178,16 @@ nnoremap <silent> <space>. :call LocationToggle()<cr>
 ]])
 
 ----> Open current buffer directory in finder or explorer
-if utils.ostype.mac then
-  utils.nmap('<leader>e', [[:silent execute '![ -f "%:p" ] && open -R "%:p" || open "%:p:h"' | redraw!<cr>]])
-  utils.nmap('<leader>E', [[:silent execute '!open .' | redraw!<cr>]])
-elseif utils.ostype.linux then
-  utils.nmap('<leader>e', [[:silent execute '!xdg-open "%:p:h"' | redraw!<cr>]])
-  utils.nmap('<leader>E', [[:silent execute '!xdg-open .' | redraw!<cr>]])
+if vim.fn.has('mac') or vim.fn.has('macunix') then
+  vim.keymap.set('n', '<leader>e', [[:silent execute '![ -f "%:p" ] && open -R "%:p" || open "%:p:h"' | redraw!<cr>]])
+  vim.keymap.set('n', '<leader>E', [[:silent execute '!open .' | redraw!<cr>]])
+elseif vim.fn.has('linux') then
+  vim.keymap.set('n', '<leader>e', [[:silent execute '!xdg-open "%:p:h"' | redraw!<cr>]])
+  vim.keymap.set('n', '<leader>E', [[:silent execute '!xdg-open .' | redraw!<cr>]])
 end
 
 ----> Echo start time when starting
-cmd([[
+vim.cmd([[
 let s:startuptime = reltime()
 augroup StartupTime
   autocmd!

@@ -1,22 +1,21 @@
 local ok, hop = pcall(require, 'hop')
 if not ok then return end
 
-local utils = require('utils')
-
 hop.setup({
   key = 'asdfjkl;ghqweruioptyzxcvbnm',
   case_insensitive = true,
   quit_key = '<ESC>',
 })
 
-local opts = { noremap = false, silent = false }
+local map = vim.keymap.set
+local opts = { noremap = true, silent = true }
 
-utils.nmap('<hop>', '<nop>')
-utils.nmap('S', '<hop>', opts)
+map('n', '<hop>', '<nop>')
+map('n', 'S', '<hop>', opts)
 
-utils.nmap('<hop>w', '<cmd>HopWord<cr>', opts)
-utils.xmap('<hop>w', '<cmd>HopWord<cr>', opts)
-utils.nmap('<hop>/', '<cmd>HopPattern<cr>', opts)
-utils.xmap('<hop>/', '<cmd>HopPattern<cr>', opts)
-utils.nmap('<hop>l', '<cmd>HopLineStart<cr>', opts)
-utils.xmap('<hop>l', '<cmd>HopLineStart<cr>', opts)
+map('n', '<hop>w', '<cmd>HopWord<cr>', opts)
+map('x', '<hop>w', '<cmd>HopWord<cr>', opts)
+map('n', '<hop>/', '<cmd>HopPattern<cr>', opts)
+map('x', '<hop>/', '<cmd>HopPattern<cr>', opts)
+map('n', '<hop>l', '<cmd>HopLineStart<cr>', opts)
+map('x', '<hop>l', '<cmd>HopLineStart<cr>', opts)

@@ -1,48 +1,40 @@
-local utils = require('utils')
+vim.g.mapleader      = ','
+vim.g.maplocalleader = '\\'
 
-local g   = vim.g
-local cmd = vim.cmd
-
-local nmap = utils.nmap
-local imap = utils.imap
-local vmap = utils.vmap
-local cmap = utils.cmap
-local tmap = utils.tmap
-
-g.mapleader      = ','
-g.maplocalleader = '\\'
+local map = vim.keymap.set
+local opts = { noremap = true, silent = true }
 
 -- Disable Ex mode and command history key bindings
-nmap('Q',  '<nop>')
-nmap('q:', '<nop>')
+map('n', 'Q',  '<nop>', opts)
+map('n', 'q:', '<nop>', opts)
 
 -- Toggle number,paste,cuc,list,wrap,spell and so on.
-nmap('<localleader>n', ':setl number! nu?<cr>')
-nmap('<localleader>r', ':setl relativenumber! rnu?<cr>')
-nmap('<localleader>p', ':setl paste!<cr>')
-nmap('<localleader>c', ':setl cursorcolumn! cuc?<cr>')
-nmap('<localleader>l', ':setl list! list?<cr>')
-nmap('<localleader>w', ':setl wrap! wrap?<cr>')
-nmap('<localleader>s', ':setl spell! spelllang=en_us<cr>')
-nmap('<localleader>f', ':setl foldenable! nofen?<cr>')
-nmap('<localleader>b', [[:let &bg=(&bg=='dark'?'light':'dark')<cr>]])
+map('n', '<localleader>n', ':setl number! nu?<cr>', opts)
+map('n', '<localleader>r', ':setl relativenumber! rnu?<cr>', opts)
+map('n', '<localleader>p', ':setl paste!<cr>', opts)
+map('n', '<localleader>c', ':setl cursorcolumn! cuc?<cr>', opts)
+map('n', '<localleader>l', ':setl list! list?<cr>', opts)
+map('n', '<localleader>w', ':setl wrap! wrap?<cr>', opts)
+map('n', '<localleader>s', ':setl spell! spelllang=en_us<cr>', opts)
+map('n', '<localleader>f', ':setl foldenable! nofen?<cr>', opts)
+map('n', '<localleader>b', [[:let &bg=(&bg=='dark'?'light':'dark')<cr>]], opts)
 
 -- Buffer switching
-nmap('[b',    ':bprevious<cr>')
-nmap(']b',    ':bnext<cr>')
-nmap('[B',    ':bfirst<cr>')
-nmap(']B',    ':blast<cr>')
-nmap('<c-q>', ':bdelete<cr>')
+map('n', '[b',    ':bprevious<cr>', opts)
+map('n', ']b',    ':bnext<cr>', opts)
+map('n', '[B',    ':bfirst<cr>', opts)
+map('n', ']B',    ':blast<cr>', opts)
+map('n', '<c-q>', ':bdelete<cr>', opts)
 
 -- Tab switching
-nmap('[t', ':tabprevious<cr>')
-nmap(']t', ':tabnext<cr>')
-nmap('[T', ':tabfirst<cr>')
-nmap(']T', ':tablast<cr>')
-nmap('<c-t>', ':tabnew<cr>')
-imap('<c-t>', '<esc>:tabnew<cr>')
-nmap('tt', ':<c-u>call MoveToTab()<cr>')
-cmd([[
+map('n', '[t', ':tabprevious<cr>', opts)
+map('n', ']t', ':tabnext<cr>', opts)
+map('n', '[T', ':tabfirst<cr>', opts)
+map('n', ']T', ':tablast<cr>', opts)
+map('n', '<c-t>', ':tabnew<cr>', opts)
+map('i', '<c-t>', '<esc>:tabnew<cr>', opts)
+map('n', 'tt', ':<c-u>call MoveToTab()<cr>', opts)
+vim.cmd([[
 function! MoveToTab() abort
   tab split | tabprevious
   if winnr('$') > 1 | close | elseif bufnr('$') > 1 | buffer # | endif
@@ -51,105 +43,105 @@ endfunction
 ]])
 
 -- Quickfox switching
-nmap('[q', ':cprevious<cr>')
-nmap(']q', ':cnext<cr>')
-nmap('[Q', ':cfirst<cr>')
-nmap(']Q', ':clast<cr>')
+map('n', '[q', ':cprevious<cr>', opts)
+map('n', ']q', ':cnext<cr>', opts)
+map('n', '[Q', ':cfirst<cr>', opts)
+map('n', ']Q', ':clast<cr>', opts)
 
 -- LocationList switching
-nmap('[l', ':lprevious<cr>')
-nmap(']l', ':lnext<cr>')
-nmap('[L', ':lfirst<cr>')
-nmap(']L', ':llast<cr>')
+map('n', '[l', ':lprevious<cr>', opts)
+map('n', ']l', ':lnext<cr>', opts)
+map('n', '[L', ':lfirst<cr>', opts)
+map('n', ']L', ':llast<cr>', opts)
 
 -- Preview window switching
-nmap('[<c-t>', ':ptprevious<cr>')
-nmap(']<c-t>', ':ptnext<cr>')
+map('n', '[<c-t>', ':ptprevious<cr>', opts)
+map('n', ']<c-t>', ':ptnext<cr>', opts)
 
 -- Window switching in normal mode
-nmap('<c-h>', '<c-w>h')
-nmap('<c-j>', '<c-w>j')
-nmap('<c-k>', '<c-w>k')
-nmap('<c-l>', '<c-w>l')
+map('n', '<c-h>', '<c-w>h', opts)
+map('n', '<c-j>', '<c-w>j', opts)
+map('n', '<c-k>', '<c-w>k', opts)
+map('n', '<c-l>', '<c-w>l', opts)
 
 -- Window switching in terminal mode
-tmap('<c-h>', '<c-_>h')
-tmap('<c-j>', '<c-_>j')
-tmap('<c-k>', '<c-_>k')
-tmap('<c-l>', '<c-_>l')
-tmap('<c-q>', '<c-_>:q!<cr>')
+map('t', '<c-h>', '<c-_>h', opts)
+map('t', '<c-j>', '<c-_>j', opts)
+map('t', '<c-k>', '<c-_>k', opts)
+map('t', '<c-l>', '<c-_>l', opts)
+map('t', '<c-q>', '<c-_>:q!<cr>', opts)
 
 -- Search will center on the line it's found in, conflict with shortmess-=S option
--- nmap('n', 'nzzzv')
--- nmap('N', 'Nzzzv')
+-- map('n', 'n', 'nzzzv', opts)
+-- map('n', 'N', 'Nzzzv', opts)
 
 -- Move lines left or right
-nmap('<', '<<')
-nmap('>', '>>')
-vmap('<', '<gv')
-vmap('>', '>gv')
+map('n', '<', '<<', opts)
+map('n', '>', '>>', opts)
+map('v', '<', '<gv', opts)
+map('v', '>', '>gv', opts)
 
 -- Move lines up or down
--- nmap('<up>',   ':m-2<cr>==')
--- nmap('<down>', ':m+1<cr>==')
-vmap('<down>', [[:m '>+1<cr>gv=gv]])
-vmap('<up>',   [[:m '<-2<cr>gv=gv]])
+-- map('n', '<up>',   ':m-2<cr>==', opts)
+-- map('n', '<down>', ':m+1<cr>==', opts)
+map('v', '<down>', [[:m '>+1<cr>gv=gv]], opts)
+map('v', '<up>',   [[:m '<-2<cr>gv=gv]], opts)
 
 -- Search in selected visual block
-vmap('/', [[:<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<cr>]])
+map('v', '/', [[:<c-u>call feedkeys('/\%>'.(line("'<")-1).'l\%<'.(line("'>")+1)."l")<cr>]], opts)
 
 -- Fast save
-nmap('<c-s>', ':update<cr>')
-imap('<c-s>', '<esc>:update<cr>')
+map('n', '<c-s>', ':update<cr>', opts)
+map('i', '<c-s>', '<esc>:update<cr>', opts)
 
 -- Replace a word
-nmap('<space>y', 'yiw')
-nmap('<space>p', 'viw"0p')
+map('n', '<space>y', 'yiw', opts)
+map('n', '<space>p', 'viw"0p', opts)
 
 -- Move vertically by visual line
--- nmap('j', [[v:count ? 'j' : 'gj']], { silent = true, expr = true })
--- nmap('k', [[v:count ? 'k' : 'gk']], { silent = true, expr = true })
--- vmap('j', [[v:count ? 'j' : 'gj']], { silent = true, expr = true })
--- vmap('k', [[v:count ? 'k' : 'gk']], { silent = true, expr = true })
+-- map('n', 'j', [[v:count ? 'j' : 'gj']], { silent = true, expr = true })
+-- map('n', 'k', [[v:count ? 'k' : 'gk']], { silent = true, expr = true })
+-- map('v', 'j', [[v:count ? 'j' : 'gj']], { silent = true, expr = true })
+-- map('v', 'k', [[v:count ? 'k' : 'gk']], { silent = true, expr = true })
 
 -- Switch to working directory of the open file
-nmap('<leader>cd', ':<c-u>lcd %:p:h<cr>:pwd<cr>')
+map('n', '<leader>cd', ':<c-u>lcd %:p:h<cr>:pwd<cr>', opts)
 
 -- Turn off search highlight
-nmap('<space>n', ':nohlsearch<cr>')
+map('n', '<space>n', ':nohlsearch<cr>', opts)
 
 -- Open terminal on the right
-nmap('<space>t', ':terminal<cr>')
+map('n', '<space>t', ':terminal<cr>', opts)
 
 -- Hex read
-nmap('<space>hr', ':%!xxd<cr> :set filetype=xxd<cr>')
+map('n', '<space>hr', ':%!xxd<cr> :set filetype=xxd<cr>', opts)
 -- Hex write
-nmap('<space>hw', ':%!xxd -r<cr> :set binary<cr> :set filetype=<cr>')
+map('n', '<space>hw', ':%!xxd -r<cr> :set binary<cr> :set filetype=<cr>', opts)
 
 -- Map w!! to write file with sudo
-cmap('w!!', [[execute 'silent! write !sudo tee % >/dev/null' <bar> edit!]])
+map('c', 'w!!', [[execute 'silent! write !sudo tee % >/dev/null' <bar> edit!]], opts)
 
 -- Rotate tab size
-nmap('<space>v', [[:let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>]])
+map('n', '<space>v', [[:let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>]], opts)
 
 -- Toggle current cursor position to top / center / bottom
-nmap('zz', [[(winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz']], { expr = true })
+map('n', 'zz', [[(winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz']], { expr = true })
 
 -- Reselect the text that has just been pasted
-nmap('<space>s', '`[V`]')
+map('n', '<space>s', '`[V`]', opts)
 
 -- Select all content
-nmap('<space>aa', 'ggVG')
+map('n', '<space>aa', 'ggVG', opts)
 
 -- Resize window
-nmap('<space>-', ':resize -2<cr>')
-nmap('<space>=', ':resize +2<cr>')
-nmap('<space>[', ':vertical resize -2<cr>')
-nmap('<space>]', ':vertical resize +2<cr>')
-nmap('<space>/', ':wincmd =<cr>')
+map('n', '<space>-', ':resize -2<cr>', opts)
+map('n', '<space>=', ':resize +2<cr>', opts)
+map('n', '<space>[', ':vertical resize -2<cr>', opts)
+map('n', '<space>]', ':vertical resize +2<cr>', opts)
+map('n', '<space>/', ':wincmd =<cr>', opts)
 
 -- Correct vim exit command
-cmd([[
+vim.cmd([[
   cnoreabbrev Wq      wq
   cnoreabbrev Wa      wa
   cnoreabbrev wQ      wq

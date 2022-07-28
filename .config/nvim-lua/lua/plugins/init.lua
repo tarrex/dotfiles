@@ -1,9 +1,13 @@
 -- Packer init
-local fn  = vim.fn
-
-local install_path = string.format('%s/site/pack/packer/start/packer.nvim', fn.stdpath('data'))
-if fn.empty(fn.glob(install_path)) > 0 then
-  PACKER_BOOTSTRAP = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
+local install_path = string.format('%s/site/pack/packer/start/packer.nvim', vim.fn.stdpath('data'))
+if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
+  PACKER_BOOTSTRAP = vim.fn.system({
+    'git',
+    'clone',
+    '--depth', '1',
+    'https://github.com/wbthomason/packer.nvim',
+    install_path
+  })
   vim.cmd('packadd packer.nvim')
 end
 
@@ -12,30 +16,35 @@ vim.api.nvim_create_augroup('packer_user_config', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
   group = 'packer_user_config',
   pattern = '~/.config/nvim/lua/plugins/*.lua',
-  command = 'source <afile> | PackerComplete'
+  command = 'source <afile> | PackerCompile'
 })
 
 -- Use a protected call so we don't error out on first use
 local ok, packer = pcall(require, 'packer')
-if not ok then
-  return
-end
+if not ok then return end
 
 packer.init({
+  auto_clean = true,
+  compile_on_sync = true,
+  git = {
+    default_url_format = 'https://github.com/%s'
+  },
   display = {
     open_fn = function()
-      return require('packer.util').float({ border = 'single' })
+      return require('packer.util').float({ border = 'rounded' })
     end
   },
-  auto_clean = true,
-  compole_on_sync = true
+  profile = {
+    enable = false,
+    threshold = 1
+  }
 })
 
 packer.startup(function(use)
-  -- packer itself
+  -- packer
   use { 'wbthomason/packer.nvim' }
 
-  -- useful dependencies
+  -- dependencies
   use { 'nvim-lua/plenary.nvim' }
   use { 'kyazdani42/nvim-web-devicons' }
 
@@ -93,13 +102,6 @@ packer.startup(function(use)
     'norcalli/nvim-colorizer.lua',
     config = function()
       require('plugins.colorizer')
-    end
-  }
-
-  use {
-    'folke/which-key.nvim',
-    config = function()
-      require('plugins.which-key')
     end
   }
 
@@ -177,11 +179,6 @@ packer.startup(function(use)
   -- treesitter
   use {
     'nvim-treesitter/nvim-treesitter',
-    cond = function ()
-      return fn.executable('cc') == 1
-        or fn.executable('gcc') == 1
-        or fn.executable('clang') == 1
-    end,
     run = ':TSUpdate',
     config = function()
       require('plugins.treesitter')
@@ -192,9 +189,10 @@ packer.startup(function(use)
   use {
     'neovim/nvim-lspconfig',
     config = function()
-      require 'plugins.lspconfig'
+      require 'plugins.lsp'
     end
   }
+  use { 'williamboman/nvim-lsp-installer' }
 
   -- completion
   use {

@@ -1,10 +1,9 @@
 local ok, bufferline = pcall(require, 'bufferline')
 if not ok then return end
 
-local utils = require('utils')
-
 bufferline.setup({
   options = {
+    mode = 'tabs',
     numbers = 'none',
     close_command = 'bdelete! %d',
     indicator_icon = '▎',
@@ -13,17 +12,7 @@ bufferline.setup({
     left_trunc_marker = '',
     right_trunc_marker = '',
     diagnostics = false,
-    custom_filter = function(bufnr)
-      local exclude_ft = { 'qf', 'fugitive', 'git' }
-      local cur_ft = vim.bo[bufnr].filetype
-      local should_filter = vim.tbl_contains(exclude_ft, cur_ft)
-
-      if should_filter then
-        return false
-      end
-
-      return true
-    end,
+    color_icons = true,
     show_buffer_icons = true,
     show_buffer_close_icons = true,
     show_close_icon = false,
@@ -33,4 +22,4 @@ bufferline.setup({
   },
 })
 
-utils.nmap('bp', '<cmd>BufferLinePick<cr>')
+vim.keymap.set('n', 'bp', '<cmd>BufferLinePick<cr>')

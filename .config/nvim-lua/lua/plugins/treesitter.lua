@@ -3,9 +3,9 @@ if not ok then return end
 
 treesitter.setup({
   ensure_installed = {
-    'bash', 'beancount', 'c', 'comment', 'cpp', 'css', 'dockerfile', 'go',
-    'help', 'html', 'javascript', 'json', 'lua', 'make', 'markdown',
-    'python', 'rust', 'scheme', 'scss', 'toml', 'typescript', 'vim', 'yaml'
+    'c', 'cpp', 'go', 'python', 'rust', 'lua',
+    'html', 'css', 'scss', 'javascript', 'typescript',
+    'json', 'yaml', 'toml'
   },
   sync_install = false,
   ignore_install = {},

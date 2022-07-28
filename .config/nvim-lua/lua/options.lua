@@ -1,5 +1,3 @@
-local env = vim.env
-local fn  = vim.fn
 local opt = vim.opt
 
 opt.number = true
@@ -9,14 +7,10 @@ opt.foldenable = false
 opt.modeline = true
 opt.showcmd = true
 opt.showmode = false
-if fn.getfsize(fn.expand('%')) < 10 * 1024 * 1024 then
-    opt.cursorline = true
-    opt.cursorlineopt = 'number'
-end
+opt.cursorline = true
+opt.cursorlineopt = 'number'
 opt.signcolumn = 'number'
-if env.TERM_PROGRAM ~= 'Apple_Terminal' then
-    opt.termguicolors = true
-end
+opt.termguicolors = true
 
 opt.shiftround = true
 opt.shiftwidth = 4

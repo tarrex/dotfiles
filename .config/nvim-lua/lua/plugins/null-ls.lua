@@ -1,21 +1,27 @@
 local ok, null_ls = pcall(require, 'null-ls')
 if not ok then return end
 
+local diagnostics = null_ls.builtins.diagnostics
+local formatting = null_ls.builtins.formatting
+local action = null_ls.builtins.code_actions
+
 null_ls.setup({
+  debug = false,
   sources = {
     -- go
-    null_ls.builtins.diagnostics.golangci_lint,
-    null_ls.builtins.formatting.goimports,
+    diagnostics.golangci_lint,
+    formatting.goimports,
 
     -- python
-    null_ls.builtins.formatting.autopep8,
-    null_ls.builtins.formatting.yapf,
+    formatting.autopep8,
+    formatting.yapf,
 
     -- eslint
-    null_ls.builtins.diagnostics.eslint,
-    null_ls.builtins.formatting.eslint,
+    diagnostics.eslint,
+    formatting.eslint,
+    action.eslint,
 
     -- c
-    null_ls.builtins.formatting.clang_format,
-  }
+    formatting.clang_format,
+  },
 })

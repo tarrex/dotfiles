@@ -1,31 +1,30 @@
 local ok, lualine = pcall(require, 'lualine')
 if not ok then return end
 
-local fn          = vim.fn
 local get_opt     = vim.api.nvim_get_option
 local get_win_opt = vim.api.nvim_win_get_option
 local win_width   = vim.api.nvim_win_get_width
 
-local function paste()
+local paste = function()
   if get_opt('paste') == true then
     return 'paste'
   end
 end
 
-local function spell()
+local spell = function()
   if get_win_opt(0, 'spell') == true then
     return get_opt('spelllang') or 'spell'
   end
 end
 
-local function filename()
+local filename = function()
   local file = ''
   if win_width(0) < 50 then
-    file = fn.expand('%:t')
+    file = vim.fn.expand('%:t')
   elseif win_width(0) > 150 then
-    file = fn.expand('%')
+    file = vim.fn.expand('%')
   else
-    file = fn.pathshorten(fn.expand('%'))
+    file = vim.fn.pathshorten(vim.fn.expand('%'))
   end
   return file
 end
