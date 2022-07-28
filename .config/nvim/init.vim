@@ -21,14 +21,10 @@ set nofoldenable                            " disable file folds
 set modeline                                " allow setting options via buffer content
 set showcmd                                 " show (partial) command in the last line of the screen
 set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
-if getfsize(@%) < 10 * 1024 * 1024          " if file size more than 10MB, don't show cursorline and cursorcolumn
-    set cursorline                          " show underline for the cursor's line
-    set cursorlineopt=number                " highlight the line number of the cursor if could
-endif
+set cursorline                              " show underline for the cursor's line
+set cursorlineopt=number                    " highlight the line number of the cursor if could
 set signcolumn=number                       " display signs in the 'number' column if could else 'auto'
-if $TERM_PROGRAM !=# 'Apple_Terminal'
-    set termguicolors                       " enable GUI colors for the terminal to get truecolor
-endif
+set termguicolors                           " enable GUI colors for the terminal to get truecolor
 
 set shiftround                              " round indent to multiple of 'shiftwidth'
 set shiftwidth=4                            " number of spaces to use for each step of (auto)indent
@@ -976,6 +972,19 @@ let g:loaded_python3_provider = 0
 let g:loaded_ruby_provider    = 0
 let g:loaded_perl_provider    = 0
 let g:loaded_node_provider    = 0
+
+" ----> Disable options for large files
+function! DisableForLargeFiles() abort
+    if getfsize(@%) < 10 * 1024 * 1024
+        return
+    endif
+    set nocul noswf nobk noudf
+endfunction
+
+augroup LargeFile
+    autocmd!
+    autocmd BufReadPre * call DisableForLargeFiles()
+augroup END
 
 " ----> Zen mode
 function! ZenModeToggle() abort
