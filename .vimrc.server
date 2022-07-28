@@ -23,15 +23,11 @@ set showcmd                                 " show (partial) command in the last
 set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
 set laststatus=2                            " show status line
 set display=lastline                        " as much as possible of the last line in a window will be displayed
-if getfsize(@%) < 10 * 1024 * 1024          " if file size more than 10MB, don't show cursorline and cursorcolumn
-    set cursorline                          " show underline for the cursor's line
-    silent! set cursorlineopt=number        " highlight the line number of the cursor if could
-endif
+set cursorline                              " show underline for the cursor's line
+silent! set cursorlineopt=number            " highlight the line number of the cursor if could
 silent! set signcolumn=number               " display signs in the 'number' column if could else 'auto'
+silent! set termguicolors                   " enable GUI colors for the terminal to get truecolor
 set background=dark                         " try to use colors that look good on a dark background
-if $TERM_PROGRAM !=# 'Apple_Terminal'
-    silent! set termguicolors               " enable GUI colors for the terminal to get truecolor
-endif
 set visualbell t_vb=                        " no beep or flash is wanted
 
 set shiftround                              " round indent to multiple of 'shiftwidth'
@@ -510,6 +506,19 @@ let g:loaded_zipPlugin        = 1
 if !exists('g:loaded_matchit')
     silent! packadd matchit
 endif
+
+" ----> Disable options for large files
+function! DisableForLargeFiles() abort
+    if getfsize(@%) < 10 * 1024 * 1024
+        return
+    endif
+    set nocul noswf nobk noudf
+endfunction
+
+augroup LargeFile
+    autocmd!
+    autocmd BufReadPre * call DisableForLargeFiles()
+augroup END
 
 " ----> Zen mode
 function! ZenModeToggle() abort
