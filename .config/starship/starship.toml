@@ -3,7 +3,7 @@
 '$schema' = 'https://starship.rs/config-schema.json'
 
 # Prompt
-format = '[λ](bold fg:33) $all'
+format = '[λ](bold fg:39) $all'
 scan_timeout = 30
 command_timeout = 800
 add_newline = false
