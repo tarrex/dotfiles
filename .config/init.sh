@@ -106,8 +106,8 @@ _fish_collapsed_pwd() {
 # return value
 _retval() {
     case $? in
-        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;33mλ" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{33}%Bλ%b%f" && return;;
+        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;39mλ" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{39}%Bλ%b%f" && return;;
         *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;160mλ" && return
            [[ -n $ZSH_VERSION ]] && echo "%F{160}%Bλ%b%f" && return;;
     esac
