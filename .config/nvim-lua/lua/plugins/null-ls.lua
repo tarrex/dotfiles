@@ -7,6 +7,9 @@ local action = null_ls.builtins.code_actions
 
 null_ls.setup({
   debug = false,
+  on_init = function(client, _)
+    client.offset_encoding = 'utf-8'
+  end,
   sources = {
     -- go
     diagnostics.golangci_lint,
