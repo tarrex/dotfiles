@@ -51,23 +51,32 @@ local lsp_keymaps = function(bufnr)
   local opts = { noremap = true, silent = true, buffer = bufnr }
 
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+
+  local ok, telescope = pcall(require, 'telescope.builtin')
+  if ok then
+    vim.keymap.set('n', 'gd', telescope.lsp_definitions, opts)
+    vim.keymap.set('n', 'gi', telescope.lsp_implementations, opts)
+    vim.keymap.set('n', 'gr', telescope.lsp_references, opts)
+    vim.keymap.set('n', '<space>e', telescope.diagnostics, opts)
+  else
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
+  end
+
   vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
   vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
   vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+
   vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-  vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
   vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
   vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
-  -- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
-  vim.keymap.set('n', '<space>q', function() vim.diagnostic.setqflist({ open = true }) end, opts)
 
-  -- vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
-  -- vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
-  -- vim.keymap.set('n', '<space>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
+  vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+  vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+  vim.keymap.set('n', '<space>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
 end
 
 -- Format

@@ -76,6 +76,9 @@ local default_schemas = {
 local opts = {
   settings = {
     json = {
+      format = {
+        enable = true
+      },
       schemas = default_schemas,
     },
   },
