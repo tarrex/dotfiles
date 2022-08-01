@@ -1030,10 +1030,15 @@ endif
 
 " ----> Disable options for large files
 function! DisableForLargeFiles() abort
-    if getfsize(@%) < 10 * 1024 * 1024
-        return
-    endif
-    set nocul noswf nobk noudf
+    if getfsize(@%) < 10 * 1024 * 1024 | return | endif
+    " setl eventignore+=FileType
+    setl eventignore=all
+    setl noloadplugins
+    setl bufhidden=unload
+    setl nocursorline
+    setl nofoldenable
+    setl nohlsearch noignorecase noincsearch
+    setl noswapfile noundofile nobackup nowritebackup
 endfunction
 
 augroup LargeFile
