@@ -111,14 +111,16 @@ vim.g.loaded_node_provider    = 0
 
 ----> Disable options for large files
 vim.cmd([[
-function! DisableForLargeFiles() abort
-  if getfsize(@%) < 10 * 1024 * 1024
-    return
-  endif
-  set nocursorline noswapfile nobackup noundofile
-  if exists(':TSDisable')
-    execute 'TSDisable'
-  endif
+function! DisableForLargeFiles()
+  if getfsize(@%) < 10 * 1024 * 1024 | return | endif
+  " setl eventignore+=FileType
+  setl eventignore=all
+  setl noloadplugins
+  setl bufhidden=unload
+  setl nocursorline
+  setl nofoldenable
+  setl nohlsearch noignorecase noincsearch
+  setl noswapfile noundofile nobackup nowritebackup
 endfunction
 
 augroup LargeFile

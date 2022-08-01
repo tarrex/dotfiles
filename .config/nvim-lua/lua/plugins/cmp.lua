@@ -93,7 +93,7 @@ cmp.setup({
 
   sources = {
     { name = 'nvim_lsp' },
-    { name = 'nvim_lsp_signature_help' },
+    -- { name = 'nvim_lsp_signature_help' },
     { name = 'nvim_lua' },
     { name = 'luasnip' },
     { name = 'path' },
@@ -130,14 +130,14 @@ cmp.setup({
 cmp.setup.cmdline('/', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = {
-    { name = 'buffer', max_item_count = 10 },
+    { name = 'buffer' },
   }
 })
 
 cmp.setup.cmdline(':', {
   mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
-    { name = 'path', max_item_count = 10 },
-    { name = 'cmdline', max_item_count = 10 },
+    { name = 'path' },
+    { name = 'cmdline' },
   })
 })

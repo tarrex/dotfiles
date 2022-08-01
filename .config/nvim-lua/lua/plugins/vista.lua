@@ -11,4 +11,4 @@ vim.g.vista_fzf_preview          = { 'right:50%' }
 vim.g.vista_disable_statusline   = 1
 -- vim.g.['vista#renderer#enable_icon'] = 0
 
-vim.keynmap.set('n', '<localleader>t', ':Vista<cr>', { noremap = true, silent = true })
+vim.keymap.set('n', '<localleader>t', ':Vista<cr>', { noremap = true, silent = true })

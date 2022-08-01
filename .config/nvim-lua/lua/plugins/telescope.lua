@@ -1,11 +1,11 @@
-local ok, telescope = pcall(require, 'telescope')
+local ok, _telescope = pcall(require, 'telescope')
 if not ok then return end
 
 local actions = require('telescope.actions')
 
-telescope.setup({
+_telescope.setup({
   defaults = {
-    prompt_prefix = '🔍 ',
+    prompt_prefix = '🔍',
     selection_caret = '👉',
     sorting_strategy = 'ascending',
     use_less = false,
@@ -25,8 +25,15 @@ telescope.setup({
   },
 
   pickers = {},
-  extensions = {}
+  extensions = {
+    file_browser = {
+      hijack_netrw = true,
+    },
+  }
 })
+
+_telescope.load_extension('file_browser')
+_telescope.load_extension('project')
 
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
@@ -39,3 +46,4 @@ map('n', '<space>fh', '<cmd>Telescope help_tags<cr>', opts)
 map('n', '<space>fm', '<cmd>Telescope keymaps<cr>', opts)
 map('n', '<space>fr', '<cmd>Telescope resume<cr>', opts)
 map('n', '<space>fs', '<cmd>Telescope current_buffer_fuzzy_find<cr>', opts)
+map('n', '<space>fd', '<cmd>Telescope file_browser<cr>', opts)

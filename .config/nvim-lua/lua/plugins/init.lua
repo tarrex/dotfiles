@@ -130,16 +130,16 @@ packer.startup(function(use)
   -- telescope
   use {
     'nvim-telescope/telescope.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope-symbols.nvim',
+      'nvim-telescope/telescope-file-browser.nvim',
+      'nvim-telescope/telescope-project.nvim',
+    },
     config = function()
       require('plugins.telescope')
     end
   }
-
-  use {
-    'nvim-telescope/telescope-symbols.nvim',
-    after = 'telescope.nvim'
-  }
-
   use {
     'mbbill/undotree',
      config = function()
@@ -173,7 +173,6 @@ packer.startup(function(use)
     config = function()
       require('plugins.vista')
     end,
-    cmd = 'Vista'
   }
 
   -- treesitter
@@ -188,18 +187,25 @@ packer.startup(function(use)
   -- lsp
   use {
     'neovim/nvim-lspconfig',
+    requires = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
+      'folke/lsp-colors.nvim',
+      'ray-x/lsp_signature.nvim',
+      'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
+      'j-hui/fidget.nvim'
+    },
     config = function()
-      require 'plugins.lsp'
+      require('plugins.lsp')
     end
   }
-  use { 'williamboman/nvim-lsp-installer' }
 
   -- completion
   use {
     'hrsh7th/nvim-cmp',
     requires = {
       'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-nvim-lsp-signature-help',
+      -- 'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-nvim-lua',
       {
         'l3mon4d3/luasnip',
