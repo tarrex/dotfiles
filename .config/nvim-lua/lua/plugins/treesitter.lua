@@ -8,6 +8,7 @@ treesitter.setup({
     'json', 'yaml', 'toml'
   },
   sync_install = false,
+  auto_install = false,
   ignore_install = {},
   highlight = {
     enable = true,
