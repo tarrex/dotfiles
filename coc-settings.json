@@ -1,36 +1,69 @@
 {
-  "coc.preferences.enableMarkdown": true,
-  "coc.preferences.extensionUpdateCheck": "weekly",
-  "coc.preferences.rootPatterns": [".root/", ".git/", ".svn/", ".hg/", ".project/", "Cargo.toml", "go.mod", "Makefile", "tsconfig.js", "jsconfig.js"],
+  "http.proxy": "",
 
-  "diagnostic.enable": false,
-  "diagnostic.displayByAle": true,
-  "diagnostic.format": "%message~",
-
-  "suggest.asciiCharactersOnly": false,
-  "suggest.autoTrigger": "always",
+  "suggest.noselect": true,
   "suggest.enablePreselect": true,
+  "suggest.floatConfig": {},
+  "suggest.autoTrigger": "always",
   "suggest.languageSourcePriority": 90,
   "suggest.maxCompleteItemCount": 20,
   "suggest.minTriggerInputLength": 2,
-  "suggest.noselect": true,
-
-  "html.format.enable": false,
-  "html.autoClosingTags": true,
-
-  "yaml.format.enable": false,
-  "yaml.schemaStore.enable": true,
-  "yaml.schemas": {
-    "kubernetes": "/*.yaml",
-    "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
-    "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
-    "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.y?(a)ml"
+  "suggest.asciiCharactersOnly": false,
+  "suggest.completionItemKindLabels": {
+    "keyword": "\uf1de",
+    "variable": "\ue79b",
+    "value": "\uf89f",
+    "operator": "\u03a8",
+    "constructor": "\uf0ad",
+    "function": "\u0192",
+    "reference": "\ufa46",
+    "constant": "\uf8fe",
+    "method": "\uf09a",
+    "struct": "\ufb44",
+    "class": "\uf0e8",
+    "interface": "\uf417",
+    "text": "\ue612",
+    "enum": "\uf435",
+    "enumMember": "\uf02b",
+    "module": "\uf40d",
+    "color": "\ue22b",
+    "property": "\ue624",
+    "field": "\uf9be",
+    "unit": "\uf475",
+    "event": "\ufacd",
+    "file": "\uf723",
+    "folder": "\uf114",
+    "snippet": "\ue60b",
+    "typeParameter": "\uf728",
+    "default": "\uf29c"
   },
+
+  "diagnostic.enable": false,
+  "diagnostic.displayByAle": true,
+  "diagnostic.format": "[%source%code] [%severity] %message",
+  "diagnostic.floatConfig": {},
+
+  "signature.enable": true,
+  "signature.floatConfig": {},
+  "signature.hideOnTextChange": false,
+
+  "hover.floatConfig": {
+    "border": true,
+    "rounded": true
+  },
+
+  "notification.marginRight": 5,
+
+  "coc.preferences.enableMessageDialog": true,
+  "coc.preferences.useQuickfixForLocations": true,
+  "coc.preferences.extensionUpdateCheck": "weekly",
+  "coc.preferences.rootPatterns": [".root", ".git", ".svn", ".hg", ".project", "Cargo.toml", "go.mod", "Makefile", "tsconfig.js", "jsconfig.js"],
+  "coc.preferences.enableMarkdown": true,
 
   "languageserver": {
     "clangd": {
       "command": "clangd",
-      "rootPatterns": [".git/", "compile_flags.txt", "compile_commands.json"],
+      "rootPatterns": [".git", "compile_flags.txt", "compile_commands.json"],
       "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"]
     },
     "dockerfile": {
@@ -42,14 +75,76 @@
       "command": "gopls",
       "args": ["serve", "-debug", "0.0.0.0:8484", "-rpc.trace"],
       "filetypes": ["go"],
-      "rootPatterns": [".git/", "go.mod", "Makefile"],
+      "rootPatterns": [".git", "go.mod", "Makefile"],
       "initializationOptions": {}
     },
     "rust": {
       "command": "rust-analyzer",
       "filetypes": ["rust"],
-      "rootPatterns": [".git/", "Cargo.toml"]
+      "rootPatterns": [".git", "Cargo.toml"]
     }
+  },
+
+  "html.format.enable": true,
+  "html.format.wrapLineLength": 0,
+  "html.autoClosingTags": true,
+
+  "json.schemas": [
+    {
+      "description": "TypeScript compiler configuration file",
+      "fileMatch": ["tsconfig.json", "tsconfig.*.json"],
+      "url": "https://json.schemastore.org/tsconfig.json"
+    },
+    {
+      "description": "Babel configuration",
+      "fileMatch": [".babelrc.json", ".babelrc", "babel.config.json"],
+      "url": "https://json.schemastore.org/babelrc.json"
+    },
+    {
+      "description": "ESLint config",
+      "fileMatch": [".eslintrc.json", ".eslintrc"],
+      "url": "https://json.schemastore.org/eslintrc.json"
+    },
+    {
+      "description": "Prettier config",
+      "fileMatch": [".prettierrc", ".prettierrc.json", "prettier.config.json"],
+      "url": "https://json.schemastore.org/prettierrc"
+    },
+    {
+      "description": "Stylelint config",
+      "fileMatch": [".stylelintrc", ".stylelintrc.json", "stylelint.config.json"],
+      "url": "https://json.schemastore.org/stylelintrc"
+    },
+    {
+      "description": "LLVM compilation database",
+      "fileMatch": ["compile_commands.json"],
+      "url": "https://json.schemastore.org/compile-commands.json"
+    },
+    {
+      "description": "golangci-lint configuration file",
+      "fileMatch": [".golangci.toml", ".golangci.json"],
+      "url": "https://json.schemastore.org/golangci-lint.json"
+    },
+    {
+      "description": "Packer template JSON configuration",
+      "fileMatch": ["packer.json"],
+      "url": "https://json.schemastore.org/packer.json"
+    },
+    {
+      "description": "NPM configuration file",
+      "fileMatch": ["package.json"],
+      "url": "https://json.schemastore.org/package.json"
+    }
+  ],
+
+  "yaml.format.enable": true,
+  "yaml.schemaStore.enable": true,
+  "yaml.schemaStore.url": "https://www.schemastore.org/api/json/catalog.json",
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/instrumenta/kubernetes-json-schema/master/v1.18.0-standalone-strict/all.json": "/*.k8s.yaml",
+    "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
+    "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
+    "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*"
   },
 
   "translator.engines": ["bing", "youdao"]
