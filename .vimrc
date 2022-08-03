@@ -625,81 +625,60 @@ endif
 
 " ----> dense-analysis/ale
 if HasPlug('ale')
-    let g:ale_command_wrapper             = 'nice -n5'
-    let g:ale_maximum_file_size           = 10 * 1024 * 1024
-    let g:ale_echo_msg_error_str          = 'E'
-    let g:ale_echo_msg_info_str           = 'I'
-    let g:ale_echo_msg_warning_str        = 'W'
-    let g:ale_echo_msg_log_str            = 'L'
-    let g:ale_echo_msg_format             = '%severity%: [%linter%] %s'
-    let g:ale_loclist_msg_format          = '[%linter%] %code: %%s'
-    let g:ale_sign_error                  = '>>'
-    let g:ale_sign_warning                = '--'
-    let g:ale_sign_info                   = '~~'
-    let g:ale_set_highlights              = 1
-    let g:ale_set_quickfix                = 1
-    let g:ale_list_window_size            = 6
-    let g:ale_open_list                   = 'on_save'
-    let g:ale_fix_on_save                 = 1
-    let g:ale_fixers                      = {
-        \ 'go':              ['goimports'],
-        \ 'python':          ['black'],
-        \ 'rust':            ['rustfmt'],
-        \ 'c':               ['clang-format'],
-        \ 'cpp':             ['clang-format'],
-        \ 'sh':              ['shfmt']
+    let g:ale_command_wrapper            = 'nice -n5'
+    let g:ale_maximum_file_size          = 10 * 1024 * 1024
+    let g:ale_echo_cursor                = 0
+    " let g:ale_echo_msg_error_str         = 'E'
+    " let g:ale_echo_msg_info_str          = 'I'
+    " let g:ale_echo_msg_warning_str       = 'W'
+    " let g:ale_echo_msg_log_str           = 'L'
+    " let g:ale_echo_msg_format            = '%severity%: [%linter%] %s'
+    let g:ale_cursor_detail              = 1
+    let g:ale_floating_preview           = 1
+    let g:ale_floating_window_border     = ['│', '─', '╭', '╮', '╯', '╰', '│', '─']
+    let g:ale_hover_cursor               = 1
+    let g:ale_hover_to_floating_preview  = 1
+    let g:ale_set_loclist                = 0
+    let g:ale_set_quickfix               = 0
+    " let g:ale_loclist_msg_format         = '[%linter%] %code: %%s'
+    " let g:ale_list_window_size           = 6
+    " let g:ale_open_list                  = 'on_save'
+    let g:ale_sign_error                 = ' '
+    let g:ale_sign_warning               = ' '
+    let g:ale_sign_info                  = ' '
+    " let g:ale_virtualtext_cursor         = 1
+    " let g:ale_virtualtext_prefix         = '■'
+    let g:ale_set_highlights             = 1
+    let g:ale_fix_on_save                = 1
+    let g:ale_fixers = {
+        \ 'go':     ['goimports'],
+        \ 'python': ['black'],
+        \ 'rust':   ['rustfmt'],
+        \ 'c':      ['clang-format'],
+        \ 'cpp':    ['clang-format'],
+        \ 'sh':     ['shfmt']
     \}
-    let g:ale_c_clangformat_style_option  = '{BasedOnStyle: LLVM, IndentWidth: 4}'
-    let g:ale_lint_on_enter               = 0
-    let g:ale_lint_on_save                = 1
-    let g:ale_lint_on_text_changed        = 0
-    let g:ale_linters_explicit            = 1
-    let g:ale_linters                     = {
-        \ 'go':              ['golangci-lint', 'gopls'],
-        \ 'python':          ['pyflakes'],
-        \ 'rust':            ['analyzer'],
-        \ 'java':            ['javac'],
-        \ 'c':               ['cc', 'clangd'],
-        \ 'cpp':             ['cc', 'clangd'],
-        \ 'javascript':      ['eslint'],
-        \ 'javascriptreact': ['eslint'],
-        \ 'typescript':      ['eslint'],
-        \ 'typescriptreact': ['eslint'],
-        \ 'vue':             ['eslint'],
-        \ 'html':            ['stylelint'],
-        \ 'css':             ['stylelint'],
-        \ 'less':            ['stylelint'],
-        \ 'sass':            ['stylelint'],
-        \ 'scss':            ['stylelint'],
-        \ 'yaml':            ['yamllint'],
-        \ 'graphql':         ['eslint'],
-        \ 'markdown':        ['languagetool'],
-        \ 'text':            ['languagetool'],
-        \ 'sh':              ['shell']
+    let g:ale_c_clangformat_style_option = '{BasedOnStyle: LLVM, IndentWidth: 4}'
+    let g:ale_lint_on_enter              = 0
+    let g:ale_lint_on_save               = 1
+    let g:ale_lint_on_text_changed       = 0
+    let g:ale_linters_explicit           = 1
+    let g:ale_linters = {
+        \ 'go':     ['golangci-lint', 'gopls'],
+        \ 'python': ['pyflakes'],
+        \ 'rust':   ['analyzer'],
+        \ 'java':   ['javac'],
+        \ 'c':      ['cc', 'clangd'],
+        \ 'cpp':    ['cc', 'clangd'],
+        \ 'text':   ['languagetool'],
+        \ 'sh':     ['shell']
     \ }
-    let g:ale_linter_alias = {
-        \ 'javascriptreact': ['javascript', 'jsx'],
-        \ 'typescriptreact': ['typescript', 'tsx'],
-        \ 'vue': ['vue', 'javascript'],
-        \ 'html': ['html', 'javascript', 'css']
-    \ }
-    let g:ale_go_golangci_lint_options    = ''
-
-    let g:ale_echo_cursor = 0
-    let g:ale_set_loclist = 0
-    let g:ale_virtualtext_cursor = 1
-    let g:ale_virtualtext_prefix = '    ■ '
+    let g:ale_go_golangci_lint_options   = ''
 
     nmap <silent> [a <Plug>(ale_previous)
     nmap <silent> ]a <Plug>(ale_next)
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
-
-    highlight link ALEVirtualTextError ALEError
-    highlight link ALEVirtualTextWarning ALEError
-    highlight link ALEVirtualTextInfo ALEError
-    highlight link ALEVirtualTextStyleError ALEError
-    highlight link ALEVirtualTextStyleWarning ALEError
 endif
 
 " ----> fatih/vim-go
@@ -720,7 +699,7 @@ if HasPlug('vim-go')
     let g:go_textobj_enabled            = 0
     let g:go_list_type                  = 'quickfix'
     let g:go_alternate_mode             = 'vsplit'
-    " let g:go_gopls_enabled              = 0
+    let g:go_gopls_enabled              = 0
     let g:go_echo_command_info          = 0
     let g:go_echo_go_info               = 0
     let g:go_addtags_transform          = 'camelcase'
