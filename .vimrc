@@ -283,7 +283,7 @@ if HasPlug('lightline.vim')
             let l:all_errors = l:counts.error + l:counts.style_error
             let l:all_non_errors = l:counts.total - l:all_errors
             return l:counts.total == 0 ? '' : printf(
-                \ '%dW %dE',
+                \ ' %d  %d',
                 \ all_non_errors,
                 \ all_errors
             \ )
@@ -509,9 +509,7 @@ if HasPlug('coc.nvim')
     nnoremap <silent> K :call ShowDocumentation()<CR>
 
     function! ShowDocumentation()
-        if (index(['vim','help'], &filetype) >= 0)
-            execute 'h '.expand('<cword>')
-        elseif CocAction('hasProvider', 'hover')
+        if CocAction('hasProvider', 'hover')
             call CocActionAsync('doHover')
         else
             call feedkeys('K', 'in')
@@ -584,13 +582,13 @@ if HasPlug('coc.nvim')
 
     " Mappings for CoCList
     " Show all diagnostics.
-    nnoremap <silent><nowait> <coc>d :<c-u>CocList diagnostics<cr>
+    nnoremap <silent><nowait> <coc>d :<c-u>CocFzfList diagnostics<cr>
     " Manage extensions.
     nnoremap <silent><nowait> <coc>e :<c-u>CocList extensions<cr>
     " Show commands.
-    nnoremap <silent><nowait> <coc>c :<c-u>CocList commands<cr>
+    nnoremap <silent><nowait> <coc>c :<c-u>CocFzfList commands<cr>
     " Find symbol of current document.
-    nnoremap <silent><nowait> <coc>o :<c-u>CocList outline<cr>
+    nnoremap <silent><nowait> <coc>o :<c-u>CocFzfList outline<cr>
     " Search workspace symbols.
     nnoremap <silent><nowait> <coc>s :<c-u>CocList -I symbols<cr>
     " Do default action for next item.
@@ -599,8 +597,6 @@ if HasPlug('coc.nvim')
     nnoremap <silent><nowait> <coc>k :<c-u>CocPrev<cr>
     " Resume latest coc list.
     nnoremap <silent><nowait> <coc>p :<c-u>CocListResume<cr>
-
-    nnoremap <silent><nowait> <coc>l :<c-u>CocFzfList diagnostics<cr>
 
     function! s:coc_uninstall_all() abort
         for e in g:coc_global_extensions
@@ -627,6 +623,7 @@ endif
 if HasPlug('ale')
     let g:ale_command_wrapper            = 'nice -n5'
     let g:ale_maximum_file_size          = 10 * 1024 * 1024
+    let g:ale_disable_lsp                = 1
     let g:ale_echo_cursor                = 0
     " let g:ale_echo_msg_error_str         = 'E'
     " let g:ale_echo_msg_info_str          = 'I'
@@ -639,39 +636,35 @@ if HasPlug('ale')
     let g:ale_hover_cursor               = 1
     let g:ale_hover_to_floating_preview  = 1
     let g:ale_set_loclist                = 0
-    let g:ale_set_quickfix               = 0
-    " let g:ale_loclist_msg_format         = '[%linter%] %code: %%s'
-    " let g:ale_list_window_size           = 6
-    " let g:ale_open_list                  = 'on_save'
+    let g:ale_set_quickfix               = 1
+    let g:ale_loclist_msg_format         = '[%linter%] %code: %%s'
+    let g:ale_open_list                  = 9999
     let g:ale_sign_error                 = ' '
     let g:ale_sign_warning               = ' '
     let g:ale_sign_info                  = ' '
-    " let g:ale_virtualtext_cursor         = 1
-    " let g:ale_virtualtext_prefix         = '■'
-    let g:ale_set_highlights             = 1
-    let g:ale_fix_on_save                = 1
     let g:ale_fixers = {
-        \ 'go':     ['goimports'],
-        \ 'python': ['black'],
-        \ 'rust':   ['rustfmt'],
-        \ 'c':      ['clang-format'],
-        \ 'cpp':    ['clang-format'],
-        \ 'sh':     ['shfmt']
+        \ 'c':        ['clang-format'],
+        \ 'cpp':      ['clang-format'],
+        \ 'go':       ['goimports', 'gofumpt', 'golines'],
+        \ 'markdown': ['pandoc'],
+        \ 'python':   ['black', 'isort', 'yapf'],
+        \ 'rust':     ['rustfmt'],
     \}
     let g:ale_c_clangformat_style_option = '{BasedOnStyle: LLVM, IndentWidth: 4}'
     let g:ale_lint_on_enter              = 0
     let g:ale_lint_on_save               = 1
-    let g:ale_lint_on_text_changed       = 0
+    let g:ale_lint_on_text_changed       = 'normal'
+    let g:ale_lint_on_insert_leave       = 1
     let g:ale_linters_explicit           = 1
     let g:ale_linters = {
-        \ 'go':     ['golangci-lint', 'gopls'],
-        \ 'python': ['pyflakes'],
-        \ 'rust':   ['analyzer'],
-        \ 'java':   ['javac'],
-        \ 'c':      ['cc', 'clangd'],
-        \ 'cpp':    ['cc', 'clangd'],
-        \ 'text':   ['languagetool'],
-        \ 'sh':     ['shell']
+        \ 'c':        ['cc', 'clangd', 'cppcheck'],
+        \ 'cpp':      ['cc', 'clangd', 'cppcheck'],
+        \ 'go':       ['gobuild', 'govet', 'gopls', 'golangci-lint'],
+        \ 'java':     ['javac'],
+        \ 'markdown': ['scpell'],
+        \ 'python':   ['flake8', 'pylint', 'pyright'],
+        \ 'rust':     ['rustc', 'cargo', 'analyzer'],
+        \ 'sh':       ['shell'],
     \ }
     let g:ale_go_golangci_lint_options   = ''
 
@@ -679,6 +672,7 @@ if HasPlug('ale')
     nmap <silent> ]a <Plug>(ale_next)
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
+    nmap <silent> ff <Plug>(ale_fix)
 endif
 
 " ----> fatih/vim-go
@@ -686,26 +680,26 @@ if HasPlug('vim-go')
     let g:go_version_warning            = 0
     let g:go_code_completion_enabled    = 0
     let g:go_test_show_name             = 0
+    let g:go_play_open_browser          = 0
     let g:go_jump_to_error              = 0
     let g:go_fmt_autosave               = 0
     let g:go_imports_autosave           = 0
     let g:go_mod_fmt_autosave           = 0
-    let g:go_doc_max_height             = 20
-    let go_doc_balloon                  = 1
+    let g:go_doc_keywordprg_enabled     = 0
     if has('patch-8.2.0012')
         let g:go_doc_popup_window       = 1
     endif
     let g:go_def_mapping_enabled        = 0
     let g:go_textobj_enabled            = 0
-    let g:go_list_type                  = 'quickfix'
     let g:go_alternate_mode             = 'vsplit'
     let g:go_gopls_enabled              = 0
+    let g:go_template_autocreate        = 0
     let g:go_echo_command_info          = 0
     let g:go_echo_go_info               = 0
     let g:go_addtags_transform          = 'camelcase'
     let g:go_debug_windows              = {
-        \ 'vars': 'leftabove 35vnew',
-        \ 'stack': 'botright 10new',
+        \ 'vars': 'leftabove 30vnew',
+        \ 'stack': 'botright 20new',
         \ 'goroutines': 'rightbelow 10new',
     \ }
     let g:go_debug_mappings = {
@@ -717,11 +711,10 @@ if HasPlug('vim-go')
         \ '(go-debug-print)':      {'key': 'p'},
         \ '(go-debug-halt)':       {'key': 'h'},
     \}
-
     let g:go_debug_address              = '127.0.0.1:8181'
     let g:go_debug_log_output           = 'debugger'
     let g:go_highlight_debug            = 1
-    let g:go_debug_breakpoint_sign_text = '>'
+    let g:go_debug_breakpoint_sign_text = '⬤'
 
     augroup Go
         autocmd!
@@ -744,7 +737,7 @@ if HasPlug('vim-go')
         autocmd FileType go nmap <space>gk :GoKeyify<cr>
         autocmd FileType go nmap <space>gf :GoFillStruct<cr>
         autocmd FileType go nmap <space>ge :GoIfErr<cr>
-        autocmd FileType go nmap <space>gd :GoDebugStar<cr>
+        autocmd FileType go nmap <space>gd :GoDebugStart<cr>
         autocmd FileType go nmap <space>gb :GoDebugBreakpoint<cr>
         autocmd FileType go nmap <space>gq :GoDebugStop<cr>
     augroup END
