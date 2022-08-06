@@ -113,9 +113,7 @@ vim.g.loaded_node_provider    = 0
 vim.cmd([[
 function! DisableForLargeFiles()
   if getfsize(@%) < 10 * 1024 * 1024 | return | endif
-  " setl eventignore+=FileType
-  setl eventignore=all
-  setl noloadplugins
+  setl eventignore+=FileType
   setl bufhidden=unload
   setl nocursorline
   setl nofoldenable

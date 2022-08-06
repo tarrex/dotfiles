@@ -189,10 +189,11 @@ packer.startup(function(use)
     requires = {
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
+      'glepnir/lspsaga.nvim',
       'folke/lsp-colors.nvim',
       'ray-x/lsp_signature.nvim',
+      'j-hui/fidget.nvim',
       'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
-      'j-hui/fidget.nvim'
     },
     config = function()
       require('plugins.lsp')
@@ -249,6 +250,13 @@ packer.startup(function(use)
       require('plugins.vim-table-mode')
     end,
     cmd = 'TableModeToggle'
+  }
+  use {
+    'AckslD/nvim-FeMaco.lua',
+    ft = 'markdown',
+    config = function()
+      require('plugins.femaco')
+    end
   }
   use { 'tarrex/nginx.vim', ft = 'nginx' }
   use { 'mtdl9/vim-log-highlighting', ft = 'log' }

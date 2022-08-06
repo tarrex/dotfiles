@@ -5,7 +5,7 @@ treesitter.setup({
   ensure_installed = {
     'c', 'cpp', 'go', 'python', 'rust', 'lua',
     'html', 'css', 'scss', 'javascript', 'typescript',
-    'json', 'yaml', 'toml'
+    'json', 'yaml', 'toml', 'markdown'
   },
   sync_install = false,
   auto_install = false,

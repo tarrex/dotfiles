@@ -114,3 +114,4 @@ opt.wildignore = {
 opt.wildoptions = 'pum'
 opt.winblend = 0
 opt.pumblend = 5
+opt.redrawtime = 10000

@@ -2,7 +2,6 @@ local M = {}
 
 M.setup = function()
   -- Signs
-  -- local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
   local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
   for type, icon in pairs(signs) do
     local hl = 'DiagnosticSign' .. type
@@ -72,22 +71,32 @@ local lsp_keymaps = function(bufnr)
   vim.keymap.set('n', '<space>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, opts)
 end
 
--- Format
+-- Formatting
+local formatting = function()
+  vim.lsp.buf.format({
+    filter = function(client)
+      return client.name == 'null-ls'
+    end,
+  })
+end
 local lsp_formatting = function(client, bufnr)
-  if client.name == 'tsserver' then
-    client.server_capabilities.document_formatting = false
-  end
-  local opts = { noremap = true, silent = true, buffer = bufnr }
-  if client.resolved_capabilities.document_formatting then
-    vim.keymap.set('n', 'ff', vim.lsp.buf.formatting_sync, opts)
-  end
-  if client.resolved_capabilities.document_range_formatting then
-    vim.keymap.set('x', 'ff', vim.lsp.buf.range_formatting, opts)
+  if client.supports_method('textDocument/formatting') then
+    -- vim.api.nvim_create_augroup('LspFormatting', { clear = false })
+    -- vim.api.nvim_clear_autocmds({ group = 'LspFormatting', buffer = bufnr })
+    -- vim.api.nvim_create_autocmd('BufWritePre', {
+    --   group = 'LspFormatting',
+    --   buffer = bufnr,
+    --   callback = function()
+    --     formatting(bufnr)
+    --   end,
+    -- })
+    local opts = { noremap = true, silent = true, buffer = bufnr }
+    vim.keymap.set('n', 'ff', formatting, opts)
   end
 end
 
--- Autocmds
-local lsp_autocmds = function(bufnr)
+-- Show line diagnostics automatically in hover window
+local lsp_hover_diagnostics = function(bufnr)
   vim.api.nvim_create_autocmd('CursorHold', {
     buffer = bufnr,
     callback = function()
@@ -105,22 +114,23 @@ local lsp_autocmds = function(bufnr)
 end
 
 -- Highlight symbol under cursor
-local lsp_highlight = function(client)
-  if client.resolved_capabilities.document_highlight then
+local lsp_document_highlight = function(client, bufnr)
+  if client.server_capabilities.document_highlight then
     vim.cmd([[
       hi! link LspReferenceRead Visual
       hi! link LspReferenceText Visual
       hi! link LspReferenceWrite Visual
     ]])
-    vim.api.nvim_create_augroup('lsp_document_highlight', {})
+    vim.api.nvim_create_augroup('LspDocumentHighlight', { clear = false })
+    vim.api.nvim_clear_autocmds({ group = 'LspDocumentHighlight', buffer = bufnr })
     vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-      group = 'lsp_document_highlight',
-      buffer = 0,
+      group = 'LspDocumentHighlight',
+      buffer = bufnr,
       callback = vim.lsp.buf.document_highlight,
     })
     vim.api.nvim_create_autocmd('CursorMoved', {
-      group = 'lsp_document_highlight',
-      buffer = 0,
+      group = 'LspDocumentHighlight',
+      buffer = bufnr,
       callback = vim.lsp.buf.clear_references,
     })
   end
@@ -130,8 +140,8 @@ end
 M.on_attach = function(client, bufnr)
   lsp_keymaps(bufnr)
   lsp_formatting(client, bufnr)
-  lsp_autocmds(bufnr)
-  lsp_highlight(client)
+  lsp_hover_diagnostics(bufnr)
+  lsp_document_highlight(client, bufnr)
 
   if vim.g.logging_level == 'debug' then
     local msg = string.format('Language server %s started!', client.name)

@@ -5,7 +5,7 @@ autopairs.setup({
   disable_filetype = { 'TelescopePrompt', 'vim' },
   disable_in_macro = true,
   disable_in_visualblock = true,
-  enable_check_bracket_line = false,
+  enable_check_bracket_line = true,
   check_ts = true,
   ts_config = {
     lua = { 'string', 'source' },
