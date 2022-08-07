@@ -36,6 +36,9 @@ M.setup = function()
     border = 'rounded',
     width = 60,
   })
+
+  -- Log level
+  vim.lsp.set_log_level(vim.log.levels.ERROR)
 end
 
 -- Keymaps

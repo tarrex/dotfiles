@@ -6,7 +6,7 @@ mason.setup({
     border = 'rounded',
   },
   install_root_dir = vim.fn.stdpath('data') .. '/mason',
-  log_level = vim.log.levels.INFO,
+  log_level = vim.log.levels.ERROR,
   max_concurrent_installers = 4,
   github = {
     download_url_template = 'https://github.com/%s/releases/download/%s/%s'

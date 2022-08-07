@@ -44,6 +44,8 @@ packer.startup(function(use)
   -- packer
   use { 'wbthomason/packer.nvim' }
 
+  use { 'lewis6991/impatient.nvim'}
+
   -- dependencies
   use { 'nvim-lua/plenary.nvim' }
   use { 'kyazdani42/nvim-web-devicons' }
