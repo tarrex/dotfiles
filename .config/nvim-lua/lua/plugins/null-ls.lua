@@ -22,6 +22,8 @@ null_ls.setup({
     action.eslint,
 
     -- c
-    formatting.clang_format,
+    formatting.clang_format.with({
+      extra_args = { '--style={BasedOnStyle: LLVM, IndentWidth: 4}' }
+    }),
   },
 })
