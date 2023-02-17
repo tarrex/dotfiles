@@ -98,6 +98,9 @@ map('i', '<c-s>', '<esc>:update<cr>', opts)
 map('n', '<space>y', 'yiw', opts)
 map('n', '<space>p', 'viw"0p', opts)
 
+-- Do not yank when x
+map('n', 'x', '"_x', opts)
+
 -- Move vertically by visual line
 -- map('n', 'j', [[v:count ? 'j' : 'gj']], { silent = true, expr = true })
 -- map('n', 'k', [[v:count ? 'k' : 'gk']], { silent = true, expr = true })

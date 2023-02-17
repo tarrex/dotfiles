@@ -6,7 +6,10 @@ bufferline.setup({
     mode = 'tabs',
     numbers = 'none',
     close_command = 'bdelete! %d',
-    indicator_icon = '▎',
+    indicator = {
+      icon = '▎',
+      style = 'icon',
+    },
     buffer_close_icon = 'x',
     modified_icon = '●',
     left_trunc_marker = '',

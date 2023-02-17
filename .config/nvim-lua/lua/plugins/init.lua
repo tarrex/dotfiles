@@ -42,19 +42,19 @@ packer.init({
 
 packer.startup(function(use)
   -- packer
-  use { 'wbthomason/packer.nvim' }
+  use 'wbthomason/packer.nvim'
 
-  use { 'lewis6991/impatient.nvim'}
+  use 'lewis6991/impatient.nvim'
 
   -- dependencies
-  use { 'nvim-lua/plenary.nvim' }
-  use { 'kyazdani42/nvim-web-devicons' }
+  use 'nvim-lua/plenary.nvim'
+  use 'kyazdani42/nvim-web-devicons'
 
   -- colorscheme
-  use { 'lifepillar/vim-gruvbox8' }
-  -- use { 'haishanh/night-owl.vim' }
-  -- use { 'mofiqul/vscode.nvim' }
-  -- use { 'tomasiser/vim-code-dark' }
+  use 'lifepillar/vim-gruvbox8'
+  -- use 'haishanh/night-owl.vim'
+  -- use 'mofiqul/vscode.nvim'
+  -- use 'tomasiser/vim-code-dark'
 
   -- statusline
   use {
@@ -144,9 +144,9 @@ packer.startup(function(use)
   }
   use {
     'mbbill/undotree',
-     config = function()
-       require('plugins.undotree')
-     end
+    config = function()
+      require('plugins.undotree')
+    end
   }
 
   use {
@@ -194,7 +194,7 @@ packer.startup(function(use)
       'glepnir/lspsaga.nvim',
       'folke/lsp-colors.nvim',
       'ray-x/lsp_signature.nvim',
-      'j-hui/fidget.nvim',
+      -- 'j-hui/fidget.nvim',
       'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
     },
     config = function()
@@ -213,7 +213,6 @@ packer.startup(function(use)
         'l3mon4d3/luasnip',
         requires = {
           'saadparwaiz1/cmp_luasnip',
-          'rafamadriz/friendly-snippets'
         },
         config = function()
           require('plugins.luasnip')

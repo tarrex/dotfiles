@@ -17,13 +17,26 @@ null_ls.setup({
     formatting.yapf,
 
     -- eslint
-    diagnostics.eslint,
-    formatting.eslint,
-    action.eslint,
+    diagnostics.eslint_d,
+    formatting.eslint_d,
+    action.eslint_d,
 
     -- c
     formatting.clang_format.with({
       extra_args = { '--style={BasedOnStyle: LLVM, IndentWidth: 4}' }
     }),
+
+    -- lua
+    formatting.stylua.with({
+      extra_args = {
+        '--call-parentheses', 'NoSingleString',
+        '--collapse-simple-statement', 'ConditionalOnly',
+        '--column-width', '120',
+        '--indent-type', 'Spaces',
+        '--indent-width', '2',
+        '--line-endings', 'Unix',
+        '--quote-style', 'AutoPreferSingle',
+      }
+    })
   },
 })
