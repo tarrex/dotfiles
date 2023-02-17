@@ -349,6 +349,9 @@ inoremap <silent> <c-s> <esc>:update<cr>
 noremap <silent> <space>y yiw
 noremap <silent> <space>p viw"0p
 
+" Do not yank when x
+noremap <silent> x  "_x
+
 " Move vertically by visual line
 nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
 nnoremap <silent> <expr> k v:count ? 'k' : 'gk'
