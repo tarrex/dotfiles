@@ -608,14 +608,13 @@ if HasPlug('ale')
     let g:ale_linters = {
         \ 'c':        ['cc', 'clangd', 'cppcheck'],
         \ 'cpp':      ['cc', 'clangd', 'cppcheck'],
-        \ 'go':       ['gobuild', 'govet', 'gopls', 'golangci-lint'],
+        \ 'go':       ['gobuild', 'govet', 'gopls'],
         \ 'java':     ['javac'],
         \ 'markdown': ['scpell'],
         \ 'python':   ['flake8', 'pylint', 'pyright'],
         \ 'rust':     ['rustc', 'cargo', 'analyzer'],
         \ 'sh':       ['shell'],
     \ }
-    let g:ale_go_golangci_lint_options   = ''
 
     nmap <silent> [a <Plug>(ale_previous)
     nmap <silent> ]a <Plug>(ale_next)
@@ -801,6 +800,9 @@ inoremap <silent> <c-s> <esc>:update<cr>
 " Replace a word
 noremap <silent> <space>y yiw
 noremap <silent> <space>p viw"0p
+
+" Do not yank when x
+noremap <silent> x  "_x
 
 " Move vertically by visual line
 nnoremap <silent> <expr> j v:count ? 'j' : 'gj'
