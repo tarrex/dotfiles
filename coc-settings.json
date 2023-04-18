@@ -66,14 +66,13 @@
   "coc.preferences.enableMessageDialog": true,
   "coc.preferences.useQuickfixForLocations": true,
   "coc.preferences.extensionUpdateCheck": "weekly",
-  "coc.preferences.rootPatterns": [".root", ".git", ".svn", ".hg", ".project", "Cargo.toml", "go.mod", "Makefile", "tsconfig.js", "jsconfig.js"],
   "coc.preferences.enableMarkdown": true,
 
   "coc.source.around.shortcut": "ARD",
-  "coc.source.word.shortcut": "WRD",
-  "coc.source.emoji.shortcut": "EMJ",
   "coc.source.buffer.shortcut": "BUF",
   "coc.source.file.shortcut": "FIL",
+
+  "workspace.rootPatterns": [".root", ".git", ".svn", ".hg", ".project", "Cargo.toml", "go.mod", "Makefile", "tsconfig.js", "jsconfig.js"],
 
   "languageserver": {
     "clangd": {
@@ -160,7 +159,5 @@
     "https://raw.githubusercontent.com/docker/compose/master/compose/config/compose_spec.json": "/docker-compose*.y?(a)ml",
     "https://json.schemastore.org/github-action.json": "/action.y?(a)ml",
     "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*"
-  },
-
-  "translator.engines": ["bing", "youdao"]
+  }
 }
