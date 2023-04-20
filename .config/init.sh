@@ -557,6 +557,8 @@ export LC_ALL=en_US.UTF-8
 
 # Homebrew
 if [[ $OSTYPE == darwin* ]]; then
+    # export HOMEBREW_NO_EMOJI=1
+    export HOMEBREW_INSTALL_BADGE="☕️"
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
 fi
@@ -639,13 +641,6 @@ export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
 # Docker
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
-# Lima
-if command -v lima >/dev/null; then
-    export LIMA_HOME=$HOME/.config/lima
-    export LIMA_INSTANCE=default
-    alias docker='limactl shell $LIMA_INSTANCE nerdctl'
-    alias nerdctl='nerdctl.lima'
-fi
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
@@ -688,6 +683,26 @@ if [[ $_INSTALLED_FZF ]]; then
                 (tmux new -d -s ${session} 2>/dev/null && tmux $cmd -t ${session} 2>/dev/null) ||
                 return 0
         }
+
+        # tp - switch tmux pane
+        tp() {
+            local panes current_window current_pane target target_window target_pane
+            panes=$(tmux list-panes -s -F '#I:#P - #{pane_current_path} #{pane_current_command}')
+            current_pane=$(tmux display-message -p '#I:#P')
+            current_window=$(tmux display-message -p '#I')
+
+            target=$(echo "$panes" | grep -v "$current_pane" | fzf +m --reverse) || return
+
+            target_window=$(echo $target | awk 'BEGIN{FS=":|-"} {print$1}')
+            target_pane=$(echo $target | awk 'BEGIN{FS=":|-"} {print$2}' | cut -c 1)
+
+            if [[ $current_window -eq $target_window ]]; then
+                tmux select-pane -t ${target_window}.${target_pane}
+            else
+                tmux select-pane -t ${target_window}.${target_pane} &&
+                tmux select-window -t $target_window
+            fi
+        }
     fi
 
     # ch - browse chrome history
@@ -714,7 +729,15 @@ if [[ $_INSTALLED_FZF ]]; then
 
     # cb - browse chrome bookmarks
     cb() {
-        chrome_bookmarks=~/Library/Application\ Support/Google/Chrome/Default/Bookmarks
+        local chrome_bookmarks open
+        case $OSTYPE in
+            linux*)
+                chrome_bookmarks="$HOME/.config/google-chrome/Default/Bookmarks"
+                open=xdg-open;;
+            darwin*)
+                chrome_bookmarks="$HOME/Library/Application Support/Google/Chrome/Default/Bookmarks"
+                open=open;;
+        esac
 
         jq_script='
             def ancestors: while(. | length >= 2; del(.[-1,-2]));
@@ -724,8 +747,29 @@ if [[ $_INSTALLED_FZF ]]; then
             | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
             | fzf --ansi \
             | cut -d$'\t' -f2 \
-            | xargs open
+            | xargs $open
     }
+
+
+    if [[ $_INSTALLED_GIT ]]; then
+        # gdiff - broser git diff files
+        gdiff() {
+            preview="git diff $@ --color=always -- {-1}" #TODO: fix not root file preview
+            git diff $@ --name-only | fzf -m --ansi --preview $preview
+        }
+
+        # gcommit - broser git commit history
+        gcommit() {
+            git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"  | \
+             fzf --ansi --no-sort --reverse --tiebreak=index --preview \
+             'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1 ; }; f {}' \
+             --bind "j:down,k:up,alt-j:preview-down,alt-k:preview-up,ctrl-f:preview-page-down,ctrl-b:preview-page-up,q:abort,ctrl-m:execute:
+                          (grep -o '[a-f0-9]\{7\}' | head -1 |
+                          xargs -I % sh -c 'git show --color=always % | less -R') << 'FZF-EOF'
+                          {}
+            FZF-EOF" --preview-window=right:60%
+        }
+    fi
 fi
 
 # Common alias
@@ -735,8 +779,8 @@ case $OSTYPE in
 esac
 
 if command -v exa >/dev/null; then
-    alias ll='exa -lF --icons'
-    alias la='exa -alF --icons'
+    alias ll='exa -lF --icons --time-style=long-iso'
+    alias la='exa -alF --icons --time-style=long-iso'
 else
     alias ll='ls -l'
     alias la='ll -a'
@@ -857,6 +901,30 @@ function xbin() {
         curl -sS --data-binary @- "https://xbin.io/${command}" -H "X-Args: ${args}"
     fi
 }
+
+# gh
+if [[ _INSTALLED_FZF ]] && command -v gh >/dev/null; then
+    function ghpr() {
+        GH_FORCE_TTY=100% gh pr list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr view {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh pr checkout
+    }
+
+    function ghdiff() {
+        GH_FORCE_TTY=100% gh pr list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr diff --color=always {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh pr checkout
+    }
+
+    function ghissue() {
+        GH_FORCE_TTY=100% gh issue list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh issue view {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh issue view
+    }
+fi
 
 # ============> Finally <============
 # Remove duplicate path
