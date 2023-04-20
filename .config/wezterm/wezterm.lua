@@ -154,9 +154,10 @@ config.font = wezterm.font_with_fallback({
     weight = 'Regular',
     harfbuzz_features = { 'calt=0', 'clig=1', 'liga=1' },
   },
-  'Noto Color Emoji',
   'PingFang SC',
   'HanaMinB',
+  'Apple Color Emoji',
+  'Noto Color Emoji'
 })
 config.font_size = 19.0
 config.line_height = 1.0
