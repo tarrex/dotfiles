@@ -639,8 +639,10 @@ export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
 export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
 
 # Docker
-export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
+# export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 
+# OrbStack
+export PATH=$HOME/.orbstack/bin:$PATH
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
@@ -669,7 +671,7 @@ if [[ $_INSTALLED_FZF ]]; then
         # tm - create new tmux session, or switch to existing one
         tm() {
             [[ -n $TMUX ]] && cmd='switchc' || cmd='attach'
-            if [[ $1 ]]; then
+            if [[ -n $1 ]]; then
                 tmux $cmd -t $1 2>/dev/null || (tmux new -d -s $1 && tmux $cmd -t $1); return
             fi
 
