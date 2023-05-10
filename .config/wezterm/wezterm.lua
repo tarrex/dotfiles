@@ -130,10 +130,7 @@ config.foreground_text_hsb = {
 }
 
 config.default_cursor_style = 'SteadyBar'
-config.cursor_thickness = '200%'
 -- config.default_cursor_style = 'BlinkingBar'
--- config.cursor_blink_ease_in = 'EaseIn'
--- config.cursor_blink_ease_out = 'EaseOut'
 -- config.animation_fps = 1
 
 config.native_macos_fullscreen_mode = false
