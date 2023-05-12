@@ -14,9 +14,8 @@ mason.setup({
 })
 
 local servers = {
-  'gopls', 'clangd', 'rust_analyzer', 'pyright', 'sumneko_lua',
-  'html', 'cssls', 'tsserver', 'eslint', 'yamlls', 'jsonls',
-  'bashls', 'vimls', 'jdtls'
+  'gopls', 'clangd', 'rust_analyzer', 'pyright', 'lua_ls',
+  'html', 'cssls', 'tsserver', 'eslint', 'yamlls', 'jsonls'
 }
 
 local mason_config = require('mason-lspconfig')
@@ -39,28 +38,6 @@ for _, server in pairs(servers) do
     opts = vim.tbl_deep_extend('force', opts, custom_opts)
   end
   lsp[server].setup(opts)
-end
-
--- lspsaga.nvim
-local saga_ok, saga = pcall(require, 'lspsaga')
-if saga_ok then
-  saga.init_lsp_saga {
-    border_style = 'rounded',
-    saga_winblend = 30,
-    code_action_lightbulb = {
-      enable = false,
-    },
-    finder_icons = {
-      def = '  ',
-      ref = '  ',
-      link = '  ',
-    },
-    finder_request_timeout = 1500,
-  }
-
-  local opts = { noremap = true, silent = true }
-  vim.keymap.set('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>', opts)
-  vim.keymap.set('n', 'gt', '<cmd>LSoutlineToggle<CR>', opts)
 end
 
 -- lsp-colors.nvim
@@ -87,9 +64,9 @@ local fidget_ok, fidget = pcall(require, 'fidget')
 if fidget_ok then
   fidget.setup({
     text = {
-      spinner = 'clock',
-      done = '✅ ',
-    },
+      spinner = 'dots_snake',
+      done = '✓',
+    }
   })
 end
 
@@ -101,4 +78,3 @@ if lines_ok then
   })
   vim.keymap.set('', '<Leader>l', lines.toggle)
 end
-

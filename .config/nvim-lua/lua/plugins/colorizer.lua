@@ -6,5 +6,6 @@ colorizer.setup({
   'scss',
   'sass',
   'javascript',
-  'html'
+  'html',
+  'lua',
 })

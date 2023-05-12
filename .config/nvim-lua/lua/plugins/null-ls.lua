@@ -13,8 +13,10 @@ null_ls.setup({
     formatting.goimports,
 
     -- python
-    formatting.autopep8,
-    formatting.yapf,
+    -- formatting.autopep8,
+    -- formatting.yapf,
+    formatting.isort,
+    formatting.black,
 
     -- eslint
     diagnostics.eslint_d,
@@ -29,13 +31,13 @@ null_ls.setup({
     -- lua
     formatting.stylua.with({
       extra_args = {
-        '--call-parentheses', 'NoSingleString',
-        '--collapse-simple-statement', 'ConditionalOnly',
         '--column-width', '120',
+        '--line-endings', 'Unix',
         '--indent-type', 'Spaces',
         '--indent-width', '2',
-        '--line-endings', 'Unix',
         '--quote-style', 'AutoPreferSingle',
+        '--call-parentheses', 'Always',
+        '--collapse-simple-statement', 'ConditionalOnly',
       }
     })
   },

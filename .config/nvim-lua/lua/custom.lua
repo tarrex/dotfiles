@@ -2,7 +2,9 @@
 vim.cmd([[
 function! MyHighlights() abort
   highlight Normal        ctermbg=NONE guibg=NONE
+  highlight NormalNC      ctermbg=NONE guibg=NONE
   highlight NonText       ctermbg=NONE guibg=NONE
+  highlight SignColumn    ctermbg=NONE guibg=NONE
   highlight CursorLineNr  ctermbg=NONE guibg=NONE
   highlight LineNr        ctermbg=NONE guibg=NONE
   highlight CursorLine    ctermbg=NONE guibg=NONE
@@ -33,7 +35,7 @@ augroup FileTypeDetectAndCustom
   autocmd FileType qf                           setl nonu nornu
   autocmd FileType gitcommit                    setl spell
   autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
-  autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
+  autocmd FileType json,jsonnet,markdown,yaml   setl sw=2 ts=2 sts=2
   autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
   autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
   autocmd FileType lua                          setl sw=2 ts=2 sts=2
@@ -85,10 +87,9 @@ local disabled_built_ins = {
   '2html_plugin',
   'gzip',
   'matchit',
+  'matchparen',
   -- 'netrw',
-  -- 'netrwFileHandlers',
   -- 'netrwPlugin',
-  -- 'netrwSettings',
   'remote_plugins',
   'spellfile_plugin',
   'tar',
@@ -102,8 +103,6 @@ for _, plugin in pairs(disabled_built_ins) do
 end
 
 ----> Providers config
-vim.g.loaded_pythonx_provider = 0
-vim.g.loaded_python_provider  = 0
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider    = 0
 vim.g.loaded_perl_provider    = 0

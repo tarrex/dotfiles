@@ -33,7 +33,7 @@ _telescope.setup({
 })
 
 _telescope.load_extension('file_browser')
-_telescope.load_extension('project')
+_telescope.load_extension('gh')
 
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
@@ -47,3 +47,4 @@ map('n', '<space>fm', '<cmd>Telescope keymaps<cr>', opts)
 map('n', '<space>fr', '<cmd>Telescope resume<cr>', opts)
 map('n', '<space>fs', '<cmd>Telescope current_buffer_fuzzy_find<cr>', opts)
 map('n', '<space>fd', '<cmd>Telescope file_browser<cr>', opts)
+map('n', '<space>fo', '<cmd>Telescope oldfiles<cr>', opts)

@@ -1,12 +1,12 @@
+local map  = vim.keymap.set
+local opts = { noremap = true, silent = true }
+
 vim.g.mapleader      = ','
 vim.g.maplocalleader = '\\'
 
-local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
-
 -- Disable Ex mode and command history key bindings
-map('n', 'Q',  '<nop>', opts)
-map('n', 'q:', '<nop>', opts)
+map('n', 'Q',  '<nop>')
+map('n', 'q:', '<nop>')
 
 -- Toggle number,paste,cuc,list,wrap,spell and so on.
 map('n', '<localleader>n', ':setl number! nu?<cr>', opts)
@@ -76,10 +76,12 @@ map('t', '<c-q>', '<c-_>:q!<cr>', opts)
 -- map('n', 'N', 'Nzzzv', opts)
 
 -- Move lines left or right
-map('n', '<', '<<', opts)
-map('n', '>', '>>', opts)
-map('v', '<', '<gv', opts)
-map('v', '>', '>gv', opts)
+-- map('n', '<', '<<', opts)
+-- map('n', '>', '>>', opts)
+-- map('v', '<', '<gv', opts)
+-- map('v', '>', '>gv', opts)
+map('v', '<s-tab>', '<gv', opts)
+map('v', '<tab>', '>gv', opts)
 
 -- Move lines up or down
 -- map('n', '<up>',   ':m-2<cr>==', opts)
@@ -134,7 +136,7 @@ map('n', 'zz', [[(winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2
 map('n', '<space>s', '`[V`]', opts)
 
 -- Select all content
-map('n', '<space>aa', 'ggVG', opts)
+map('n', '<space>aa', 'ggVG$', opts)
 
 -- Resize window
 map('n', '<space>-', ':resize -2<cr>', opts)
@@ -153,4 +155,3 @@ vim.cmd([[
   cnoreabbrev Q       q
   cnoreabbrev Qall    qall
 ]])
-

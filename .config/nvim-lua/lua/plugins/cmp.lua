@@ -32,32 +32,19 @@ local kind_icons = {
   TypeParameter = '',
 }
 
--- local check_backspace = function()
---   local col = vim.fn.col '.' - 1
---   return col == 0 or vim.fn.getline('.'):sub(col, col):match '%s'
--- end
-
 local has_words_before = function()
+  unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
-end
-
-local replace_termcodes = function(str)
-  return vim.api.nvim_replace_termcodes(str, true, true, true)
-end
-
-local check_backspace = function()
-  local col = vim.fn.col('.') - 1
-  return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s')
 end
 
 local tab_complete = function(fallback)
   if cmp.visible() then
     cmp.select_next_item()
-  elseif luasnip.expand_or_jumpable() then
-    vim.fn.feedkeys(replace_termcodes('<Plug>luasnip-expand-or-jump'), '')
-  elseif check_backspace() then
-    vim.fn.feedkeys(replace_termcodes('<Tab>'), 'n')
+  elseif luasnip.expand_or_locally_jumpable() then
+    luasnip.expand_or_jump()
+  elseif has_words_before() then
+    cmp.complete()
   else
     fallback()
   end
@@ -67,9 +54,7 @@ local s_tab_complete = function(fallback)
   if cmp.visible() then
     cmp.select_prev_item()
   elseif luasnip.jumpable(-1) then
-    vim.fn.feedkeys(replace_termcodes('<Plug>luasnip-jump-prev'), '')
-  elseif has_words_before() then
-    cmp.complete()
+    luasnip.jump(-1)
   else
     fallback()
   end
@@ -83,51 +68,30 @@ cmp.setup({
   },
 
   mapping = {
-    ['<Esc>'] = cmp.mapping{
-      i = cmp.mapping.abort(),
-      c = cmp.mapping.abort(),
-    },
-    ['<C-e>'] = cmp.mapping{
-      i = cmp.mapping.close(),
-      c = cmp.mapping.close(),
-    },
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<CR>'] = cmp.mapping.confirm { select = false },
-    -- ['<Tab>'] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_next_item()
-    --   elseif luasnip.expand_or_jumpable() then
-    --     luasnip.expand_or_jump()
-    --   elseif check_backspace() then
-    --     fallback()
-    --   else
-    --     fallback()
-    --   end
-    -- end, { 'i', 's' }),
-    -- ['<S-Tab>'] = cmp.mapping(function(fallback)
-    --   if cmp.visible() then
-    --     cmp.select_prev_item()
-    --   elseif luasnip.jumpable(-1) then
-    --     luasnip.jump(-1)
-    --   else
-    --     fallback()
-    --   end
-    -- end, { 'i', 's' }),
-    ['<Tab>'] = tab_complete,
-    ['<S-Tab>'] = s_tab_complete,
+    ['<CR>'] = function(fallback)
+      if cmp.visible() then
+        cmp.confirm()
+      else
+        fallback()
+      end
+    end,
+    ['<Tab>'] = cmp.mapping(tab_complete, { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(s_tab_complete, { 'i', 's' }),
+    ['<Esc>'] = cmp.mapping({
+      i = cmp.mapping.abort(),
+      c = cmp.mapping.abort(),
+      s = cmp.mapping.abort(),
+    }),
+    ['<C-e>'] = cmp.mapping({
+      i = cmp.mapping.close(),
+      c = cmp.mapping.close(),
+      s = cmp.mapping.close(),
+    }),
   },
 
-  confirm_opts = {
-    behavior = cmp.ConfirmBehavior.Replace,
-    select = false,
-  },
-
-  -- window = {
-  --   documentation = {
-  --     border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-  --   },
-  -- },
+  preselect = cmp.PreselectMode.None,
 
   sources = {
     { name = 'nvim_lsp' },
@@ -146,10 +110,10 @@ cmp.setup({
       vim_item.menu = ({
         nvim_lsp = '[LSP]',
         nvim_lua = '[LUA]',
-        path = '[PTH]',
         luasnip = '[SNP]',
-        dictionary = '[DIC]',
+        path = '[PTH]',
         buffer = '[BUF]',
+        dictionary = '[DIC]',
         spell = '[SPL]',
         cmdline = '[CMD]',
         cmdline_history = '[HST]',
@@ -158,18 +122,13 @@ cmp.setup({
       return vim_item
     end,
   },
-
-  experimental = {
-    ghost_text = false,
-    native_menu = false,
-  },
 })
 
 cmp.setup.cmdline({ '/', '?' }, {
   mapping = cmp.mapping.preset.cmdline(),
   sources = {
     { name = 'buffer' },
-  }
+  },
 })
 
 cmp.setup.cmdline(':', {
@@ -177,5 +136,5 @@ cmp.setup.cmdline(':', {
   sources = cmp.config.sources({
     { name = 'path' },
     { name = 'cmdline' },
-  })
+  }),
 })

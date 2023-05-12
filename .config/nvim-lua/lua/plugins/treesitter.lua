@@ -3,15 +3,17 @@ if not ok then return end
 
 treesitter.setup({
   ensure_installed = {
-    'c', 'cpp', 'go', 'python', 'rust', 'lua',
-    'html', 'css', 'scss', 'javascript', 'typescript',
-    'json', 'yaml', 'toml', 'markdown'
+    'go', 'python', 'rust', 'c', 'lua',
+    'html', 'css', 'scss', 'javascript', 'typescript'
   },
-  sync_install = false,
-  auto_install = false,
-  ignore_install = {},
   highlight = {
     enable = true,
-    disable = {},
-  },
+    disable = function(lang, buf)
+      local max_filesize = 1024 * 1024 -- 1 MB
+      local ok_stats, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+      if ok_stats and stats and stats.size > max_filesize then
+        return true
+      end
+    end,
+  }
 })

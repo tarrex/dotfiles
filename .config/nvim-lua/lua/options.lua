@@ -16,7 +16,7 @@ opt.shiftround = true
 opt.shiftwidth = 4
 opt.expandtab = true
 opt.tabstop = 4
-opt.softtabstop = 4
+-- opt.softtabstop = 4
 
 opt.linebreak = true
 opt.breakindent = true
@@ -110,8 +110,3 @@ opt.wildignore = {
   '[Dd]esktop.ini', '*.lnk', '$RECYCLE.BIN/*', '*.stackdump', 'Thumbs.db',
   '.git/*', '.github/*', '.hg/*', '.idea/*', '.svn/*', '.vscode/*',
 }
-
-opt.wildoptions = 'pum'
-opt.winblend = 0
-opt.pumblend = 5
-opt.redrawtime = 10000

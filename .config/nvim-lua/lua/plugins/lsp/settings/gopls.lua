@@ -1,20 +1,15 @@
 return {
   settings = {
     gopls = {
-      gofumpt = true,
-      codelenses = {
-        generate = false,
-        gc_details = true
-      },
-      usePlaceholders = true,
+      experimentalPostfixCompletions = true,
       analyses = {
-        shadow = true,
-        unreachable = true,
-        unsafeptr = true,
         unusedparams = true,
-        unusedvariable = true
+        shadow = true,
       },
-      staticcheck = true
-    }
+      staticcheck = true,
+    },
+  },
+  init_options = {
+    usePlaceholders = true,
   }
 }

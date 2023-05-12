@@ -1,274 +1,218 @@
--- Packer init
-local install_path = string.format('%s/site/pack/packer/start/packer.nvim', vim.fn.stdpath('data'))
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  PACKER_BOOTSTRAP = vim.fn.system({
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
     'git',
     'clone',
-    '--depth', '1',
-    'https://github.com/wbthomason/packer.nvim',
-    install_path
+    '--filter=blob:none',
+    'https://github.com/folke/lazy.nvim.git',
+    '--branch=stable',
+    lazypath,
   })
-  vim.cmd('packadd packer.nvim')
 end
+vim.opt.rtp:prepend(lazypath)
 
--- Autocommand that reloads neovim whenever you save the plugins module file
-vim.api.nvim_create_augroup('packer_user_config', { clear = true })
-vim.api.nvim_create_autocmd('BufWritePost', {
-  group = 'packer_user_config',
-  pattern = '~/.config/nvim/lua/plugins/*.lua',
-  command = 'source <afile> | PackerCompile'
-})
-
--- Use a protected call so we don't error out on first use
-local ok, packer = pcall(require, 'packer')
-if not ok then return end
-
-packer.init({
-  auto_clean = true,
-  compile_on_sync = true,
-  git = {
-    default_url_format = 'https://github.com/%s'
-  },
-  display = {
-    open_fn = function()
-      return require('packer.util').float({ border = 'rounded' })
-    end
-  },
-  profile = {
-    enable = false,
-    threshold = 1
-  }
-})
-
-packer.startup(function(use)
-  -- packer
-  use 'wbthomason/packer.nvim'
-
-  use 'lewis6991/impatient.nvim'
-
-  -- dependencies
-  use 'nvim-lua/plenary.nvim'
-  use 'kyazdani42/nvim-web-devicons'
-
+local plugins = {
   -- colorscheme
-  use 'lifepillar/vim-gruvbox8'
-  -- use 'haishanh/night-owl.vim'
-  -- use 'mofiqul/vscode.nvim'
-  -- use 'tomasiser/vim-code-dark'
+  'lifepillar/vim-gruvbox8',
 
   -- statusline
-  use {
+  {
     'nvim-lualine/lualine.nvim',
-    after = 'nvim-web-devicons',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
     config = function()
       require('plugins.lualine')
-    end
-  }
-  use {
+    end,
+  },
+  {
     'akinsho/bufferline.nvim',
-    after = 'nvim-web-devicons',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    event = { 'BufRead' },
     config = function()
       require('plugins.bufferline')
     end,
-  }
+  },
 
-  use {
-    'goolord/alpha-nvim',
-    after = 'nvim-web-devicons',
-    config = function()
-      require('plugins.alpha')
-    end
-  }
-
-  use {
+  {
     'phaazon/hop.nvim',
-    branch = 'v1',
     config = function()
       require('plugins.hop')
-    end
-  }
+    end,
+  },
 
-  use {
+  {
     'terryma/vim-multiple-cursors',
     config = function()
       require('plugins.vim-multiple-cursors')
-    end
-  }
+    end,
+  },
 
-  use {
+  {
     'junegunn/vim-easy-align',
-    cmd = 'EasyAlign'
-  }
+    cmd = 'EasyAlign',
+  },
 
-  use {
+  {
     'norcalli/nvim-colorizer.lua',
     config = function()
       require('plugins.colorizer')
-    end
-  }
+    end,
+  },
 
-  use {
+  {
     'lukas-reineke/indent-blankline.nvim',
     config = function()
       require('plugins.indent-blankline')
-    end
-  }
-
-  use {
-    'karb94/neoscroll.nvim',
-    config = function()
-      require('plugins.neoscroll')
     end,
-  }
+  },
 
-  use {
+  {
     'folke/zen-mode.nvim',
     cmd = 'ZenMode',
     config = function()
       require('plugins.zen-mode')
     end,
-  }
+  },
 
   -- telescope
-  use {
+  {
     'nvim-telescope/telescope.nvim',
-    requires = {
+    dependencies = {
       'nvim-lua/plenary.nvim',
-      'nvim-telescope/telescope-symbols.nvim',
       'nvim-telescope/telescope-file-browser.nvim',
-      'nvim-telescope/telescope-project.nvim',
+      'nvim-telescope/telescope-github.nvim',
     },
     config = function()
       require('plugins.telescope')
-    end
-  }
-  use {
+    end,
+  },
+  {
     'mbbill/undotree',
     config = function()
       require('plugins.undotree')
-    end
-  }
+    end,
+  },
 
-  use {
+  {
     'windwp/nvim-autopairs',
     config = function()
       require('plugins.autopairs')
-    end
-  }
+    end,
+  },
 
-  use 'machakann/vim-sandwich'
-  use 'tpope/vim-repeat'
-  use 'tpope/vim-commentary'
-  use 'tpope/vim-sleuth'
-  use 'tpope/vim-fugitive'
-  use 'tpope/vim-rhubarb'
+  'machakann/vim-sandwich',
+  -- 'tpope/vim-surround',   -- Delete/change/add parentheses/quotes/XML-tags/much more with ease
+  'tpope/vim-repeat',     -- enable repeating supported plugin maps with "."
+  'tpope/vim-commentary', -- comment stuff out
+  'tpope/vim-sleuth',     -- Heuristically set buffer options
+  'tpope/vim-fugitive',   -- A Git wrapper so awesome, it should be illegal
+  'tpope/vim-rhubarb',    -- GitHub extension for fugitive.vim
 
-  use {
-    'editorconfig/editorconfig-vim',
+  {
+    'lewis6991/gitsigns.nvim',
     config = function()
-      require('plugins.editorconfig')
-    end
-  }
+      require('plugins.gitsigns')
+    end,
+  },
 
-  use {
+  {
     'liuchengxu/vista.vim',
     config = function()
       require('plugins.vista')
     end,
-  }
+  },
 
   -- treesitter
-  use {
+  {
     'nvim-treesitter/nvim-treesitter',
+    build = ':TSUpdate',
+    event = { 'BufRead', 'BufNewFile', 'InsertEnter' },
     config = function()
       require('plugins.treesitter')
-    end
-  }
+    end,
+  },
 
   -- lsp
-  use {
+  {
     'neovim/nvim-lspconfig',
-    requires = {
+    dependencies = {
       'williamboman/mason.nvim',
       'williamboman/mason-lspconfig.nvim',
-      'glepnir/lspsaga.nvim',
       'folke/lsp-colors.nvim',
       'ray-x/lsp_signature.nvim',
-      -- 'j-hui/fidget.nvim',
+      'j-hui/fidget.nvim',
       'https://git.sr.ht/~whynothugo/lsp_lines.nvim',
     },
     config = function()
       require('plugins.lsp')
-    end
-  }
+    end,
+  },
 
   -- completion
-  use {
+  {
     'hrsh7th/nvim-cmp',
-    requires = {
+    event = 'InsertEnter',
+    dependencies = {
       'hrsh7th/cmp-nvim-lsp',
       -- 'hrsh7th/cmp-nvim-lsp-signature-help',
       'hrsh7th/cmp-nvim-lua',
-      {
-        'l3mon4d3/luasnip',
-        requires = {
-          'saadparwaiz1/cmp_luasnip',
-        },
-        config = function()
-          require('plugins.luasnip')
-        end
-      },
       'hrsh7th/cmp-path',
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-cmdline',
+      {
+        'l3mon4d3/luasnip',
+        dependencies = {
+          'saadparwaiz1/cmp_luasnip',
+          'rafamadriz/friendly-snippets',
+        },
+        config = function()
+          require('plugins.luasnip')
+        end,
+      },
     },
     config = function()
       require('plugins.cmp')
-    end
-  }
+    end,
+  },
 
-  use {
+  {
     'jose-elias-alvarez/null-ls.nvim',
-    after = 'plenary.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require('plugins.null-ls')
-    end
-  }
+    end,
+  },
 
   -- filetype
-  use { 'kovisoft/paredit', ft = 'scheme' }
-  use {
+  {
     'tpope/vim-markdown',
     ft = 'markdown',
     config = function()
       require('plugins.vim-markdown')
-    end
-  }
-  use {
+    end,
+  },
+  {
     'dhruvasagar/vim-table-mode',
     ft = 'markdown',
     config = function()
       require('plugins.vim-table-mode')
     end,
-    cmd = 'TableModeToggle'
-  }
-  use {
-    'AckslD/nvim-FeMaco.lua',
+    cmd = 'TableModeToggle',
+  },
+  {
+    'acksld/nvim-femaco.lua',
     ft = 'markdown',
     config = function()
       require('plugins.femaco')
-    end
-  }
-  use { 'tarrex/nginx.vim', ft = 'nginx' }
-  use { 'mtdl9/vim-log-highlighting', ft = 'log' }
+    end,
+  },
+  { 'tarrex/nginx.vim', ft = 'nginx' },
+  { 'mtdl9/vim-log-highlighting', ft = 'log' },
 
-  -- use 'wakatime/vim-wakatime'
-  -- use 'tweekmonster/startuptime.vim'
-  -- use 'dstein64/vim-startuptime'
+  -- { 'wakatime/vim-wakatime', event = 'InsertEnter' },
+  -- { 'tweekmonster/startuptime.vim', cmd = 'StartupTime' },
+  -- { 'dstein64/vim-startuptime', cmd = 'StartupTime' },
+}
 
-  -- Automatically set up your configuration after cloning packer.nvim
-  -- Put this at the end after all plugins
-  if PACKER_BOOTSTRAP then
-    require('packer').sync()
-  end
-end)
+local ok, lazy = pcall(require, 'lazy')
+if not ok then return end
+lazy.setup(plugins)
