@@ -150,11 +150,10 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-fugitive'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
-Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release', 'do': 'npm install' })
-Plug 'antoinemadec/coc-fzf', Cond(g:dep.node, {'branch': 'release'})
+Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release' })
+Plug 'antoinemadec/coc-fzf', Cond(g:dep.node, { 'branch': 'release' })
 Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
-Plug 'kovisoft/paredit',           { 'for': 'scheme' }
 Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
@@ -414,8 +413,6 @@ if HasPlug('coc.nvim')
     if &writebackup | set nowritebackup | endif
     let g:coc_disable_startup_warning = 1
     let g:coc_global_extensions       = [
-        \ 'coc-word',
-        \ 'coc-emoji',
         \ 'coc-html',
         \ 'coc-css',
         \ 'coc-json',
@@ -423,7 +420,6 @@ if HasPlug('coc.nvim')
         \ 'coc-tsserver',
         \ 'coc-pyright',
         \ 'coc-vimlsp',
-        \ 'coc-translator'
     \]
 
     " Use tab for trigger completion with characters ahead and navigate.
@@ -546,26 +542,6 @@ if HasPlug('coc.nvim')
     nnoremap <silent><nowait> <coc>k :<c-u>CocPrev<cr>
     " Resume latest coc list.
     nnoremap <silent><nowait> <coc>p :<c-u>CocListResume<cr>
-
-    function! s:coc_uninstall_all() abort
-        for e in g:coc_global_extensions
-            execute 'CocUninstall ' . e
-        endfor
-    endfunction
-
-    command! CocInstallAll   CocInstall -sync
-    command! CocUninstallAll call s:coc_uninstall_all()
-
-    function! s:coc_extension_exist(name) abort
-        let l:extension = get(g:, 'coc_global_extensions', {})
-        return (count(l:extension, a:name) != 0)
-    endfunction
-
-    " coc-translator
-    if s:coc_extension_exist('coc-translator')
-        nmap <coc>t <Plug>(coc-translator-p)
-        vmap <coc>t <Plug>(coc-translator-pv)
-    endif
 endif
 
 " ----> dense-analysis/ale
@@ -582,8 +558,8 @@ if HasPlug('ale')
     let g:ale_cursor_detail              = 1
     let g:ale_floating_preview           = 1
     let g:ale_floating_window_border     = ['│', '─', '╭', '╮', '╯', '╰', '│', '─']
-    let g:ale_hover_cursor               = 1
-    let g:ale_hover_to_floating_preview  = 1
+    let g:ale_hover_cursor               = 0
+    let g:ale_hover_to_floating_preview  = 0
     let g:ale_set_loclist                = 0
     let g:ale_set_quickfix               = 1
     let g:ale_loclist_msg_format         = '[%linter%] %code: %%s'
@@ -591,6 +567,8 @@ if HasPlug('ale')
     let g:ale_sign_error                 = ' '
     let g:ale_sign_warning               = ' '
     let g:ale_sign_info                  = ' '
+    let g:ale_virtualtext_cursor         = 0
+    let g:ale_fix_on_save                = 1
     let g:ale_fixers = {
         \ 'c':        ['clang-format'],
         \ 'cpp':      ['clang-format'],
@@ -620,7 +598,7 @@ if HasPlug('ale')
     nmap <silent> ]a <Plug>(ale_next)
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
-    nmap <silent> ff <Plug>(ale_fix)
+    " nmap <silent> ff <Plug>(ale_fix)
 endif
 
 " ----> fatih/vim-go
@@ -779,10 +757,12 @@ endif
 " nnoremap N Nzzzv
 
 " Move lines left or right
-nnoremap <silent> < <<
-nnoremap <silent> > >>
-vnoremap <silent> < <gv
-vnoremap <silent> > >gv
+" nnoremap <silent> < <<
+" nnoremap <silent> > >>
+" vnoremap <silent> < <gv
+" vnoremap <silent> > >gv
+vnoremap <silent> <s-tab> <gv
+vnoremap <silent> <tab> >gv
 
 " Move lines up or down
 " nnoremap <silent> <up>   :m-2<cr>==
@@ -887,12 +867,12 @@ augroup FileTypeDetectAndCustom
     autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
     autocmd FileType qf                           setl nonu nornu
     autocmd FileType gitcommit                    setl spell
-    autocmd FileType json                         syntax match Comment +\/\/.\+$+
     autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
-    autocmd FileType json,markdown,yaml           setl sw=2 ts=2 sts=2
+    autocmd FileType json,jsonnet,markdown,yaml   setl sw=2 ts=2 sts=2
     autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
     autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
     autocmd FileType lua                          setl sw=2 ts=2 sts=2
+    autocmd FileType json                         syntax match Comment +\/\/.\+$+
 augroup END
 
 " ----> Templates
@@ -932,6 +912,8 @@ command! CurrentPath echo expand('%:p')
 " ----> Disable some built-in plugins
 let g:loaded_2html_plugin     = 1           " tohtml
 let g:loaded_gzip             = 1           " gzip
+let g:matchit                 = 1           " matchit
+let g:matchparen              = 1           " matchparen
 " let g:loaded_netrw            = 1           " netrw
 " let g:loaded_netrwPlugin      = 1
 let g:loaded_remote_plugins   = 1           " remote plugins
@@ -942,8 +924,6 @@ let g:loaded_zip              = 1           " zip
 let g:loaded_zipPlugin        = 1
 
 " ----> Providers config
-let g:loaded_pythonx_provider = 0
-let g:loaded_python_provider  = 0
 let g:loaded_python3_provider = 0
 let g:loaded_ruby_provider    = 0
 let g:loaded_perl_provider    = 0
