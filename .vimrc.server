@@ -581,33 +581,4 @@ elseif g:env.linux
     nnoremap <silent> <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
 
-" ----> Echo start time when starting
-let s:startuptime = reltime()
-augroup StartupTime
-    autocmd!
-    autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
-                        \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
-augroup END
-
-" ----> Generate security strings
-function! GenUUID() abort
-python3 << EOF
-import uuid
-vim.command('let uuid = \'%s\'' % str(uuid.uuid4()))
-EOF
-    execute 'normal i' . uuid . ''
-endfunction
-command! -nargs=* -range=% GenUUID call GenUUID()
-noremap <silent> <localleader>gu :call GenUUID()<cr>
-
-function! GenToken() abort
-python3 << EOF
-import secrets
-vim.command('let token = \'%s\'' % str(secrets.token_hex(16)))
-EOF
-    execute 'normal i' . token . ''
-endfunction
-command! -nargs=* -range=% GenToken call GenToken()
-noremap <silent> <localleader>gt :call GenToken()<cr>
-
 set secure                                  " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed

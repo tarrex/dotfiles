@@ -180,7 +180,6 @@ endfunction
 call plug#begin(g:vimdir . '/plugged')
 
 Plug 'lifepillar/vim-gruvbox8'
-" Plug 'haishanh/night-owl.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
@@ -243,6 +242,7 @@ if HasPlug('lightline.vim')
         \ },
         \ 'component_function': {
         \   'mode':         'LightLineMode',
+        \   'readonly':     'LightLineReadOnly',
         \   'filename':     'LightlineFilename',
         \   'linter':       'LightlineLinter',
         \   'filesize':     'LightlineFileSize',
@@ -259,6 +259,10 @@ if HasPlug('lightline.vim')
             \ &ft ==? 'qf' ? 'QuickFix' :
             \ index(s:fts, &ft) >= 0 ? substitute(&ft, '\v<(.)', '\u\1', '') :
             \ lightline#mode()
+    endfunction
+
+    function! LightLineReadOnly() abort
+        return &readonly && &filetype !~# '\v(help)' ? 'RO' : ''
     endfunction
 
     function! LightlineFilename() abort
@@ -282,7 +286,7 @@ if HasPlug('lightline.vim')
             let l:all_errors = l:counts.error + l:counts.style_error
             let l:all_non_errors = l:counts.total - l:all_errors
             return l:counts.total == 0 ? '' : printf(
-                \ ' %d  %d',
+                \ ' %d  %d',
                 \ all_non_errors,
                 \ all_errors
             \ )
@@ -333,10 +337,10 @@ if HasPlug('vim-easymotion')
     let g:EasyMotion_space_jump_first = 1
 
     nnoremap <em> <nop>
-    nmap     S    <em>
+    nmap     J    <em>
 
-    nmap <em>j <Plug>(easymotion-s2)
-    xmap <em>j <Plug>(easymotion-s2)
+    nmap <em>s <Plug>(easymotion-s2)
+    xmap <em>s <Plug>(easymotion-s2)
     nmap <em>/ <Plug>(easymotion-sn)
     xmap <em>/ <Plug>(easymotion-sn)
     nmap <em>l <Plug>(easymotion-overwin-line)
@@ -623,7 +627,7 @@ if HasPlug('ale')
     let g:ale_fixers = {
         \ 'c':        ['clang-format'],
         \ 'cpp':      ['clang-format'],
-        \ 'go':       ['goimports', 'gofumpt', 'golines'],
+        \ 'go':       ['goimports', 'gofmt'],
         \ 'markdown': ['pandoc'],
         \ 'python':   ['black', 'isort', 'yapf'],
         \ 'rust':     ['rustfmt'],
@@ -649,7 +653,7 @@ if HasPlug('ale')
     nmap <silent> ]a <Plug>(ale_next)
     nmap <silent> [A <Plug>(ale_first)
     nmap <silent> ]A <Plug>(ale_last)
-    " nmap <silent> ff <Plug>(ale_fix)
+    nmap <silent> ff <Plug>(ale_fix)
 endif
 
 " ----> fatih/vim-go
@@ -1052,34 +1056,5 @@ elseif g:env.linux
     nnoremap <silent> <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <silent> <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
-
-" ----> Echo start time when starting
-let s:startuptime = reltime()
-augroup StartupTime
-    autocmd!
-    autocmd VimEnter * let s:startuptime = reltime(s:startuptime) | redraw
-                        \ | echomsg 'StartupTime:' . reltimestr(s:startuptime) . 's'
-augroup END
-
-" ----> Generate security strings
-function! GenUUID() abort
-python3 << EOF
-import uuid
-vim.command('let uuid = \'%s\'' % str(uuid.uuid4()))
-EOF
-    execute 'normal i' . uuid . ''
-endfunction
-command! -nargs=* -range=% GenUUID call GenUUID()
-noremap <silent> <localleader>gu :call GenUUID()<cr>
-
-function! GenToken() abort
-python3 << EOF
-import secrets
-vim.command('let token = \'%s\'' % str(secrets.token_hex(16)))
-EOF
-    execute 'normal i' . token . ''
-endfunction
-command! -nargs=* -range=% GenToken call GenToken()
-noremap <silent> <localleader>gt :call GenToken()<cr>
 
 set secure                                  " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
