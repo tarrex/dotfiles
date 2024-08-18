@@ -39,7 +39,7 @@ pgcli
 qemu
 rename
 ripgrep
-rustup-init
+rustup
 socat
 starship
 tcpdump
