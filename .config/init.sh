@@ -24,10 +24,10 @@ export XDG_CONFIG_DIRS=/etc/xdg
 [[ -d $HOME/.local/bin ]] && export PATH=$HOME/.local/bin:$PATH
 
 # Dependencies
-command -v curl >/dev/null && _INSTALLED_CURL=true
-command -v git  >/dev/null && _INSTALLED_GIT=true
-command -v tmux >/dev/null && _INSTALLED_TMUX=true
-command -v fzf  >/dev/null && _INSTALLED_FZF=true
+type curl >/dev/null && _INSTALLED_CURL=true
+type git  >/dev/null && _INSTALLED_GIT=true
+type tmux >/dev/null && _INSTALLED_TMUX=true
+type fzf  >/dev/null && _INSTALLED_FZF=true
 
 # ============> Script <============
 # z.sh initialize, comment _Z_CMD if you don't want to use it.
@@ -132,44 +132,44 @@ _prompt_setting
 
 # starship
 _prompt_starship() {
-    command -v starship >/dev/null || return
+    type starship >/dev/null || return
     export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
     [[ -n $BASH_VERSION ]] && eval "$(starship init bash)" && return
     [[ -n $ZSH_VERSION ]] && eval "$(starship init zsh)" && return
 }
-_prompt_starship
+# _prompt_starship
 
 
 # ============> Shell <============
 # BASH
 if [[ -n $BASH_VERSION ]]; then
     # -----> Option
-    if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
-        shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
-        shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
-    fi
-    shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
-    shopt -s histappend     # Append to the history file, don't overwrite it
-    shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
-    shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing  buffer for further modification.
+    # if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
+    #     shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
+    #     shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
+    # fi
+    # shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
+    # shopt -s histappend     # Append to the history file, don't overwrite it
+    # shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
+    # shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing  buffer for further modification.
 
     # -----> Key binding
-    set -o emacs            # Use emacs key bindings in bash
-    # set -o vi               # Use vim key bindings in bash
+    # set -o emacs            # Use emacs key bindings in bash
+    set -o vi               # Use vim key bindings in bash
     # bind -m vi-command 'Control-l: clear-screen'
     # bind -m vi-insert  'Control-l: clear-screen'
 
-    bind '"\eh":  "\C-b"'
-    bind '"\el":  "\C-f"'
-    bind '"\ej":  "\C-n"'
-    bind '"\ek":  "\C-p"'
-    bind '"\eH":  "\eb"'
-    bind '"\eL":  "\ef"'
-    bind '"\eJ":  "\C-a"'
-    bind '"\eK":  "\C-e"'
-    bind '"\e;":  "ll\n"'
-    bind '"\e[A": history-search-backward'
-    bind '"\e[B": history-search-forward'
+    # bind '"\eh":  "\C-b"'
+    # bind '"\el":  "\C-f"'
+    # bind '"\ej":  "\C-n"'
+    # bind '"\ek":  "\C-p"'
+    # bind '"\eH":  "\eb"'
+    # bind '"\eL":  "\ef"'
+    # bind '"\eJ":  "\C-a"'
+    # bind '"\eK":  "\C-e"'
+    # bind '"\e;":  "ll\n"'
+    # bind '"\e[A": history-search-backward'
+    # bind '"\e[B": history-search-forward'
 
     # -----> Completion
     [[ -f /etc/bash_completion ]] && source /etc/bash_completion
@@ -381,7 +381,7 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle -e ':completion:*:hosts' hosts 'reply=(
         ${=${=${=${${(f)"$(cat {/etc/ssh/ssh_,~/.ssh/}known_hosts(|2)(N) 2> /dev/null)"}%%[#| ]*}//\]:[0-9]*/ }//,/ }//\[/ }
         ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2> /dev/null))"}%%(\#${_etc_host_ignores:+|${(j:|:)~_etc_host_ignores}})*}
-        ${=${${${${(@M)${(f)"$(cat ~/.ssh/config 2> /dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
+        ${=${${${${(@M)${(f)"$(cat ~/.ssh/config ~/.ssh/config.d/* 2> /dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
     )'
 
     # don't complete uninteresting users...
@@ -491,9 +491,6 @@ if [[ -n $ZSH_VERSION ]]; then
 
             zinit ice lucid has'docker' as'completion'
             zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
-
-            zinit ice lucid has'docker-compose' as'completion'
-            zinit snippet 'https://github.com/docker/compose/blob/master/contrib/completion/zsh/_docker-compose'
 
             zinit ice has'kubectl' id-as'kubectl' as'null' wait silent nocompile \
                 atclone'kubectl completion zsh >! _kubectl' \
@@ -634,9 +631,9 @@ elif [[ -d /usr/local/node ]]; then
 fi
 export NODE_REPL_HISTORY=-
 
-export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
-export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
-export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
+# export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+# export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
+# export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
 
 # Docker
 # export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
@@ -646,7 +643,7 @@ export PATH=$HOME/.orbstack/bin:$PATH
 
 # GnuPG
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
-if [[ ! -d $GNUPGHOME ]] && command -v gpg >/dev/null; then
+if [[ ! -d $GNUPGHOME ]] && type gpg >/dev/null; then
     command mkdir -m700 -p $GNUPGHOME
 fi
 
@@ -780,9 +777,9 @@ case $OSTYPE in
     darwin*|*bsd*|FreeBSD) alias ls='ls -Gh';;
 esac
 
-if command -v exa >/dev/null; then
-    alias ll='exa -lF --icons --time-style=long-iso'
-    alias la='exa -alF --icons --time-style=long-iso'
+if type eza >/dev/null; then
+    alias ll='eza -lF --icons --time-style=long-iso'
+    alias la='eza -alF --icons --time-style=long-iso'
 else
     alias ll='ls -l'
     alias la='ll -a'
@@ -812,8 +809,9 @@ alias tmux='tmux -2'
 proxy_addr="127.0.0.1:7890"
 no_proxy_addr="localhost,127.0.0.0/8,*.local"
 
-alias httpproxy="all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
-alias socks5proxy="all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
+alias httpproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
+alias socks5proxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
+alias fly="env http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr"
 
 fuckgfw() {
     echo "Proxy Address: $proxy_addr"
@@ -830,9 +828,6 @@ okgfw() {
 # Typora
 if [[ $OSTYPE == darwin* ]]; then
     alias typora='open -a typora'
-    alias blog='open -a typora ~/Workspace/Github/blog'
-    alias wiki='open -a typora ~/Workspace/Github/wiki'
-    alias diary='open -a typora ~/Workspace/Github/diary'
 fi
 
 # Frequently
@@ -905,7 +900,7 @@ function xbin() {
 }
 
 # gh
-if [[ _INSTALLED_FZF ]] && command -v gh >/dev/null; then
+if [[ _INSTALLED_FZF ]] && type gh >/dev/null; then
     function ghpr() {
         GH_FORCE_TTY=100% gh pr list \
             | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr view {+1}' --preview-window right --header-lines 3 \
