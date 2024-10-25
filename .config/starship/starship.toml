@@ -5,7 +5,7 @@
 # Prompt
 format = '[λ](bold fg:39) $all'
 scan_timeout = 30
-command_timeout = 800
+command_timeout = 1000
 add_newline = false
 continuation_prompt = '▶▶'
 
@@ -37,3 +37,6 @@ style_root = 'bold fg:202'
 style_user = 'bold fg:140'
 format = '[$user]($style)[@](bold fg:140)'
 show_always = true
+
+[c]
+commands = [['cc', '--version']]
