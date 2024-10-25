@@ -1,3 +1,5 @@
+# vim: ft=gitconfig cms=#\ %s
+
 # Tarrex's git config file.
 
 # Basic options
@@ -7,20 +9,42 @@
     quotePath         = false
     excludesFile      = ~/.config/git/ignore
     attributesfile    = ~/.config/git/attributes
-    editor            = vim
+    editor            = vim     # vscode: code --wait
     pager             = less -FRXM
 
 [alias]
-    st                    = status -sb
+    a = add
+    b = branch
+    c = commit
+    d = diff
+    f = fetch
+    g = grep
+    l = log
+    m = merge
+    o = checkout
+    p = pull
+    r = remote
+    s = status -sb
+    w = whatchanged
+
+    ca = commit --amend
+    cm = commit --message
+    sw = switch
+    ls = ls-files
+
+    rank = shortlog -sn --no-merges
+    stat = !git --no-pager diff --stat
+    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    slog = log --stat --graph --date-order --oneline
+
+    unpush   = push -f origin HEAD^:master
+    uncommit = reset --soft HEAD^
+    unstage  = reset HEAD --
+
+    aliases = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /'
+
     prune                 = fetch --prune
-    undopush              = push -f origin HEAD^:master
-    undocommit            = reset --soft HEAD^
-    unstage               = reset HEAD --
     stash-all             = stash save --include-untracked
-    rank                  = shortlog -sn --no-merges
-    glog                  = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
-    slog                  = log --stat --graph --date-order --oneline
-    stat                  = !git --no-pager diff --stat
     sweep                 = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
     serve                 = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
     cloc                  = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
@@ -29,11 +53,19 @@
     searchcommit          = "!f() { git log -G$1 --all; }; f"
     searchmessage         = "!f() { git log --grep=$1; }; f"
     filehistory           = "!f() { git log --follow -p -- $1; }; f"
-[apply]
-    whitespace = fix
+    ls-merged             = !git branch --merged | grep -Ev '[*\\s]* (master|develop)$'
+    rm-merged             = !git branch --merged | grep -Ev '[*\\s]* (master|develop)$' | xargs -n 1 git branch -d
+    ls-merged-remote      = !git branch --remote --merged | grep origin | grep -Ev '>|master|develop' | xargs -L1 | cut -d'/' -f2-
+    rm-merged-remote      = !git branch --remote --merged | grep origin | grep -Ev '>|master|develop' | xargs -L1 | cut -d'/' -f2- | xargs -L 1 git push origin --delete
+    prune-origin          = remote prune origin
+    lscrap                = ls-files --other --exclude-standard --directory
+    stash-all             = stash save --include-untracked
+    branchupdates         = for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
+    tags = tag -n --sort=v:refname -l
+    tags-v = tag -n99 --sort=v:refname -l
 
-[branch]
-    autoSetupRebase = always
+[credential]
+    helper = osxkeychain
 
 [color]
     ui = auto
@@ -61,91 +93,90 @@
     untracked = red
 
 [commit]
-    gpgSign  = false
     template = ~/.config/git/message
     verbose  = true
 
-[credential]
-    helper = cache --timeout=14400
-[credential "https://github.com"]
-    username = tarrex
-
 [diff]
-    tool            = vimdiff
+    renames         = true
+    wordRegex       = .
+    submodule       = log
     indentHeuristic = true
-    algorithm       = patience
+    # algorithm       = patience
+    algorithm       = histogram
     colorMoved      = default
+    tool            = vimdiff
+# [difftool "code"]
+#     cmd = code --wait --diff $LOCAL $REMOTE
 
-[http]
-    postBuffer = 1048576000
 # [http "https://github.com"]
 #     proxy     = http://127.0.0.1:7890
-#     # proxy     = socks5://127.0.0.1:7890
-#     sslVerify = false
+#     # proxy     = socks5h://127.0.0.1:7890
 
 [i18n]
-    commitEncoding    = utf-8
     logOutputEncoding = utf-8
 
 [init]
-    defaultBranch = master
+    defaultBranch = main
 
 [instaweb]
-    httpd = python
+    httpd = webrick
     local = true
     port  = 1234
 
 [merge]
-    log  = true
-    tool = vimdiff
+    log           = true
+    ff            = only
+    tool          = vimdiff
+    conflictstyle = zdiff3
 
-[pull]
-    ff     = only
-    rebase = true
+[mergetool]
+    keepBackup  = false
+    writeToTemp = true
 
 [push]
     default    = current
     followTags = true
 
 [rerere]
-    autoUpdate = 1
-    enabled    = 1
-
-[sequence]
-    editor = interactive-rebase-tool
+    autoUpdate = true
+    enabled    = true
 
 [status]
     short              = true
-    showUntrackedFiles = normal
+    showUntrackedFiles = all
 
-# using ssh for git
+[tag]
+    sort = version:refname
+
+# [url "https://github.com/"]
+#     insteadOf = gh:
+
+# [url "https://gist.github.com/"]
+#     insteadOf = gist:
+
+# [url "https://bitbucket.org/"]
+#     insteadOf = bb:
+
+# [url "https://gitlab.com/"]
+#     insteadOf = gl:
+
+# Force git to use SSH
 # [url "git@github.com:"]
 #     insteadOf = https://github.com/
 # [url "git://"]
 #     insteadOf = https://
 
-# using https for git
+# Force git to use HTTPS
 # [url "https://github.com/"]
 #     insteadOf = git@github.com:
 # [url "https://"]
 #     insteadOf = git://
 
-[user]
-    name  = tarrex
-    email = tarrexchen@gmail.com
-    useConfigOnly = true
-
-# Github
-[github]
-    user = tarrex
-[gist]
-    private = true
-
 # Git LFS
 [filter "lfs"]
-    clean = git-lfs clean -- %f
-    smudge = git-lfs smudge -- %f
-    process = git-lfs filter-process
+    clean    = git-lfs clean -- %f
+    smudge   = git-lfs smudge -- %f
+    process  = git-lfs filter-process
     required = true
 
 # Delta - A syntax-highlighting pager for git, diff, and grep output
@@ -153,27 +184,27 @@
 #   https://dandavison.github.io/delta/
 [core]
     pager = delta
-[interactive]
-    diffFilter = delta --color-only --features=interactive
 [delta]
-    navigate = true  # use n and N to move between diff sections
+    features     = decorations
     line-numbers = true
-    features = decorations
+    side-by-side = true
+    navigate     = true  # use n and N to move between diff sections
+    true-color   = always
 [delta "decorations"]
-    commit-decoration-style = 232 130 box
-    commit-style = 232 bold italic 130
     dark = true
-    file-added-label = [+]
-    file-copied-label = [C]
+    # commit-decoration-style = 232 130 box
+    # commit-style            = 232 bold italic 130
+    file-added-label      = [+]
+    file-copied-label     = [C]
+    file-modified-label   = [M]
+    file-removed-label    = [-]
+    file-renamed-label    = [R]
     file-decoration-style = yellow ul
-    file-modified-label = [M]
-    file-removed-label = [-]
-    file-renamed-label = [R]
-    file-style = yellow
-    hunk-header-decoration-style = box blue
-    hunk-header-file-style = bold reverse purple
+    file-style            = yellow
+    hunk-header-decoration-style  = box blue
+    hunk-header-file-style        = bold reverse purple
     hunk-header-line-number-style = bold blue
-    hunk-header-style = line-number
+    hunk-header-style             = line-number
     # the following is from --diff-so-fancy emulation
     minus-style                   = bold red
     minus-non-emph-style          = bold red
@@ -184,3 +215,12 @@
     plus-non-emph-style           = bold green
     plus-emph-style               = bold green 22
     plus-empty-line-marker-style  = normal "#002800"
+
+# [include]
+#     path = config.d/example.gitconfig
+# [includeIf "hasconfig:remote.*.url:https://github.com/example/*"]
+#     path = config.d/example.gitconfig
+# [includeIf "hasconfig:remote.*.url:git@github.com:example/*"]
+#     path = config.d/example.gitconfig
+# [includeIf "gitdir:~/example/"]
+#     path = config.d/example.gitconfig
