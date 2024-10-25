@@ -74,6 +74,8 @@ wezterm.on('format-tab-title',
       icon = nerdfonts.mdi_content_copy
     elseif title == 'mv' then
       icon = nerdfonts.mdi_content_cut
+    elseif title == 'rm' then
+      icon = nerdfonts.cod_trash
     end
 
     title = icon .. ' ' .. title
@@ -146,11 +148,12 @@ config.default_cwd = wezterm.home_dir
 -- Fonts
 config.font = wezterm.font_with_fallback({
   {
-    family = 'SF Mono',
+    family = 'JetBrains Mono',
     stretch = 'Expanded',
     weight = 'Regular',
     harfbuzz_features = { 'calt=0', 'clig=1', 'liga=1' },
   },
+  'Symbols Nerd Font Mono',
   'PingFang SC',
   'HanaMinB',
   'Apple Color Emoji',
