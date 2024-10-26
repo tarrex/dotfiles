@@ -22,8 +22,6 @@ filetype indent plugin on                   " filetype detection on
 set number                                  " print the line number in front of each line
 set noruler                                 " don't show the line and column number of the cursor position, separated by a comma
 set nowrap                                  " don't wrap lines longer than the width of the window
-set nofoldenable                            " disable file folds
-set modeline                                " allow setting options via buffer content
 set showcmd                                 " show (partial) command in the last line of the screen
 set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
 set laststatus=2                            " show status line
@@ -43,7 +41,6 @@ set softtabstop=4                           " number of spaces that a <tab> coun
 set smarttab                                " be smart when use tabs
 set autoindent                              " copy indent from current line when starting a new line
 
-set linebreak                               " break lines at word boundaries
 set breakindent                             " every wrapped line will continue visually indented
 silent! set showbreak=↪\                    " string to put at the start of lines that have been wrapped
 
@@ -62,13 +59,10 @@ set backspace=indent,eol,start              " the working of <bs>, <del>, ctrl-w
 set nostartofline                           " cursor is kept in the same column (if possible)
 set nojoinspaces                            " don't insert two spaces after a '.', '?' and '!' with a join command
 set hidden                                  " allow buffers to have changes without being displayed
-set lazyredraw                              " don't redraw while executing macros, registers and other commands that have not been typed
 set splitbelow                              " horizontally split below
 set splitright                              " vertically split to the right
-set ttyfast                                 " indicates a fast terminal connection
 set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
 set mouse=a                                 " enable the mouse in all five modes
-set ttymouse=sgr                            " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 silent! set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
 set t_ut=                                   " clearing uses the current background color
 set ttyscroll=3                             " maximum number of lines to scroll the screen
@@ -76,17 +70,9 @@ set scrolloff=1                             " minimal number of screen lines to 
 set sidescroll=5                            " minimal number of columns to scroll horizontally
 set sidescrolloff=1                         " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
 
-set history=1000                            " set how many lines of command history vim has to remember
-set timeout                                 " timeout for mappings
-set timeoutlen=3000                         " set the timeout for mappings to 3s
-set ttimeout                                " timeout for key codes
-set ttimeoutlen=6                           " set the timeout for mappings to 6ms
-set updatetime=2000                         " time delay for swap and cursor hold
+set history=10000                           " set how many lines of command history vim has to remember
 
-set comments=                               " clear default comments value, let the filetype handle it
-set commentstring=                          " clear default comment template
 set include=                                " don't assume I'm editing C; let the filetype set this
-set complete+=k                             " scan the files given with the 'dictionary' option
 set completeopt=menu,menuone                " use a popup menu to show the possible completions even there is only one match
 silent! set completeopt+=noinsert           " do not insert any text for a match until the user selects a match from the menu
 silent! set completeopt+=noselect           " do not select a match in the menu, force the user to select one from the menu
@@ -97,7 +83,7 @@ set diffopt+=vertical                       " start diff mode with vertical spli
 set diffopt+=foldcolumn:1                   " use only 1 column for the foldcolumn, instead of 2 (vertical space is precious)
 silent! set diffopt+=hiddenoff              " turn off diff mode automatically for a buffer which becomes hidden
 silent! set diffopt+=indent-heuristic       " use the indent heuristic for the internal diff library
-silent! set diffopt+=algorithm:patience     " use the `patience` diff algorithm
+silent! set diffopt+=algorithm:histogram    " use the `histogram` diff algorithm
 set formatoptions+=m                        " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                        " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                        " remove a comment leader when joining lines
@@ -110,26 +96,15 @@ set listchars+=tab:\|\                      " tab characters, preserve width
 set listchars+=extends:❯                    " unwrapped text to screen right
 set listchars+=precedes:❮                   " unwrapped text to screen left
 set listchars+=nbsp:∅                       " non-breaking spaces
-set breakat+=)]}                            " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                       " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the `%` command jumps from one to the other
 
-set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
-set path=.,**5                              " look in the directory of the current buffer non-recursively, and in the working directory recursively
-set tags=./tags;                            " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
-set swapfile                                " create swapfile for the buffer
 let &directory = g:vimdir . '/tmp/swap'
 if !isdirectory(&directory)
     call mkdir(&directory, 'p', 0700)
 endif
-set nobackup                                " don't make a backup before overwriting a file
-" let &backupdir = g:vimdir . '/tmp/backup'
-" if !isdirectory(&backupdir)
-"     call mkdir(&backupdir, 'p', 0700)
-" endif
 set undofile                                " automatically saves undo history to an undo file
-set undolevels=1000                         " maximum number of changes that can be undone
 let &undodir = g:vimdir . '/tmp/undo'
 if !isdirectory(&undodir)
     call mkdir(&undodir, 'p', 0700)
@@ -163,20 +138,6 @@ if empty(glob(s:vimplug))
     autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-let s:coc = g:vimdir . '/coc-settings.json'
-if empty(glob(s:coc))
-    if g:dep.node
-        silent execute '!echo "Download coc-settings.json..."'
-        silent execute '!curl --compressed --create-dirs --progress-bar -fLo ' . s:coc .
-                     \ ' https://raw.githubusercontent.com/tarrex/dotfiles/master/coc-settings.json'
-    endif
-endif
-
-function! Cond(cond, ...) abort
-    let opts = get(a:000, 0, {})
-    return a:cond ? opts : extend(opts, { 'on': [], 'for': [] })
-endfunction
-
 call plug#begin(g:vimdir . '/plugged')
 
 Plug 'lifepillar/vim-gruvbox8'
@@ -196,8 +157,10 @@ Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-fugitive'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
-Plug 'neoclide/coc.nvim', Cond(g:dep.node, { 'branch': 'release' })
-Plug 'antoinemadec/coc-fzf', Cond(g:dep.node, { 'branch': 'release' })
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'dense-analysis/ale'
 Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
@@ -453,150 +416,36 @@ if HasPlug('vista.vim')
     let g:vista_disable_statusline       = 1
     let g:vista#renderer#enable_icon     = 0
 
-    if HasPlug('coc.nvim')
-        nnoremap <silent> <localleader>t :Vista coc<cr>
-    else
-        nnoremap <silent> <localleader>t :Vista<cr>
-    end
+    nnoremap <silent> <localleader>t :Vista<cr>
 endif
 
-" ----> neoclide/coc.nvim
-if HasPlug('coc.nvim')
-    if &backup | set nobackup | endif
-    if &writebackup | set nowritebackup | endif
-    let g:coc_disable_startup_warning = 1
-    let g:coc_global_extensions       = [
-        \ 'coc-html',
-        \ 'coc-css',
-        \ 'coc-json',
-        \ 'coc-yaml',
-        \ 'coc-tsserver',
-        \ 'coc-pyright',
-        \ 'coc-vimlsp',
-    \]
+" ----> prabirshrestha/vim-lsp
+if HasPlug('vim-lsp')
+    " inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+    " inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    " inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr
+    inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() . "\<cr>" : "\<cr>"
+    function! s:check_back_space() abort
+        let col = col('.') - 1
+        return !col || getline('.')[col - 1]  =~ '\s'
+    endfunction
 
-    " Use tab for trigger completion with characters ahead and navigate.
-    " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-    " other plugin before putting this into your config.
     inoremap <silent><expr> <TAB>
-          \ coc#pum#visible() ? coc#pum#next(1):
-          \ CheckBackspace() ? "\<Tab>" :
-          \ coc#refresh()
-    inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ asyncomplete#force_refresh()
+    inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-    " Make <CR> to accept selected completion item or notify coc.nvim to format
-    " <C-g>u breaks current undo, please make your own choice.
-    inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                                  \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-    function! CheckBackspace() abort
-      let col = col('.') - 1
-      return !col || getline('.')[col - 1]  =~# '\s'
-    endfunction
-
-    " Use `[g` and `]g` to navigate diagnostics
-    " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-    nmap <silent> [g <Plug>(coc-diagnostic-prev)
-    nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-    " GoTo code navigation.
-    nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
-
-    " Use K to show documentation in preview window.
-    nnoremap <silent> K :call ShowDocumentation()<CR>
-
-    function! ShowDocumentation()
-        if CocAction('hasProvider', 'hover')
-            call CocActionAsync('doHover')
-        else
-            call feedkeys('K', 'in')
-        endif
-    endfunction
-
-    augroup Coc
-        autocmd!
-        " Highlight the symbol and its references when holding the cursor.
-        autocmd CursorHold * silent call CocActionAsync('highlight')
-        " Update signature help on jump placeholder.
-        autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-        " Setup formatexpr specified filetype(s).
-        autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-    augroup END
-
-    nnoremap <coc> <nop>
-    nmap     ;     <coc>
-
-    " Symbol renaming.
-    nmap <coc>rn <Plug>(coc-rename)
-
-    " Formatting selected code.
-    xmap <coc>f <Plug>(coc-format-selected)
-    nmap <coc>f <Plug>(coc-format-selected)
-
-    " Applying codeAction to the selected region.
-    xmap <coc>a <Plug>(coc-codeaction-selected)
-    nmap <coc>a <Plug>(coc-codeaction-selected)
-
-    " Remap keys for applying codeAction to the current line.
-    nmap <coc>ac <Plug>(coc-codeaction)
-    " Apply AutoFix to problem on the current line.
-    nmap <coc>qf <Plug>(coc-fix-current)
-
-    " Run the Code Lens action on the current line.
-    nmap <coc>cl  <Plug>(coc-codelens-action)
-
-    " Map function and class text objects
-    " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-    xmap <coc>if <Plug>(coc-funcobj-i)
-    omap <coc>if <Plug>(coc-funcobj-i)
-    xmap <coc>af <Plug>(coc-funcobj-a)
-    omap <coc>af <Plug>(coc-funcobj-a)
-    xmap <coc>ic <Plug>(coc-classobj-i)
-    omap <coc>ic <Plug>(coc-classobj-i)
-    xmap <coc>ac <Plug>(coc-classobj-a)
-    omap <coc>ac <Plug>(coc-classobj-a)
-
-    " Remap <C-f> and <C-b> for scroll float windows/popups.
-    if has('patch-8.2.0750')
-        nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-        nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-        inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-        inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-        vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-        vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+    if executable('gopls')
+        au User lsp_setup call lsp#register_server({
+            \ 'name': 'gopls',
+            \ 'cmd': {server_info->['gopls', '-remote=auto']},
+            \ 'allowlist': ['go', 'gomod', 'gohtmltmpl', 'gotexttmpl'],
+            \ })
+        autocmd BufWritePre *.go
+            \ call execute('LspDocumentFormatSync') |
+            \ call execute('LspCodeActionSync source.organizeImports')
     endif
-
-    " Requires 'textDocument/selectionRange' support of language server.
-    nmap <silent> <coc>v <Plug>(coc-range-select)
-    xmap <silent> <coc>v <Plug>(coc-range-select)
-
-    " Add `:Format` command to format current buffer.
-    command! -nargs=0 Format :call CocActionAsync('format')
-    " Add `:Fold` command to fold current buffer.
-    command! -nargs=? Fold   :call CocAction('fold', <f-args>)
-    " Add `:OR` command for organize imports of the current buffer.
-    command! -nargs=0 OR     :call CocActionAsync('runCommand', 'editor.action.organizeImport')
-
-    " Mappings for CoCList
-    " Show all diagnostics.
-    nnoremap <silent><nowait> <coc>d :<c-u>CocFzfList diagnostics<cr>
-    " Manage extensions.
-    nnoremap <silent><nowait> <coc>e :<c-u>CocList extensions<cr>
-    " Show commands.
-    nnoremap <silent><nowait> <coc>c :<c-u>CocFzfList commands<cr>
-    " Find symbol of current document.
-    nnoremap <silent><nowait> <coc>o :<c-u>CocFzfList outline<cr>
-    " Search workspace symbols.
-    nnoremap <silent><nowait> <coc>s :<c-u>CocList -I symbols<cr>
-    " Do default action for next item.
-    nnoremap <silent><nowait> <coc>j :<c-u>CocNext<cr>
-    " Do default action for previous item.
-    nnoremap <silent><nowait> <coc>k :<c-u>CocPrev<cr>
-    " Resume latest coc list.
-    nnoremap <silent><nowait> <coc>p :<c-u>CocListResume<cr>
 endif
 
 " ----> dense-analysis/ale
@@ -996,7 +845,7 @@ function! DisableForLargeFiles() abort
     setl nocursorline
     setl nofoldenable
     setl nohlsearch noignorecase noincsearch
-    setl noswapfile noundofile nobackup nowritebackup
+    setl noswapfile noundofile nowritebackup
 endfunction
 
 augroup LargeFile
@@ -1056,5 +905,3 @@ elseif g:env.linux
     nnoremap <silent> <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <silent> <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
-
-set secure                                  " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed

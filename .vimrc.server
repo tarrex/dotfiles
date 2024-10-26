@@ -17,8 +17,6 @@ filetype indent plugin on                   " filetype detection on
 set number                                  " print the line number in front of each line
 set noruler                                 " don't show the line and column number of the cursor position, separated by a comma
 set nowrap                                  " don't wrap lines longer than the width of the window
-set nofoldenable                            " disable file folds
-set modeline                                " allow setting options via buffer content
 set showcmd                                 " show (partial) command in the last line of the screen
 set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
 set laststatus=2                            " show status line
@@ -38,7 +36,6 @@ set softtabstop=4                           " number of spaces that a <tab> coun
 set smarttab                                " be smart when use tabs
 set autoindent                              " copy indent from current line when starting a new line
 
-set linebreak                               " break lines at word boundaries
 set breakindent                             " every wrapped line will continue visually indented
 silent! set showbreak=↪\                    " string to put at the start of lines that have been wrapped
 
@@ -57,13 +54,10 @@ set backspace=indent,eol,start              " the working of <bs>, <del>, ctrl-w
 set nostartofline                           " cursor is kept in the same column (if possible)
 set nojoinspaces                            " don't insert two spaces after a '.', '?' and '!' with a join command
 set hidden                                  " allow buffers to have changes without being displayed
-set lazyredraw                              " don't redraw while executing macros, registers and other commands that have not been typed
 set splitbelow                              " horizontally split below
 set splitright                              " vertically split to the right
-set ttyfast                                 " indicates a fast terminal connection
 set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
 set mouse=a                                 " enable the mouse in all five modes
-set ttymouse=sgr                            " name of the terminal type for which mouse codes are to be recognized, necessary when running vim in tmux
 silent! set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
 set t_ut=                                   " clearing uses the current background color
 set ttyscroll=3                             " maximum number of lines to scroll the screen
@@ -71,17 +65,9 @@ set scrolloff=1                             " minimal number of screen lines to 
 set sidescroll=5                            " minimal number of columns to scroll horizontally
 set sidescrolloff=1                         " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
 
-set history=1000                            " set how many lines of command history vim has to remember
-set timeout                                 " timeout for mappings
-set timeoutlen=3000                         " set the timeout for mappings to 3s
-set ttimeout                                " timeout for key codes
-set ttimeoutlen=6                           " set the timeout for mappings to 6ms
-set updatetime=2000                         " time delay for swap and cursor hold
+set history=10000                           " set how many lines of command history vim has to remember
 
-set comments=                               " clear default comments value, let the filetype handle it
-set commentstring=                          " clear default comment template
 set include=                                " don't assume I'm editing C; let the filetype set this
-set complete+=k                             " scan the files given with the 'dictionary' option
 set completeopt=menu,menuone                " use a popup menu to show the possible completions even there is only one match
 silent! set completeopt+=noinsert           " do not insert any text for a match until the user selects a match from the menu
 silent! set completeopt+=noselect           " do not select a match in the menu, force the user to select one from the menu
@@ -92,7 +78,7 @@ set diffopt+=vertical                       " start diff mode with vertical spli
 set diffopt+=foldcolumn:1                   " use only 1 column for the foldcolumn, instead of 2 (vertical space is precious)
 silent! set diffopt+=hiddenoff              " turn off diff mode automatically for a buffer which becomes hidden
 silent! set diffopt+=indent-heuristic       " use the indent heuristic for the internal diff library
-silent! set diffopt+=algorithm:patience     " use the `patience` diff algorithm
+silent! set diffopt+=algorithm:histogram    " use the `histogram` diff algorithm
 set formatoptions+=m                        " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
 set formatoptions+=B                        " when joining lines, don't insert a space between two multibyte characters
 set formatoptions+=j                        " remove a comment leader when joining lines
@@ -105,26 +91,15 @@ set listchars+=tab:\|\                      " tab characters, preserve width
 set listchars+=extends:❯                    " unwrapped text to screen right
 set listchars+=precedes:❮                   " unwrapped text to screen left
 set listchars+=nbsp:∅                       " non-breaking spaces
-set breakat+=)]}                            " line break characters, default are ' ^I!@*-+;:,./?'
 set virtualedit=block                       " allow virtual editing in Visual block mode
 set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
 set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the `%` command jumps from one to the other
 
-set dictionary+=/usr/share/dict/words       " files that are used to lookup words for keyword completion commands
-set path=.,**5                              " look in the directory of the current buffer non-recursively, and in the working directory recursively
-set tags=./tags;                            " filenames for the tag command, file in the directory of the CURRENT FILE, then in its parent directory, then in the parent of the parent its parent directory, then in the parent of the parent
-set swapfile                                " create swapfile for the buffer
 let &directory = g:vimdir . '/tmp/swap'
 if !isdirectory(&directory)
     call mkdir(&directory, 'p', 0700)
 endif
-set nobackup                                " don't make a backup before overwriting a file
-" let &backupdir = g:vimdir . '/tmp/backup'
-" if !isdirectory(&backupdir)
-"     call mkdir(&backupdir, 'p', 0700)
-" endif
 set undofile                                " automatically saves undo history to an undo file
-set undolevels=1000                         " maximum number of changes that can be undone
 let &undodir = g:vimdir . '/tmp/undo'
 if !isdirectory(&undodir)
     call mkdir(&undodir, 'p', 0700)
@@ -520,7 +495,7 @@ function! DisableForLargeFiles() abort
     setl nocursorline
     setl nofoldenable
     setl nohlsearch noignorecase noincsearch
-    setl noswapfile noundofile nobackup nowritebackup
+    setl noswapfile noundofile nowritebackup
 endfunction
 
 augroup LargeFile
@@ -580,5 +555,3 @@ elseif g:env.linux
     nnoremap <silent> <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <silent> <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
-
-set secure                                  " ':autocmd', shell and write commands are not allowed in '.vimrc' and '.exrc' in the current directory and map commands are displayed
