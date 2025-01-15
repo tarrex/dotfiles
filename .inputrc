@@ -1,0 +1,34 @@
+# Tarrex's readline init file.
+
+# Include system-wide inputrc
+$include /etc/inputrc
+
+# Bell
+set bell-style none
+
+# UTF-8 characters support
+# if LC_CTYPE is set, then the following settings are the default
+set input-meta on
+set output-meta on
+set convert-meta off
+
+# Visual enhancements
+set colored-stats on                    # colord by file type, define in LS_COLORS
+set visible-stats on                    # show file type indicators
+set mark-symlinked-directories on       # append '/' to symlinked directories
+
+# Completion behavior
+set completion-ignore-case on           # case-insensitive completion
+set match-hidden-files off              # don't match hidden files unless dot prefix
+set menu-complete-display-prefix on     # show common prefix in menu completion
+set show-all-if-ambiguous on            # show completions immediately if ambiguous
+set skip-completed-text on              # skip over text that matches what would be completed
+
+# Key bindings
+"\e[A": history-search-backward         # up arrow for history backward search
+"\e[B": history-search-forward          # down arrow for history forward search
+Tab: menu-complete                      # tab cycle forward completions
+"\e[Z": menu-complete-backward          # shift-tab cycle backward completions
+
+"\e[A": history-search-backward         # up arrow for history backward search
+"\e[B": history-search-forward          # down arrow for history forward search
