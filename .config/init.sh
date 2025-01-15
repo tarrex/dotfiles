@@ -4,10 +4,10 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# Disable Ctrl+S and Ctrl+Q in terminal
+# Disable software flow control Ctrl+S (freeze) and Ctrl+Q (restore) in terminal
 [[ -x stty ]] && stty -ixon
 
-# XDG directories
+# XDG base directories specification
 # user directories
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE_HOME=$HOME/.cache
@@ -19,188 +19,254 @@ export XDG_DATA_DIRS=/usr/local/share:/usr/share
 export XDG_CONFIG_DIRS=/etc/xdg
 
 # Add /usr/sbin, /usr/local/sbin, ~/.local/bin to PATH
-[[ -d /usr/sbin ]]        && export PATH=/usr/sbin:$PATH
-[[ -d /usr/local/sbin ]]  && export PATH=/usr/local/sbin:$PATH
-[[ -d $HOME/.local/bin ]] && export PATH=$HOME/.local/bin:$PATH
+[[ -d /usr/sbin ]]        && export PATH=$PATH:/usr/sbin
+[[ -d /usr/local/sbin ]]  && export PATH=$PATH:/usr/local/sbin
+[[ -d $HOME/.local/bin ]] && export PATH=$PATH:$HOME/.local/bin
 
 # Dependencies
-type curl >/dev/null && _INSTALLED_CURL=true
-type git  >/dev/null && _INSTALLED_GIT=true
-type tmux >/dev/null && _INSTALLED_TMUX=true
-type fzf  >/dev/null && _INSTALLED_FZF=true
+_check_dependencies() {
+    command -v git  >/dev/null 2>&1 && _INSTALLED_GIT=true
+    command -v tmux >/dev/null 2>&1 && _INSTALLED_TMUX=true
+    command -v fzf  >/dev/null 2>&1 && _INSTALLED_FZF=true
+}
+_check_dependencies
+
+# Option, leave blank if disable
+_ENABLE_Z=true
+_ENABLE_GIT_PROMPT=true
+_ENABLE_STARSHIP=
+_ENABLE_ZINIT=true
+_ENABLE_FZF=true
 
 # ============> Script <============
-# z.sh initialize, comment _Z_CMD if you don't want to use it.
-_Z_CMD=z
-if [[ -n $_Z_CMD ]]; then
-    if [[ ! -f $XDG_DATA_HOME/z/z.sh ]] && [[ $_INSTALLED_CURL ]]; then
-        echo "$XDG_DATA_HOME/z/z.sh doesn't exists."
-        echo "Downloading z.sh from github to $XDG_DATA_HOME/z.sh ..."
-        echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-            $XDG_DATA_HOME/z/z.sh https://raw.githubusercontent.com/rupa/z/master/z.sh`
+# downloader
+_downloader() {
+    local url=$1
+    local dest=$2
+    local filename=$(basename "$dest")
+
+    echo "Downloading $filename to $dest ..."
+    if command -v curl >/dev/null 2>&1; then
+        command curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $dest $url
+    elif command -v wget >/dev/null 2>&1; then
+        mkdir -p "$(dirname "$dest")"
+        command wget --connect-timeout=5 --compression=auto --quiet --show-progress -O $dest $url
+    else
+        echo "Neither curl nor wget is installed" >&2 && return 1
     fi
-    if [[ -f $XDG_DATA_HOME/z/z.sh ]]; then
-        _Z_DATA=$XDG_DATA_HOME/z/zdata
-        [[ -f $_Z_DATA ]] || command touch $_Z_DATA
-        source $XDG_DATA_HOME/z/z.sh
-    fi
-fi
+}
+
+# remove duplicate path
+_deduplicate_path() {
+    [[ -z $PATH ]] && return 0
+    old_PATH=$PATH:; PATH=
+    while [[ -n $old_PATH ]]; do
+        x=${old_PATH%%:*}
+        case $PATH: in
+           *:"$x":*) ;;
+           *) PATH=$PATH:$x;;
+        esac
+        old_PATH=${old_PATH#*:}
+    done
+    PATH=${PATH#:}
+    unset old_PATH x
+}
+
+# z.sh initialize
+_load_z() {
+    _Z_HOME=$XDG_DATA_HOME/z
+    _Z_SCRIPT=$_Z_HOME/z.sh
+    _Z_DATA=$_Z_HOME/zdata
+    _Z_SCRIPT_URL=https://raw.githubusercontent.com/rupa/z/master/z.sh
+
+    [[ -f $_Z_SCRIPT ]] || _downloader $_Z_SCRIPT_URL $_Z_SCRIPT
+    [[ -f $_Z_DATA ]] || command touch $_Z_DATA 2>/dev/null || echo "z.sh: Failed to created $_Z_DATA" >&2
+    [[ -f $_Z_SCRIPT ]] && source $_Z_SCRIPT || echo "z.sh: Failed to source" >&2
+}
+[[ $_ENABLE_Z ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_z
 
 # git-prompt.sh initialize
-if [[ ! -f $XDG_DATA_HOME/git/git-prompt.sh ]] && [[ $_INSTALLED_CURL ]] && [[ $_INSTALLED_GIT ]]; then
-    echo "$XDG_DATA_HOME/git/git-prompt.sh doesn't exiets."
-    echo "Downloading git-prompt.sh from github to $XDG_DATA_HOME/git/git-prompt.sh ..."
-    echo `curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo \
-        $XDG_DATA_HOME/git/git-prompt.sh https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh`
-fi
-[[ -f $XDG_DATA_HOME/git/git-prompt.sh ]] && source $XDG_DATA_HOME/git/git-prompt.sh
-
-# ============> Prompt <============
-# fish like collapse pwd
-_fish_collapsed_pwd() {
-    local pwd="$1"
-    local home="$HOME"
-    local size=${#home}
-    [[ $# == 0 ]] && pwd="$PWD"
-    [[ -z "$pwd" ]] && return
-    if [[ "$pwd" == "/" ]]; then
-        echo "/"
-        return
-    elif [[ "$pwd" == "$home" ]]; then
-        echo "~"
+_load_git_prompt() {
+    if [[ -f /usr/lib/git-core/git-sh-prompt ]]; then
+        source /usr/lib/git-core/git-sh-prompt
         return
     fi
-    [[ "$pwd" == "$home/"* ]] && pwd="~${pwd:$size}"
+    _GIT_SCRIPT=$XDG_DATA_HOME/git/git-prompt.sh
+    _GIT_SCRIPT_URL=https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
+    [[ ! -f $_GIT_SCRIPT ]] && _downloader $_GIT_SCRIPT_URL $_GIT_SCRIPT
+    [[ -f $_GIT_SCRIPT ]] && source $_GIT_SCRIPT || echo "git-prompt.sh: Failed to source" >&2
+}
+[[ $_INSTALLED_GIT ]] && [[ $_ENABLE_GIT_PROMPT ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_git_prompt
+
+# ============> Prompt <============
+# collapse pwd
+_collapsed_pwd() {
+    local pwd=${1:-$PWD}
+    # early return invalid pwd
+    [[ -z "$pwd" || ! -d "$pwd" ]] && return 1
+    # handle special paths
+    case "$pwd" in
+        '/')       printf '/\n' && return ;;
+        "$HOME")   printf '~\n' && return ;;
+        "$HOME/"*) pwd="~${pwd#$HOME}" ;;
+    esac
+
+    # handle special direcotries
+    local prefix="^[._-]"
+    local elements length
     if [[ -n "$BASH_VERSION" ]]; then
         local IFS="/"
-        local elements=($pwd)
-        local length=${#elements[@]}
+        elements=($pwd)
+        length=${#elements[@]}
         for ((i=0;i<length-1;i++)); do
             local elem=${elements[$i]}
-            if [[ ${#elem} -gt 1 ]]; then
-                if [[ ${elem:0:1} == "." || ${elem[1]} == "_" || ${elem[1]} == "-"  ]]; then
-                    elements[$i]=${elem:0:2}
-                else
-                    elements[$i]=${elem:0:1}
-                fi
+            [[ -z ${#elem} ]] && continue
+            if [[ ${elem:0:1} =~ $prefix ]]; then
+                elements[$i]=${elem:0:2}
+            else
+                elements[$i]=${elem:0:1}
+            fi
+        done
+    elif [[ -n "$ZSH_VERSION" ]]; then
+        elements=("${(s:/:)pwd}")
+        length=${#elements}
+        for i in {1..$((length-1))}; do
+            local elem=${elements[$i]}
+            [[ -z ${#elem} ]] && continue
+            if [[ ${elem[1]} =~ $prefix ]]; then
+                elements[$i]=${elem[1,2]}
+            else
+                elements[$i]=${elem[1]}
             fi
         done
     else
-        local elements=("${(s:/:)pwd}")
-        local length=${#elements}
-        for i in {1..$((length-1))}; do
-            local elem=${elements[$i]}
-            if [[ ${#elem} > 1 ]]; then
-                if [[ ${elem[1]} == "." || ${elem[1]} == "_" || ${elem[1]} == "-" ]]; then
-                    elements[$i]=${elem[1,2]}
-                else
-                    elements[$i]=${elem[1]}
-                fi
-            fi
-        done
+        printf '%s\n' "$pwd"
     fi
+
     local IFS="/"
-    echo "${elements[*]}"
+    printf '%s\n' "${elements[*]}"
 }
 
-# return value
+# return value indicator
 _retval() {
-    case $? in
-        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;39mλ" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{39}%Bλ%b%f" && return;;
-        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;160mλ" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{160}%Bλ%b%f" && return;;
+    local _symbol="λ"
+    case $LAST_EXIT_CODE in
+        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;39m${_symbol} \033[0m" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{39}%B${_symbol} %b%f" && return;;
+        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;160m${_symbol} \033[0m" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{160}%B${_symbol} %b%f" && return;;
     esac
 }
 
 # git branch
+GIT_PS1_SHOWDIRTYSTATE=1
+GIT_PS1_SHOWSTASHSTATE=1
+GIT_PS1_SHOWUNTRACKEDFILES=1
+GIT_PS1_DESCRIBE_STYLE="contains"
+GIT_PS1_SHOWUPSTREAM="auto"
 _gitbranch() {
-    [[ $_INSTALLED_GIT ]] && echo $(__git_ps1 '(%s)')
+    [[ $_INSTALLED_GIT && $_ENABLE_GIT_PROMPT ]] && echo $(__git_ps1 '[%s]')
+}
+
+# python virtual environment
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+_venv() {
+    [[ -n $VIRTUAL_ENV ]] && printf '(%s) ' "${VIRTUAL_ENV##*/}"
 }
 
 # prompt setting
 _prompt_setting() {
-    NEWLINE=$'\n'
-    case $UID in
-        0) [[ -n $BASH_VERSION ]] && export PS1='$(_retval) \e[1;38;5;202m\u\e[1;38;5;140m@\h\e[0m: \e[1;38;5;51m$(_fish_collapsed_pwd)\e[38;5;135m$(_gitbranch)\n\e[1;38;5;47m❯\e[0m ' && return
-           [[ -n $ZSH_VERSION ]] && export PROMPT='$(_retval) %F{202}%B%n%f%F{140}@%m%b%f: %F{51}%B$(_fish_collapsed_pwd)%b%f%F{135}$(_gitbranch)%f${NEWLINE}%F{47}%B❯%b%f ' && return;;
-        *) [[ -n $BASH_VERSION ]] && export PS1='$(_retval) \e[1;38;5;140m\u\e[1;38;5;140m@\h\e[0m: \e[1;38;5;51m$(_fish_collapsed_pwd)\e[38;5;135m$(_gitbranch)\n\e[1;38;5;47m❯\e[0m ' && return
-           [[ -n $ZSH_VERSION ]] && export PROMPT='$(_retval) %F{140}%B%n%f%F{140}@%m%b%f: %F{51}%B$(_fish_collapsed_pwd)%b%f%F{135}$(_gitbranch)%f${NEWLINE}%F{47}%B❯%b%f ' && return;;
-    esac
+    local newline=$'\n'
+    local prompt_end='❯'
+    if [[ -n $BASH_VERSION ]]; then
+        local user_color="\[\033[1;38;5;140m\]"
+        local dir_color="\[\033[1;38;5;51m\]"
+        local branch_color="\[\033[38;5;166m\]"
+        local prompt_color="\[\033[1;38;5;47m\]"
+        local venv_color="\[\033[1;38;5;152m\]"
+        local reset_color="\[\033[0m\]"
+        [[ $UID -eq 0 ]] && user_color="\[\033[1;38;5;202m\]"
+        PROMPT_COMMAND='LAST_EXIT_CODE=$?'
+        PS1="\$(_retval)"
+        PS1+="${venv_color}\$(_venv)${reset_color}"
+        PS1+="${user_color}\u@\h${reset_color}: "
+        PS1+="${dir_color}\$(_collapsed_pwd) ${branch_color}\$(_gitbranch)${reset_color}"
+        PS1+="${newline}"
+        PS1+="${prompt_color}${prompt_end}${reset_color} "
+    elif [[ -n $ZSH_VERSION ]]; then
+        local user_color="%F{140}"
+        local dir_color="%F{51}"
+        local branch_color="%F{166}"
+        local prompt_color="%F{47}"
+        local venv_color="%F{152}"
+        local reset_color="%f"
+        [[ $UID -eq 0 ]] && user_color="%F{202}"
+        precmd() {
+            LAST_EXIT_CODE=$?
+        }
+        export PROMPT="\$(_retval)"
+        PROMPT+="${venv_color}\$(_venv)${reset_color}"
+        PROMPT+="${user_color}%B%n@%m%b${reset_color}: "
+        PROMPT+="${dir_color}%B\$(_collapsed_pwd)%b${reset_color} ${branch_color}\$(_gitbranch)${reset_color}"
+        PROMPT+="${newline}"
+        PROMPT+="${prompt_color}%B${prompt_end}%b${reset_color} "
+    fi
 }
 _prompt_setting
 
 # starship
 _prompt_starship() {
-    type starship >/dev/null || return
+    command -v starship >/dev/null 2>&1 || return
     export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
+    export STARSHIP_CACHE="$XDG_CACHE_HOME"/starship
     [[ -n $BASH_VERSION ]] && eval "$(starship init bash)" && return
     [[ -n $ZSH_VERSION ]] && eval "$(starship init zsh)" && return
 }
-# _prompt_starship
-
+[[ $_ENABLE_STARSHIP ]] && _prompt_starship
 
 # ============> Shell <============
-# BASH
+# bash config
 if [[ -n $BASH_VERSION ]]; then
     # -----> Option
-    # if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
-    #     shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
-    #     shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
-    # fi
-    # shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
-    # shopt -s histappend     # Append to the history file, don't overwrite it
-    # shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
-    # shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing  buffer for further modification.
-
-    # -----> Key binding
-    # set -o emacs            # Use emacs key bindings in bash
-    set -o vi               # Use vim key bindings in bash
-    # bind -m vi-command 'Control-l: clear-screen'
-    # bind -m vi-insert  'Control-l: clear-screen'
-
-    # bind '"\eh":  "\C-b"'
-    # bind '"\el":  "\C-f"'
-    # bind '"\ej":  "\C-n"'
-    # bind '"\ek":  "\C-p"'
-    # bind '"\eH":  "\eb"'
-    # bind '"\eL":  "\ef"'
-    # bind '"\eJ":  "\C-a"'
-    # bind '"\eK":  "\C-e"'
-    # bind '"\e;":  "ll\n"'
-    # bind '"\e[A": history-search-backward'
-    # bind '"\e[B": history-search-forward'
+    # use `shopt`` to check current options
+    # use `shopt -p` to check the special option
+    if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
+        shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
+        shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
+    fi
+    shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
+    shopt -s dotglob        # Includes filenames beginning with a '.' in the results of pathname expansion.
+    shopt -s histappend     # Append to the history file, don't overwrite it
+    shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
+    shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing buffer for further modification.
+    shopt -s no_empty_cmd_completion
 
     # -----> Completion
     [[ -f /etc/bash_completion ]] && source /etc/bash_completion
 fi
 
-# ZSH
+# zsh config
 if [[ -n $ZSH_VERSION ]]; then
     # -----> Option
     # Changing Directories
     setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
     setopt CDABLE_VARS              # Change directory to a path stored in a variable.
     setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
-    setopt PUSHD_MINUS              # Exchanges the meanings of ‘+’ and ‘-’ when used with a number to specify a directory in the stack.
     setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
     setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
     # Completion
     setopt ALWAYS_TO_END            # Move cursor to the end of a completed word.
     setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
     setopt LIST_PACKED              # Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
-    setopt MENU_COMPLETE            # Autoselect the first completion entry.
+    unsetopt MENU_COMPLETE          # Do not autoselect the first completion entry.
     unsetopt LIST_BEEP              # Do not beep on an ambiguous completion.
     # Expansion and Globbing
-    setopt BRACE_CCL                # Expand expressions in braces which would not otherwise undergo brace expansion to a lexically ordered list of all the characters.
     setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
-    setopt MAGIC_EQUAL_SUBST        # Make zsh perform filename expansion on the command arguments of the form `var=val`.
-    unsetopt CASE_GLOB              # Make globbing (filename generation) sensitive to case.
     # History
     setopt EXTENDED_HISTORY         # Write the history file in the ':start:elapsed;command' format.
     setopt HIST_EXPIRE_DUPS_FIRST   # Expire a duplicate event first when trimming history.
     setopt HIST_FIND_NO_DUPS        # Do not display a previously found event.
-    setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
+    # setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
     setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
     setopt HIST_IGNORE_SPACE        # Do not record an event starting with a space.
     setopt HIST_REDUCE_BLANKS       # Remove superfluous blanks from each command line being added to the history list.
@@ -209,21 +275,21 @@ if [[ -n $ZSH_VERSION ]]; then
     setopt INC_APPEND_HISTORY       # Write to the history file immediately, not when the shell exits.
     setopt SHARE_HISTORY            # Share history between all sessions.
     unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
+    setopt HIST_FCNTL_LOCK
     # Input/Output
     setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
     setopt PATH_DIRS                # Perform path search even on command names with slashes.
     setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
-    setopt RM_STAR_SILENT           # Do not query the user before executing `rm *` or `rm path/*`.
-    unsetopt CORRECT                # Do not try to correct the spelling of commands.
     unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
     # Job Control
     setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
     setopt LONG_LIST_JOBS           # List jobs in the long format by default.
+    setopt NOTIFY                   # Report status of background jobs immediately.
     unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
     unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
     unsetopt HUP                    # Don't kill jobs on shell exit.
     # Prompting
-    setopt PROMPT_SUBST             # If set, parameter expansion, command substitution and arithmetic expansion are performed in prompts.
+    setopt PROMPT_SUBST             # Parameter expansion, command substitution and arithmetic expansion are performed in prompts.
     setopt TRANSIENT_RPROMPT        # Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
     # Zle
     setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
@@ -231,14 +297,11 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # -----> Environments
     PROMPT_EOL_MARK=''
-
-    # -----> Key binding
-    bindkey -e                      # Use emacs key bindings in zsh
-    # bindkey -v                      # Use vim key bindings in zsh
+    WORDCHARS='*?_-[]~=&;!#$%^(){}'
 
     # create a zkbd compatible hash;
     # to add other keys to this hash, see: man 5 terminfo
-    typeset -g -A key=(
+    typeset -gA key=(
         Home        ${terminfo[khome]}
         End         ${terminfo[kend]}
         Insert      ${terminfo[kich1]}
@@ -289,59 +352,68 @@ if [[ -n $ZSH_VERSION ]]; then
     [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
     [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
 
-    # Shift, Alt, Ctrl and Meta modifiers
-    key[Control-Left]="${terminfo[kLFT5]}"
-    key[Control-Right]="${terminfo[kRIT5]}"
-
-    [[ -n "${key[Control-Left]}"  ]] && bindkey -- "${key[Control-Left]}"  backward-word
-    [[ -n "${key[Control-Right]}" ]] && bindkey -- "${key[Control-Right]}" forward-word
-
-    bindkey '\ew' kill-region                             # [Esc-w] - Kill from the cursor to the mark
-    bindkey -s '\el' 'ls\n'                               # [Esc-l] - run command: ls
-    bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
-    bindkey ' ' magic-space                               # [Space] - do history expansion
-
     # Edit the current command line in $EDITOR
     autoload -Uz edit-command-line
     zle -N edit-command-line
     bindkey '\C-x\C-e' edit-command-line
 
-    # Quote URLs automatically as you type
-    autoload -Uz url-quote-magic
-    zle -N self-insert url-quote-magic
+    # Smart URLs
+    # This logic comes from an old version of zim. Essentially, bracketed-paste was
+    # added as a requirement of url-quote-magic in 5.1, but in 5.1.1 bracketed
+    # paste had a regression. Additionally, 5.2 added bracketed-paste-url-magic
+    # which is generally better than url-quote-magic so we load that when possible.
+    autoload -Uz is-at-least
+    if [[ ${ZSH_VERSION} != 5.1.1 && ${TERM} != "dumb" ]]; then
+        if is-at-least 5.2; then
+            autoload -Uz bracketed-paste-url-magic
+            zle -N bracketed-paste bracketed-paste-url-magic
+        elif is-at-least 5.1; then
+            autoload -Uz bracketed-paste-magic
+            zle -N bracketed-paste bracketed-paste-magic
+        fi
+        autoload -Uz url-quote-magic
+        zle -N self-insert url-quote-magic
+    fi
 
     # -----> Completion
     # Load and initialize the zsh completion system.
     # If use zinit, don't load compinit to avoid compinit duplicate initialization.
+    [[ -d $XDG_CACHE_HOME/zsh ]] || command mkdir -p $XDG_CACHE_HOME/zsh
     if [[ ! -f $XDG_DATA_HOME/zinit/bin/zinit.zsh ]]; then
         autoload -Uz compinit
+        _comp_path=$XDG_CACHE_HOME/zsh/zcompdump
         if [[ -f $_comp_path ]]; then
-            compinit -C -d "$XDG_CACHE_HOME/zsh/zcompdump" # -C: skip function check
+            compinit -C -d "$_comp_path" # -C: skip function check
         else
-            compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump" # -i: skip security check
+            compinit -i -d "$_comp_path" # -i: skip security check
+            # keep $_comp_path younger than cache time even if it isn't regenerated.
+            touch "$_comp_path"
         fi
+        unset _comp_path
     fi
 
-    [[ -d $XDG_CACHE_HOME/zsh ]] || command mkdir -p $XDG_CACHE_HOME/zsh
+    # Defaults
+    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+    zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 
-    # use a cache in order to make completion for commands such as dpkg and apt usable.
+    # Use a cache in order to make completion for commands such as dpkg and apt usable.
     zstyle ':completion::complete:*' use-cache on
-    zstyle ':completion::complete:*' cache-path $XDG_CACHE_HOME/zsh
+    zstyle ':completion::complete:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
 
-    # case-insensitive (all), partial-word, and then substring completion.
-    zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+    # Case-insensitive (all), partial-word, and then substring completion.
+    # zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+    zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}' 'm:{[:upper:]}={[:lower:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-    # group matches and describe.
+    # Group matches and describe.
     zstyle ':completion:*:*:*:*:*' menu select
     zstyle ':completion:*:matches' group 'yes'
     zstyle ':completion:*:options' description 'yes'
     zstyle ':completion:*:options' auto-description '%d'
-    zstyle ':completion:*:corrections' format ' %F{93}-- %d (errors: %e) --%f'
-    zstyle ':completion:*:descriptions' format ' %F{2}-- %d --%f'
-    zstyle ':completion:*:messages' format ' %F{8} -- %d --%f'
-    zstyle ':completion:*:warnings' format ' %F{9}-- no matches found --%f'
-    zstyle ':completion:*:default' list-prompt '%S%M matches%s'
-    zstyle ':completion:*' format ' %F{8}-- %d --%f'
+    zstyle ':completion:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
+    zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
+    zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
+    zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+    zstyle ':completion:*' format ' %F{yellow}-- %d --%f'
     zstyle ':completion:*' group-name ''
     zstyle ':completion:*' verbose yes
     zstyle ':completion:*' list-separator '  #'
@@ -351,68 +423,67 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle ':completion:*:match:*' original only
     zstyle ':completion:*:approximate:*' max-errors 1 numeric
 
-    # increase the number of errors based on the length of the typed word. But make
+    # Increase the number of errors based on the length of the typed word. But make
     # sure to cap (at 7) the max-errors to avoid hanging.
     zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
 
-    # don't complete unavailable commands.
+    # Don't complete unavailable commands.
     zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
 
-    # array completion element sorting.
+    # Array completion element sorting.
     zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
 
-    # directories
-    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+    # Directories
     zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
     zstyle ':completion:*:*:cd:*:directory-stack' menu yes select
     zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
     zstyle ':completion:*' squeeze-slashes true
 
-    # history
+    # History
     zstyle ':completion:*:history-words' stop yes
     zstyle ':completion:*:history-words' remove-all-dups yes
     zstyle ':completion:*:history-words' list false
     zstyle ':completion:*:history-words' menu yes
 
-    # environment variables
+    # Environment variables
     zstyle ':completion::*:(-command-|export):*' fake-parameters ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-}
 
-    # hostname
+    # Hostname
     zstyle -e ':completion:*:hosts' hosts 'reply=(
         ${=${=${=${${(f)"$(cat {/etc/ssh/ssh_,~/.ssh/}known_hosts(|2)(N) 2> /dev/null)"}%%[#| ]*}//\]:[0-9]*/ }//,/ }//\[/ }
         ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2> /dev/null))"}%%(\#${_etc_host_ignores:+|${(j:|:)~_etc_host_ignores}})*}
         ${=${${${${(@M)${(f)"$(cat ~/.ssh/config ~/.ssh/config.d/* 2> /dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
     )'
 
-    # don't complete uninteresting users...
+    # Don't complete uninteresting users...
     zstyle ':completion:*:*:*:users' ignored-patterns \
-        adm amanda apache at avahi avahi-autoipd beaglidx bin cacti canna \
-        clamav daemon dbus distcache dnsmasq dovecot fax ftp games gdm \
-        gkrellmd gopher hacluster haldaemon halt hsqldb ident junkbust kdm \
-        ldap lp mail mailman mailnull man messagebus  mldonkey mysql nagios \
-        named netdump news nfsnobody nobody nscd ntp nut nx obsrun openvpn \
-        operator pcap polkitd postfix postgres privoxy pulse pvm quagga radvd \
-        rpc rpcuser rpm rtkit scard shutdown squid sshd statd svn sync tftp \
-        usbmux uucp vcsa wwwrun xfs '_*'
+        adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
+        dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
+        hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
+        mailman mailnull mldonkey mysql nagios \
+        named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
+        operator pcap postfix postgres privoxy pulse pvm quagga radvd \
+        rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*'
+
     # ... unless we really want to.
     zstyle '*' single-ignored show
 
-    # ignore multiple entries.
+    # Ignore multiple entries.
     zstyle ':completion:*:(rm|kill|diff):*' ignore-line other
     zstyle ':completion:*:rm:*' file-patterns '*:all-files'
 
-    # kill
+    # Kill
     zstyle ':completion:*:*:*:*:processes' command 'ps -u $LOGNAME -o pid,user,command -w'
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
     zstyle ':completion:*:*:kill:*' menu yes select
     zstyle ':completion:*:*:kill:*' force-list always
     zstyle ':completion:*:*:kill:*' insert-ids single
 
-    # man
+    # Man
     zstyle ':completion:*:manuals' separate-sections true
     zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-    # ssh/scp/rsync
+    # SSH/SCP/RSYNC
     zstyle ':completion:*:(ssh|scp|rsync):*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
     zstyle ':completion:*:(scp|rsync):*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
     zstyle ':completion:*:ssh:*' group-order users hosts-domain hosts-host users hosts-ipaddr
@@ -427,15 +498,6 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle ':completion:*:correct:*' insert-unambiguous true
     zstyle ':completion:*:correct:*' original true
 
-    # disable named-directories autocompletion
-    zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
-
-    # don't complete backup files as executables
-    zstyle ':completion:*:complete:-command-::commands' ignored-patterns '(aptitude-*|*\~)'
-
-    # ignore completion functions for commands you don't have:
-    zstyle ':completion::(^approximate*):*:functions' ignored-patterns '_*'
-
     # search path for sudo completion
     zstyle ':completion:*:sudo:*' command-path /usr/local/sbin \
                                                /usr/local/bin  \
@@ -444,9 +506,12 @@ if [[ -n $ZSH_VERSION ]]; then
                                                /sbin           \
                                                /bin
 
+    # special
+    zstyle ':completion:*:(nano|vim|nvim):*' ignored-patterns '*.(wav|mp3|flv|mov|avi|wmv|pdf|doc?|xlsx)'
+
     # -----> Plugin
     # zinit
-    if [[ $_INSTALLED_GIT ]]; then
+    if [[ $_INSTALLED_GIT && $_ENABLE_ZINIT ]]; then
         typeset -A ZINIT=(
             HOME_DIR        $XDG_DATA_HOME/zinit
             ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
@@ -459,7 +524,7 @@ if [[ -n $ZSH_VERSION ]]; then
             command git clone --depth 1 https://github.com/zdharma-continuum/zinit.git $ZINIT[HOME_DIR]/bin
         fi
 
-        # zinit initial
+        # initial
         if [[ -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
             source $ZINIT[HOME_DIR]/bin/zinit.zsh
 
@@ -469,16 +534,16 @@ if [[ -n $ZSH_VERSION ]]; then
 
             # zinit plugin
             zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
-            zinit light zdharma-continuum/fast-syntax-highlighting
-
-            zinit ice lucid depth'1'
-            zinit light zdharma-continuum/history-search-multi-word
+            zinit light zsh-users/zsh-syntax-highlighting
 
             zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
             zinit light zsh-users/zsh-autosuggestions
 
             zinit ice wait lucid blockf depth'1'
             zinit light zsh-users/zsh-completions
+
+            zinit ice lucid depth'1'
+            zinit light zdharma-continuum/history-search-multi-word
 
             zinit ice as'program' wait lucid depth'1' \
                 pick'$ZPFX/bin/git-*' \
@@ -489,8 +554,11 @@ if [[ -n $ZSH_VERSION ]]; then
             zinit ice wait lucid depth'1'
             zinit light wfxr/forgit
 
-            zinit ice lucid has'docker' as'completion'
-            zinit snippet 'https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker'
+            zinit ice has'docker' id-as'docker' as'null' wait silent nocompile \
+                atclone'docker completion zsh >! _docker' \
+                atpull'%atclone' src"_docker" run-atpull \
+                atload'zicdreplay'
+                zinit light zdharma-continuum/null
 
             zinit ice has'kubectl' id-as'kubectl' as'null' wait silent nocompile \
                 atclone'kubectl completion zsh >! _kubectl' \
@@ -505,153 +573,121 @@ if [[ -n $ZSH_VERSION ]]; then
 fi
 
 # ============> Custom <============
-# ls colors highlight
-if [[ $OSTYPE == linux* ]]; then
-    export LS_COLORS='bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'
-else
-    export LSCOLORS="Gxfxcxdxbxegedabagacad"
-fi
-
-# History
+# history
 if [[ -n $BASH_VERSION ]]; then
-    export HISTCONTROL=ignoreboth
+    export HISTSIZE=10000000
+    export HISTFILESIZE=10000001
+    # export HISTCONTROL=ignoreboth
     export HISTIGNORE='ls:ll:la:ls -a:ls -l:ls -al:ls -alh:pwd:clear:cd:cd ..:history'
     export HISTFILE=$HOME/.bash_history
 elif [[ -n $ZSH_VERSION ]]; then
+    export HISTSIZE=10000000
+    export SAVEHIST=10000001
     export HISTORY_IGNORE='(ls|ll|la|ls -a|ls -l|ls -al|ls -alh|pwd|clear|cd|cd ..|history)'
     export HISTFILE=$HOME/.zsh_history
 fi
-export HISTSIZE=10000000
-export SAVEHIST=$HISTSIZE
 
-# Editor
+# preferred application
+export PAGER='less'
 export EDITOR='vim'
 export VISUAL='vim'
+[[ $OSTYPE == darwin* ]] && export BROWSER='open'
 
-# Less
-export PAGER='less -FRXM'
-export LESSCHARSET=utf-8
-export LESSHISTFILE=-
-export LESS_TERMCAP_mb=$'\e[1;31m'
-export LESS_TERMCAP_md=$'\e[1;31m'
-export LESS_TERMCAP_me=$'\e[0m'
-export LESS_TERMCAP_us=$'\e[1;32m'
-export LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[1;44;33m'
-export LESS_TERMCAP_se=$'\e[0m'
-
-# command -v vim >/dev/null && export MANPAGER="vim -M +MANPAGER --not-a-term -"
-
-# Disable bash/zsh sessions on macOS
-[[ $OSTYPE == darwin* ]] && export SHELL_SESSION_DID_INIT=1
-
-# Nvim
-[[ -d $HOME/.local/nvim ]] && export PATH=$HOME/.local/nvim/bin:$PATH
-
-# Language
+# language
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-# Homebrew
+# timezone
+export TZ='Asia/Shanghai'
+
+# less
+export LESS='-g -i -M -R -S -w -z-4'
+export LESSCHARSET=utf-8
+export LESSHISTFILE=-
+export LESS_TERMCAP_mb=$'\E[01;31m'      # begins blinking.
+export LESS_TERMCAP_md=$'\E[01;31m'      # begins bold.
+export LESS_TERMCAP_me=$'\E[0m'          # ends mode.
+export LESS_TERMCAP_se=$'\E[0m'          # ends standout-mode.
+export LESS_TERMCAP_so=$'\E[00;47;30m'   # begins standout-mode.
+export LESS_TERMCAP_ue=$'\E[0m'          # ends underline.
+export LESS_TERMCAP_us=$'\E[01;32m'      # begins underline.
+# lesspipe
+[[ -x /usr/bin/lesspipe ]] && eval "$(lesspipe)"
+
+# man
+# limit man display width
+# export MANWIDTH=90
+# use vim for man pager
+# command -v vim >/dev/null 2>&1 && export MANPAGER="vim -M +MANPAGER --not-a-term -"
+
+# ls colors highlight
+if [[ $OSTYPE == darwin* || $OSTYPE == *bsd* ]]; then
+    # export LSCOLORS=${LSCOLORS:-'exfxcxdxbxGxDxabagacad'}
+    export LSCOLORS=${LSCOLORS:-'Gxfxcxdxbxegedabagacad'}
+else
+    # export LS_COLORS=${LS_COLORS:-'di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg=36;40;07:tw=32;40;07:ow=33;40;07:'}
+    export LS_COLORS=${LS_COLORS:-'bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'}
+fi
+
+# nvim
+[[ -d $HOME/.local/nvim ]] && export PATH=$PATH:$HOME/.local/nvim/bin
+
+# homebrew
 if [[ $OSTYPE == darwin* ]]; then
-    # export HOMEBREW_NO_EMOJI=1
     export HOMEBREW_INSTALL_BADGE="☕️"
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
 fi
 
-# Golang
+# golang
+export GOBASEPATH=$HOME/projects/go
 case $OSTYPE in
-    darwin*) export \
-        GOROOT=/usr/local/opt/go/libexec \
-        GOBASEPATH=$HOME/Projects/Go;;
-     linux*) export \
-        GOROOT=/usr/local/go \
-        GOBASEPATH=$HOME/projects/go;;
+    darwin*) export GOROOT=/usr/local/opt/go/libexec;;
+     linux*) export GOROOT=/usr/local/go;;
 esac
 export GO111MODULE=on
-# export GOPROXY=https://goproxy.cn,direct
 export GOPATH=$GOBASEPATH
-export GOENV=$XDG_CONFIG_HOME/go/env
-export GOCACHE=$XDG_CACHE_HOME/go-build
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export GOMODCACHE=$GOPATH/pkg/mod           # default, go clean -modcache
+export GOCACHE=$XDG_CACHE_HOME/go-build     # go clean -cache
 export GOLANGCI_LINT_CACHE=$XDG_CACHE_HOME/golangci-lint
-export PATH=$GOROOT/bin:$GOPATH/bin:$PATH
+# export GOPROXY=https://goproxy.cn,direct
+# export GOSUMDB=sum.golang.google.cn
 
 alias gohere='export GOPATH=`pwd`'
 alias gobase='export GOPATH=$GOBASEPATH'
 
-# Rust
+# rust
+export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 case $OSTYPE in
     darwin*) export RUST_TOOLCHAIN=stable-x86_64-apple-darwin;;
      linux*) export RUST_TOOLCHAIN=stable-x86_64-unknown-linux-gnu;;
 esac
-# export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
-# export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
 export RUSTUP_DIST_SERVER=https://static.rust-lang.org
 export RUSTUP_UPDATE_ROOT=https://static.rust-lang.org/rustup
-export RUSTUP_HOME=$XDG_DATA_HOME/rustup
 export CARGO_HOME=$XDG_DATA_HOME/cargo
-export PATH=$CARGO_HOME/bin:$PATH
+export PATH=$PATH:$CARGO_HOME/bin
 
-# Python
+# python
 export PYTHONSTARTUP=$XDG_CONFIG_HOME/python/startup.py
-export IPYTHONDIR=$XDG_CONFIG_HOME/jupyter
-export JUPYTER_CONFIG_DIR=$XDG_CONFIG_HOME/jupyter
-export PYLINTHOME=$XDG_CACHE_HOME/pylint
+alias pyhere='export PYTHONPATH=`pwd`'
 
-# Ruby / gems / bundler
-export GEM_HOME=$XDG_DATA_HOME/gem
-export GEM_SPEC_CACHE=$XDG_CACHE_HOME/gem
-
-export BUNDLE_USER_CONFIG=$XDG_CONFIG_HOME/bundle
-export BUNDLE_USER_CACHE=$XDG_CACHE_HOME/bundle
-export BUNDLE_USER_PLUGIN=$XDG_DATA_HOME/bundle
-
-# Java
-if [[ $OSTYPE == darwin* ]]; then
-    export JAVA_HOME=$(/usr/libexec/java_home)
-    export CLASSPATH=$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar
-    export PATH=$JAVA_HOME/bin:$PATH
-fi
-
-# LLVM
-if [[ $OSTYPE == darwin* ]]; then
-    if [[ -d /usr/local/opt/llvm ]]; then
-        export LDFLAGS="-L/usr/local/opt/llvm/lib"
-        export CPPFLAGS="-I/usr/local/opt/llvm/include"
-        export PATH=/usr/local/opt/llvm/bin:$PATH
-    fi
-fi
-
-# Node / npm
-if [[ -d $HOME/.local/node ]]; then
-    export PATH=$HOME/.local/node/bin:$PATH
-elif [[ -d /usr/local/node ]]; then
-    export PATH=/usr/local/node/bin:$PATH
-fi
+# node / npm
 export NODE_REPL_HISTORY=-
-
-# export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
-# export NPM_CONFIG_CACHE=$XDG_CACHE_HOME/npm
-# export NPM_CONFIG_TMP=$XDG_RUNTIME_DIR/npm
-
-# Docker
-# export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
-
-# OrbStack
-export PATH=$HOME/.orbstack/bin:$PATH
-
-# GnuPG
-export GNUPGHOME=$XDG_DATA_HOME/gnupg
-if [[ ! -d $GNUPGHOME ]] && type gpg >/dev/null; then
-    command mkdir -m700 -p $GNUPGHOME
+if [[ -d $HOME/.local/node ]]; then
+    export PATH=$PATH:$HOME/.local/node/bin
+elif [[ -d /usr/local/node ]]; then
+    export PATH=$PATH:/usr/local/node/bin
 fi
 
-# Wakatime
+# orbstack
+export PATH=$PATH:$HOME/.orbstack/bin
+
+# wakatime
 export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
 
-# FZF
-if [[ $_INSTALLED_FZF ]]; then
+# fzf
+if [[ $_ENABLE_FZF && $_INSTALLED_FZF ]]; then
     export FZF_COMPLETION_TRIGGER='~~'
     export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
     --height 40%
@@ -671,10 +707,6 @@ if [[ $_INSTALLED_FZF ]]; then
             if [[ -n $1 ]]; then
                 tmux $cmd -t $1 2>/dev/null || (tmux new -d -s $1 && tmux $cmd -t $1); return
             fi
-
-            # session=$(tmux ls -F '#S' 2>/dev/null | fzf --exit-0) &&
-            #     tmux $cmd -t $session ||
-            #     echo 'No sessions found.'
 
             tmux ls -F '#S' 2>/dev/null | fzf --bind=enter:replace-query+print-query |
                 read session &&
@@ -749,16 +781,17 @@ if [[ $_INSTALLED_FZF ]]; then
             | xargs $open
     }
 
-
     if [[ $_INSTALLED_GIT ]]; then
         # gdiff - broser git diff files
         gdiff() {
+            ! command git rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo "Not a git repository" && return
             preview="git diff $@ --color=always -- {-1}" #TODO: fix not root file preview
             git diff $@ --name-only | fzf -m --ansi --preview $preview
         }
 
         # gcommit - broser git commit history
         gcommit() {
+            ! command git rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo "Not a git repository" && return
             git log --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"  | \
              fzf --ansi --no-sort --reverse --tiebreak=index --preview \
              'f() { set -- $(echo -- "$@" | grep -o "[a-f0-9]\{7\}"); [ $# -eq 0 ] || git show --color=always $1 ; }; f {}' \
@@ -769,15 +802,38 @@ if [[ $_INSTALLED_FZF ]]; then
             FZF-EOF" --preview-window=right:60%
         }
     fi
+
+    if command -v gh >/dev/null 2>&1; then
+        ghpr() {
+            GH_FORCE_TTY=100% gh pr list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr view {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh pr checkout
+        }
+
+        ghdiff() {
+            GH_FORCE_TTY=100% gh pr list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr diff --color=always {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh pr checkout
+        }
+
+        ghissue() {
+            GH_FORCE_TTY=100% gh issue list \
+            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh issue view {+1}' --preview-window right --header-lines 3 \
+            | awk '{print $1}' \
+            | xargs gh issue view
+        }
+    fi
 fi
 
-# Common alias
+# common alias
 case $OSTYPE in
      linux*|cygwin*|msys*) alias ls='ls --color -h';;
     darwin*|*bsd*|FreeBSD) alias ls='ls -Gh';;
 esac
 
-if type eza >/dev/null; then
+if command -v eza >/dev/null 2>&1; then
     alias ll='eza -lF --icons --time-style=long-iso'
     alias la='eza -alF --icons --time-style=long-iso'
 else
@@ -786,15 +842,15 @@ else
 fi
 
 alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+alias fgrep='grep -F --color=auto'
+alias egrep='grep -E --color=auto'
 
 alias ..='cd ..'
 alias ...='cd ../..'
 
-alias cp='cp -v'
-alias mv='mv -v'
-alias rm='rm -v'
+alias cp='cp -iv'
+alias mv='mv -iv'
+alias rm='rm -iv'
 alias mkdir='mkdir -v'
 alias ln='ln -v'
 
@@ -803,139 +859,71 @@ alias duf='du -sh *'
 alias job='jobs -l'
 
 alias vi='vim -N -u NONE -i NONE'
-alias tmux='tmux -2'
 
-# Proxy
-proxy_addr="127.0.0.1:7890"
-no_proxy_addr="localhost,127.0.0.0/8,*.local"
-
-alias httpproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
-alias socks5proxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
-alias fly="env http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr"
-
-fuckgfw() {
-    echo "Proxy Address: $proxy_addr"
-    export no_proxy=$no_proxy_addr
-    export all_proxy=http://$proxy_addr
-    echo "You are fucking the GFW!"
-}
-
-okgfw() {
-    unset all_proxy ALL_PROXY
-    echo "Remember fuck the GFW forever!"
-}
-
-# Typora
-if [[ $OSTYPE == darwin* ]]; then
-    alias typora='open -a typora'
-fi
-
-# Frequently
 alias vimrc='vim ~/.vimrc'
 alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
 alias cdr='cd $(git rev-parse --show-toplevel)'
-
-# Tools
-alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
-alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
-alias dict='_dict(){curl dict://dict.org/d:$1:gcide};_dict'
-alias ipinfo='curl wtfismyip.com/json'
-alias randname='curl pseudorandom.name'
 alias serve='python3 -m http.server 8000'
 alias venv='python3 -m venv'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 alias certexp='_certexp(){openssl s_client -connect $1:443 -servername $1 2> /dev/null | openssl x509 -noout -dates};_certexp'
 
-# Display shell startup time
+alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
+alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
+alias dict='_dict(){local word="$1"; local dict="${2:-gcide}"; curl -s "dict://dict.org/d:$word:$dict";};_dict'
+alias ipinfo='curl -L wtfismyip.com/yaml'
+alias randname='curl -L pseudorandom.name'
+
+# proxy
+proxy_addr="127.0.0.1:7890"
+no_proxy_addr="localhost,127.0.0.1,127.0.0.0/8,::1,*.local,.local"
+
+alias hproxy="{http,https,all}_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
+alias sproxy="{http,https,all}_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
+alias fly="env {http,https,all}_proxy=http://$proxy_addr"
+
+fgfw() {
+    echo "Proxy Address: $proxy_addr"
+    export {http,https,ftp,rsync,all}_proxy="http://${proxy_addr}"
+    export {HTTP,HTTPS,FTP,RSYNC,ALL}_PROXY="http://${proxy_addr}"
+    export no_proxy="$no_proxy_addr" NO_PROXY="$no_proxy_addr"
+    echo "You are fucking the GFW!"
+}
+
+ogfw() {
+    unset {http,https,ftp,rsync,all,no}_proxy
+    unset {HTTP,HTTPS,FTP,RSYNC,ALL,NO}_PROXY
+    echo "Remember fuck the GFW forever!"
+}
+
+pstatus() {
+    echo "------ Proxy Status ------"
+    echo " HTTP Proxy: ${http_proxy:-Not set}"
+    echo "HTTPS Proxy: ${https_proxy:-Not set}"
+    echo "  FTP Proxy: ${ftp_proxy:-Not set}"
+    echo "RSYNC Proxy: ${rsync_proxy:-Not set}"
+    echo "  All Proxy: ${all_proxy:-Not set}"
+    echo "   No Proxy: ${no_proxy:-Not set}"
+    if command -v curl >/dev/null 2>&1; then
+        echo -n "External IP: "
+        curl -sS --max-time 5 https://wtfismyip.com/text || echo "Failed to get IP"
+    fi
+    echo "--------------------------"
+}
+
+# shell startup time
 timeshell() {
     local shell=${1-$SHELL}
     echo "Timing $shell:"
     for i in $(seq 1 5); do time $shell -i -c exit; done
 }
 
-# Display cmd statistics
+# cmd statistics
 cmdrank() {
     fc -l 1 \
         | awk '{ CMD[$2]++; count++; } END { for (a in CMD) print CMD[a] " " CMD[a]*100/count "% " a }' \
         | grep -v "./" | sort -nr | head -n20 | column -c3 -s " " -t | nl
 }
 
-# Web search
-websearch() {
-    typeset -A urls
-    local urls=(
-        google          "https://www.google.com/search?q="
-        bing            "https://www.bing.com/search?q="
-        github          "https://github.com/search?q="
-        stackoverflow   "https://stackoverflow.com/search?q="
-        goodreads       "https://www.goodreads.com/search?q="
-        doubanbook      "https://search.douban.com/book/subject_search?search_text="
-    )
-
-    if [[ -z $urls[$1] ]]; then
-        echo "Search engine '$1' not supported."
-        return 1
-    fi
-
-    if [[ $# -gt 1 ]]; then
-        local escape_str=`echo -n "${@:2}" | sed 's/ /+/g' | xxd -ps | tr -d '\n' | sed -r 's/(..)/%\1/g'`
-        local url="${urls[$1]}${escape_str}"
-
-        case $OSTYPE in
-             linux*) xdg-open $url;;
-            darwin*) open $url;;
-        esac
-    fi
-}
-
-# xbin - https://xbin.io
-function xbin() {
-    command="$1"
-    args="${*:2}"
-    if [ -t 0 ]; then
-        curl -sS -X POST "https://xbin.io/${command}" -H "X-Args: ${args}"
-    else
-        curl -sS --data-binary @- "https://xbin.io/${command}" -H "X-Args: ${args}"
-    fi
-}
-
-# gh
-if [[ _INSTALLED_FZF ]] && type gh >/dev/null; then
-    function ghpr() {
-        GH_FORCE_TTY=100% gh pr list \
-            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr view {+1}' --preview-window right --header-lines 3 \
-            | awk '{print $1}' \
-            | xargs gh pr checkout
-    }
-
-    function ghdiff() {
-        GH_FORCE_TTY=100% gh pr list \
-            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh pr diff --color=always {+1}' --preview-window right --header-lines 3 \
-            | awk '{print $1}' \
-            | xargs gh pr checkout
-    }
-
-    function ghissue() {
-        GH_FORCE_TTY=100% gh issue list \
-            | fzf --ansi --preview 'GH_FORCE_TTY=100% gh issue view {+1}' --preview-window right --header-lines 3 \
-            | awk '{print $1}' \
-            | xargs gh issue view
-    }
-fi
-
 # ============> Finally <============
-# Remove duplicate path
-if [[ -n $PATH ]]; then
-    old_PATH=$PATH:; PATH=
-    while [[ -n $old_PATH ]]; do
-        x=${old_PATH%%:*}
-        case $PATH: in
-           *:"$x":*) ;;
-           *) PATH=$PATH:$x;;
-        esac
-        old_PATH=${old_PATH#*:}
-    done
-    PATH=${PATH#:}
-    unset old_PATH x
-fi
-export PATH
+_deduplicate_path
