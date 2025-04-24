@@ -1,7 +1,7 @@
 # vim: ft=gitconfig cms=#\ %s
 
 # [core]
-#     sshCommand = ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519 -F none
+#     sshCommand = ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519
 
 # [credential "https://github.com/"]
 #     username = example
