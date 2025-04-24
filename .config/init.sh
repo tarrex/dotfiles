@@ -637,12 +637,13 @@ if [[ $OSTYPE == darwin* ]]; then
     export HOMEBREW_INSTALL_BADGE="☕️"
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
+    eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 # golang
 export GOBASEPATH=$HOME/projects/go
 case $OSTYPE in
-    darwin*) export GOROOT=/usr/local/opt/go/libexec;;
+    darwin*) export GOROOT=/opt/homebrew/opt/go/libexec;;
      linux*) export GOROOT=/usr/local/go;;
 esac
 export GO111MODULE=on
@@ -878,30 +879,28 @@ alias randname='curl -L pseudorandom.name'
 proxy_addr="127.0.0.1:7890"
 no_proxy_addr="localhost,127.0.0.1,127.0.0.0/8,::1,*.local,.local"
 
-alias hproxy="{http,https,all}_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
-alias sproxy="{http,https,all}_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
-alias fly="env {http,https,all}_proxy=http://$proxy_addr"
+alias hproxy="http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr no_proxy=$no_proxy_addr"
+alias sproxy="http_proxy=socks5://$proxy_addr https_proxy=socks5://$proxy_addr all_proxy=socks5://$proxy_addr no_proxy=$no_proxy_addr"
+alias fly="env http_proxy=http://$proxy_addr https_proxy=http://$proxy_addr all_proxy=http://$proxy_addr"
 
-fgfw() {
-    echo "Proxy Address: $proxy_addr"
-    export {http,https,ftp,rsync,all}_proxy="http://${proxy_addr}"
-    export {HTTP,HTTPS,FTP,RSYNC,ALL}_PROXY="http://${proxy_addr}"
-    export no_proxy="$no_proxy_addr" NO_PROXY="$no_proxy_addr"
-    echo "You are fucking the GFW!"
-}
-
-ogfw() {
-    unset {http,https,ftp,rsync,all,no}_proxy
-    unset {HTTP,HTTPS,FTP,RSYNC,ALL,NO}_PROXY
-    echo "Remember fuck the GFW forever!"
+gfw() {
+    if [ -z $http_proxy ]; then
+        echo "Enabling proxy: $proxy_addr"
+        export http_proxy="http://$proxy_addr"
+        export https_proxy="http://$proxy_addr"
+        export all_proxy="http://$proxy_addr"
+        export no_proxy="$no_proxy_addr"
+        echo "You are fucking the GFW!"
+    else
+        unset http_proxy https_proxy all_proxy no_proxy
+        echo "Proxy disabled. Remember fuck the GFW forever!"
+    fi
 }
 
 pstatus() {
     echo "------ Proxy Status ------"
     echo " HTTP Proxy: ${http_proxy:-Not set}"
     echo "HTTPS Proxy: ${https_proxy:-Not set}"
-    echo "  FTP Proxy: ${ftp_proxy:-Not set}"
-    echo "RSYNC Proxy: ${rsync_proxy:-Not set}"
     echo "  All Proxy: ${all_proxy:-Not set}"
     echo "   No Proxy: ${no_proxy:-Not set}"
     if command -v curl >/dev/null 2>&1; then
