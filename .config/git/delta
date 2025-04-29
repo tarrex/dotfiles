@@ -1,0 +1,38 @@
+# vim: ft=gitconfig cms=#\ %s
+
+# Delta - A syntax-highlighting pager for git, diff, and grep output
+# Reference:
+#   https://dandavison.github.io/delta/
+[core]
+    pager = delta
+[delta]
+    features     = decorations
+    line-numbers = true
+    side-by-side = true
+    navigate     = true  # use n and N to move between diff sections
+    true-color   = always
+[delta "decorations"]
+    dark = true
+    # commit-decoration-style = 232 130 box
+    # commit-style            = 232 bold italic 130
+    file-added-label      = [+]
+    file-copied-label     = [C]
+    file-modified-label   = [M]
+    file-removed-label    = [-]
+    file-renamed-label    = [R]
+    file-decoration-style = yellow ul
+    file-style            = yellow
+    hunk-header-decoration-style  = box blue
+    hunk-header-file-style        = bold reverse purple
+    hunk-header-line-number-style = bold blue
+    hunk-header-style             = line-number
+    # the following is from --diff-so-fancy emulation
+    minus-style                   = bold red
+    minus-non-emph-style          = bold red
+    minus-emph-style              = bold red 52
+    minus-empty-line-marker-style = normal "#3f0001"
+    zero-style                    = normal
+    plus-style                    = bold green
+    plus-non-emph-style           = bold green
+    plus-emph-style               = bold green 22
+    plus-empty-line-marker-style  = normal "#002800"

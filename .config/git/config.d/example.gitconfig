@@ -1,22 +1,22 @@
 # vim: ft=gitconfig cms=#\ %s
 
-# [core]
-#     sshCommand = ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519
+[core]
+    sshCommand = ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519
 
-# [credential "https://github.com/"]
-#     username = example
+[credential "https://github.com/"]
+    username = example
 
-# [commit]
-#     gpgSign = true
+[commit]
+    gpgSign = true
 
-# [tag]
-#     gpgSign = true
+[tag]
+    gpgSign = true
 
-# [gpg]
-#     format = ssh
+[gpg]
+    format = ssh
 
-# [user]
-#     name          = example
-#     email         = m@example.com
-#     useConfigOnly = true
-#     signingKey    = ~/.ssh/id_ed25519.pub
+[user]
+    name          = example
+    email         = m@example.com
+    useConfigOnly = true
+    signingKey    = ~/.ssh/id_ed25519.pub
