@@ -634,16 +634,16 @@ fi
 
 # homebrew
 if [[ $OSTYPE == darwin* ]]; then
-    export HOMEBREW_INSTALL_BADGE="☕️"
+    export HOMEBREW_PREFIX=$([[ $(uname -m) == arm64 ]] && echo /opt/homebrew || echo /usr/local)
     export HOMEBREW_NO_ANALYTICS=1
     export HOMEBREW_NO_AUTO_UPDATE=1
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+    eval "$($HOMEBREW_PREFIX/bin/brew shellenv)"
 fi
 
 # golang
 export GOBASEPATH=$HOME/projects/go
 case $OSTYPE in
-    darwin*) export GOROOT=/opt/homebrew/opt/go/libexec;;
+    darwin*) export GOROOT=$HOMEBREW_PREFIX/opt/go/libexec;;
      linux*) export GOROOT=/usr/local/go;;
 esac
 export GO111MODULE=on
