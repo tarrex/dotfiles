@@ -147,14 +147,26 @@ _collapsed_pwd() {
     printf '%s\n' "${elements[*]}"
 }
 
+# color codes
+declare -A _color_codes=(
+    [success]=39
+    [error]=160
+    [user]=140
+    [root]=202
+    [dir]=51
+    [branch]=166
+    [prompt]=47
+    [venv]=152
+)
+
 # return value indicator
 _retval() {
     local _symbol="λ"
     case $LAST_EXIT_CODE in
-        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;39m${_symbol} \033[0m" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{39}%B${_symbol} %b%f" && return;;
-        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;160m${_symbol} \033[0m" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{160}%B${_symbol} %b%f" && return;;
+        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;${_color_codes[success]}m${_symbol} \033[0m" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{${_color_codes[success]}}%B${_symbol} %b%f" && return;;
+        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;${_color_codes[error]}m${_symbol} \033[0m" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{${_color_codes[error]}}%B${_symbol} %b%f" && return;;
     esac
 }
 
@@ -179,13 +191,13 @@ _prompt_setting() {
     local newline=$'\n'
     local prompt_end='❯'
     if [[ -n $BASH_VERSION ]]; then
-        local user_color="\[\033[1;38;5;140m\]"
-        local dir_color="\[\033[1;38;5;51m\]"
-        local branch_color="\[\033[38;5;166m\]"
-        local prompt_color="\[\033[1;38;5;47m\]"
-        local venv_color="\[\033[1;38;5;152m\]"
+        local user_color="\[\033[1;38;5;${_color_codes[user]}m\]"
+        local dir_color="\[\033[1;38;5;${_color_codes[dir]}m\]"
+        local branch_color="\[\033[38;5;${_color_codes[branch]}m\]"
+        local prompt_color="\[\033[1;38;5;${_color_codes[prompt]}m\]"
+        local venv_color="\[\033[1;38;5;${_color_codes[venv]}m\]"
         local reset_color="\[\033[0m\]"
-        [[ $UID -eq 0 ]] && user_color="\[\033[1;38;5;202m\]"
+        [[ $UID -eq 0 ]] && user_color="\[\033[1;38;5;${_color_codes[root]}m\]"
         PROMPT_COMMAND='LAST_EXIT_CODE=$?'
         PS1="\$(_retval)"
         PS1+="${venv_color}\$(_venv)${reset_color}"
@@ -194,13 +206,13 @@ _prompt_setting() {
         PS1+="${newline}"
         PS1+="${prompt_color}${prompt_end}${reset_color} "
     elif [[ -n $ZSH_VERSION ]]; then
-        local user_color="%F{140}"
-        local dir_color="%F{51}"
-        local branch_color="%F{166}"
-        local prompt_color="%F{47}"
-        local venv_color="%F{152}"
+        local user_color="%F{${_color_codes[user]}}"
+        local dir_color="%F{${_color_codes[dir]}}"
+        local branch_color="%F{${_color_codes[branch]}}"
+        local prompt_color="%F{${_color_codes[prompt]}}"
+        local venv_color="%F{${_color_codes[venv]}}"
         local reset_color="%f"
-        [[ $UID -eq 0 ]] && user_color="%F{202}"
+        [[ $UID -eq 0 ]] && user_color="%F{${_color_codes[root]}}"
         precmd() {
             LAST_EXIT_CODE=$?
         }
