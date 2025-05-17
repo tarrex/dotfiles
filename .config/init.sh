@@ -545,38 +545,29 @@ if [[ -n $ZSH_VERSION ]]; then
             (( ${+_comps} )) && _comps[zinit]=_zinit
 
             # zinit plugin
-            zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1'
+            zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1' id-as'zsh-syntax-highlighting'
             zinit light zsh-users/zsh-syntax-highlighting
 
-            zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1'
+            zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1' id-as'zsh-autosuggestions'
             zinit light zsh-users/zsh-autosuggestions
 
-            zinit ice wait lucid blockf depth'1'
+            zinit ice wait lucid blockf depth'1' id-as'zsh-completions'
             zinit light zsh-users/zsh-completions
 
-            zinit ice lucid depth'1'
+            zinit ice lucid depth'1' id-as'history-search-multi-word'
             zinit light zdharma-continuum/history-search-multi-word
 
-            zinit ice as'program' wait lucid depth'1' \
-                pick'$ZPFX/bin/git-*' \
-                src'etc/git-extras-completion.zsh' \
-                make'PREFIX=$ZPFX'
-            zinit light tj/git-extras
+            zinit ice wait silent nocompile has'docker' as'completion' id-as'docker-completion' \
+                atclone'docker completion zsh > _docker' atpull'%atclone'
+            zinit load zdharma-continuum/null
 
-            zinit ice wait lucid depth'1'
-            zinit light wfxr/forgit
+            zinit ice wait silent nocompile has'kubectl' as'completion' id-as'kubectl-completion' \
+                atclone'kubectl completion zsh > _kubectl' atpull'%atclone'
+            zinit load zdharma-continuum/null
 
-            zinit ice has'docker' id-as'docker' as'null' wait silent nocompile \
-                atclone'docker completion zsh >! _docker' \
-                atpull'%atclone' src"_docker" run-atpull \
-                atload'zicdreplay'
-                zinit light zdharma-continuum/null
-
-            zinit ice has'kubectl' id-as'kubectl' as'null' wait silent nocompile \
-                atclone'kubectl completion zsh >! _kubectl' \
-                atpull'%atclone' src"_kubectl" run-atpull \
-                atload'zicdreplay'
-            zinit light zdharma-continuum/null
+            zinit ice wait silent nocompile has'helm' as'completion' id-as'helm-completion' \
+                atclone'helm completion zsh > _helm' atpull'%atclone'
+            zinit load zdharma-continuum/null
         fi
     fi
 
