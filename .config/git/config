@@ -61,7 +61,7 @@
     conflictstyle = diff3
     tool          = vimdiff
 [commit]
-    template = ~/.config/git/message
+    template = message
     verbose  = true
 [push]
     default    = current
