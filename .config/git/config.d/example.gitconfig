@@ -3,20 +3,19 @@
 [core]
     sshCommand = ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519
 
+[user]
+    name       = example
+    email      = m@example.com
+    signingKey = ~/.ssh/id_ed25519.pub
+
 [credential "https://github.com/"]
     username = example
 
-[commit]
-    gpgSign = true
-
-[tag]
-    gpgSign = true
-
 [gpg]
     format = ssh
-
-[user]
-    name          = example
-    email         = m@example.com
-    useConfigOnly = true
-    signingKey    = ~/.ssh/id_ed25519.pub
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
+[commit]
+    gpgSign = true
+[tag]
+    gpgSign = true

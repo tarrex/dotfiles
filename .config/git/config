@@ -4,155 +4,77 @@
 
 # Basic options
 [core]
-    fileMode          = false
-    precomposeUnicode = false
-    quotePath         = false
-    excludesFile      = ~/.config/git/ignore
-    attributesfile    = ~/.config/git/attributes
-    editor            = vim     # vscode: code --wait
-    pager             = less -FRXM
+    quotePath = false
+    editor    = vim         # code --wait
+    pager     = less -FRXM  # bat --paging=always
 
 [alias]
-    a = add
-    b = branch
-    c = commit
-    d = diff
-    f = fetch
-    g = grep
-    l = log
-    m = merge
-    o = checkout
-    p = pull
-    r = remote
-    s = status -sb
-    w = whatchanged
-
+    cm = commit -m
     ca = commit --amend
-    cm = commit --message
-    sw = switch
     ls = ls-files
+    ps = -p status
+    sm = submodule update --recursive
 
-    rank = shortlog -sn --no-merges
+    cloc = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
+    rank = shortlog -sne --no-merges
     stat = !git --no-pager diff --stat
     glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
     slog = log --stat --graph --date-order --oneline
+    last = log --oneline --decorate --all -n 10
 
-    unpush   = push -f origin HEAD^:master
-    uncommit = reset --soft HEAD^
     unstage  = reset HEAD --
+    uncommit = reset --soft HEAD^
+    unpush   = push -f origin HEAD^:$(git rev-parse --abbrev-ref HEAD)
+    prune    = fetch --prune
 
-    aliases = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /'
-
-    prune                 = fetch --prune
-    stash-all             = stash save --include-untracked
-    sweep                 = !git branch --merged master | grep -v 'master$' | xargs git branch -d && git remote prune origin
-    serve                 = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
-    cloc                  = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
-    delete-merged-branchs = !git branch --merged | grep -v '*' | xargs -n 1 git branch -d
-    search                = "!f() { git log -p -G$1 --all; }; f"
-    searchcommit          = "!f() { git log -G$1 --all; }; f"
-    searchmessage         = "!f() { git log --grep=$1; }; f"
-    filehistory           = "!f() { git log --follow -p -- $1; }; f"
-    ls-merged             = !git branch --merged | grep -Ev '[*\\s]* (master|develop)$'
-    rm-merged             = !git branch --merged | grep -Ev '[*\\s]* (master|develop)$' | xargs -n 1 git branch -d
-    ls-merged-remote      = !git branch --remote --merged | grep origin | grep -Ev '>|master|develop' | xargs -L1 | cut -d'/' -f2-
-    rm-merged-remote      = !git branch --remote --merged | grep origin | grep -Ev '>|master|develop' | xargs -L1 | cut -d'/' -f2- | xargs -L 1 git push origin --delete
-    prune-origin          = remote prune origin
-    lscrap                = ls-files --other --exclude-standard --directory
-    stash-all             = stash save --include-untracked
-    branchupdates         = for-each-ref --sort=-committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
-    tags = tag -n --sort=v:refname -l
-    tags-v = tag -n99 --sort=v:refname -l
-
-[credential]
-    helper = osxkeychain
-
-[color]
-    ui = auto
-[color "advice"]
-    hint = yellow
-[color "blame"]
-    repeatedLines = green
-[color "branch"]
-    current  = yellow reverse
-    local    = yellow
-    remote   = cyan
-    upstream = magenta
-    plain    = red
-[color "diff"]
-    context    = cyan
-    meta       = yellow
-    frag       = magenta
-    old        = red
-    new        = green
-    commit     = white
-    whitespace = red reverse
-[color "status"]
-    added     = green
-    changed   = yellow
-    untracked = red
-
-[commit]
-    template = ~/.config/git/message
-    verbose  = true
-
-[diff]
-    renames         = true
-    wordRegex       = .
-    submodule       = log
-    indentHeuristic = true
-    # algorithm       = patience
-    algorithm       = histogram
-    colorMoved      = default
-    tool            = vimdiff
-# [difftool "code"]
-#     cmd = code --wait --diff $LOCAL $REMOTE
-
-# [http "https://github.com"]
-#     proxy     = http://127.0.0.1:7890
-#     # proxy     = socks5h://127.0.0.1:7890
-
-[i18n]
-    logOutputEncoding = utf-8
+    search        = "!f() { git log -p -G$1 --all; }; f"
+    searchcommit  = "!f() { git log -G$1 --all; }; f"
+    searchmessage = "!f() { git log --grep=$1; }; f"
+    filehistory   = "!f() { git log --follow -p -- $1; }; f"
+    serve         = "!f() { git daemon --reuseaddr --verbose --base-path=. --export-all --listen=${1:-127.0.0.1} --port=${2:-9418} ./.git; }; f"
+    stash-all     = stash save --include-untracked
+    delete-merged = !git branch --merged | grep -Ev '(\\*|master|main|dev|develop)' | xargs -n 1 git branch -d
+    check-config  = config --list --show-origin
+    aliases       = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /'
 
 [init]
     defaultBranch = main
 
-[instaweb]
-    httpd = webrick
-    local = true
-    port  = 1234
-
-[merge]
-    log           = true
-    ff            = only
-    tool          = vimdiff
-    conflictstyle = zdiff3
-
-[mergetool]
-    keepBackup  = false
-    writeToTemp = true
-
-[push]
-    default    = current
-    followTags = true
-
-[rerere]
-    autoUpdate = true
-    enabled    = true
+[credential]
+    helper = osxkeychain
+    helper = cache --timeout 30000
 
 [status]
     short              = true
     showUntrackedFiles = all
+[diff]
+    renames    = true
+    submodule  = log
+    algorithm  = histogram
+    colorMoved = default
+    tool       = vimdiff    # code
+# [difftool "code"]
+#     cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+    log           = true
+    ff            = true
+    conflictstyle = diff3
+    tool          = vimdiff
+[commit]
+    template = ~/.config/git/message
+    verbose  = true
+[push]
+    default    = current
+    followTags = true
 
-[tag]
-    sort = version:refname
+# HTTP proxy
+# [http "https://github.com"]
+#     proxy     = http://127.0.0.1:7890
+#     # proxy     = socks5h://127.0.0.1:7890
 
 # Force git to use SSH
 [url "git@github.com:"]
     insteadOf = https://github.com/
-[url "git@gitlab.com:"]
-    insteadOf = https://gitlab.com/
 # [url "git://"]
 #     insteadOf = https://
 
@@ -165,12 +87,33 @@
 # Short URL
 # [url "https://github.com/"]
 #     insteadOf = gh:
-# [url "https://gist.github.com/"]
-#     insteadOf = gist:
-# [url "https://bitbucket.org/"]
-#     insteadOf = bb:
-# [url "https://gitlab.com/"]
-#     insteadOf = gl:
+
+[color]
+    ui = auto
+[color "advice"]
+    hint = yellow
+[color "branch"]
+    current  = yellow reverse
+    local    = yellow
+    remote   = cyan
+    upstream = magenta
+    plain    = red
+[color "status"]
+    added     = green
+    changed   = yellow
+    untracked = red
+
+[i18n]
+    logOutputEncoding = utf-8
+
+[rerere]
+    enabled    = true
+    autoUpdate = true
+
+[instaweb]
+    httpd = webrick
+    local = true
+    port  = 1234
 
 # Git LFS
 # [filter "lfs"]
