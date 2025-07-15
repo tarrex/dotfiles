@@ -701,6 +701,8 @@ augroup FileTypeCustom
 
     autocmd FileType json syntax match Comment +\/\/.\+$+
     autocmd FileType yaml setl indentexpr=
+    autocmd FileType make setl noexpandtab
+    autocmd FileType gitcommit setl textwidth=72 colorcolumn=+1
 augroup END
 
 " ----> Tricks
