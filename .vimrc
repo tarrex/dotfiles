@@ -725,7 +725,7 @@ function! DisableForLargeFiles() abort
     let l:threshold = 1024 * 1024 * 10  " 10M
     let l:size = getfsize(expand('<afile>'))
     if l:size < l:threshold | return | endif
-
+    setl syntax=off
     setl eventignore+=FileType,BufEnter,BufLeave,BufWinEnter,BufWinLeave
     setl bufhidden=unload
     setl buftype=nowrite
@@ -738,11 +738,7 @@ function! DisableForLargeFiles() abort
 
     setl noswapfile noundofile nowritebackup
     setl nobackup
-    setl syntax=off
-
     setl noautoindent nosmartindent
-
-    setl nowrap
     setl lazyredraw
 endfunction
 
