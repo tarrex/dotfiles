@@ -1,122 +1,104 @@
 " Tarrex's vimrc
 "       ------ Enjoy vim, enjoy coding.
 
-" ============> Prepare <============
-let g:env       = {}
-let g:env.mac   = has('mac') || has('macunix')
-let g:env.linux = has('linux')
-
-let g:dep       = {}
-let g:dep.rg    = executable('rg')
-let g:dep.curl  = executable('curl')
-let g:dep.node  = executable('node')
-
-let g:vimdir    = $HOME . '/.vim'
-
 " ============> General <============
-if &compatible | set nocompatible | endif   " be iMproved, required
+if &compatible | set nocompatible | endif
 
-syntax on                                   " syntax highlighting
-filetype indent plugin on                   " filetype detection on
+syntax on
+filetype indent plugin on
 
-set number                                  " print the line number in front of each line
-set noruler                                 " don't show the line and column number of the cursor position, separated by a comma
-set nowrap                                  " don't wrap lines longer than the width of the window
-set showcmd                                 " show (partial) command in the last line of the screen
-set noshowmode                              " don't display Insert, Replace or Visual mode message on the last line
-set laststatus=2                            " show status line
-set display=lastline                        " as much as possible of the last line in a window will be displayed
-set cursorline                              " show underline for the cursor's line
-silent! set cursorlineopt=number            " highlight the line number of the cursor if could
-silent! set signcolumn=number               " display signs in the 'number' column if could else 'auto'
-silent! set termguicolors                   " enable GUI colors for the terminal to get truecolor
-set background=dark                         " try to use colors that look good on a dark background
-set visualbell t_vb=                        " no beep or flash is wanted
+set number
+set noruler
+set nowrap
+set showcmd
+set noshowmode
+set laststatus=2
+set display=lastline
+set cursorline
+silent! set cursorlineopt=number
+silent! set signcolumn=number
+silent! set termguicolors
+set background=dark
+set visualbell t_vb=
 
-set shiftround                              " round indent to multiple of 'shiftwidth'
-set shiftwidth=4                            " number of spaces to use for each step of (auto)indent
-set expandtab                               " covert tabs to spaces, insert real tab by ctrl-v<tab> if you want
-set tabstop=4                               " number of spaces that a <tab> in the file counts for
-set softtabstop=4                           " number of spaces that a <tab> counts for while performing editing operations
-set smarttab                                " be smart when use tabs
-set autoindent                              " copy indent from current line when starting a new line
+set shiftround
+set shiftwidth=4
+set expandtab
+set tabstop=4
+set softtabstop=4
+set smarttab
+set autoindent
 
-set breakindent                             " every wrapped line will continue visually indented
-silent! set showbreak=↪\                    " string to put at the start of lines that have been wrapped
+set breakindent
+silent! set showbreak=↪\
 
-set hlsearch                                " highlight all search pattern results
-set ignorecase                              " ignore case in search patterns.
-set incsearch                               " real time show the search case
-set smartcase                               " override the 'ignorecase' option if the search pattern contains upper case characters
+set hlsearch
+set ignorecase
+set incsearch
+set smartcase
 
-set encoding=utf-8                          " the character encoding used inside vim
-set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,latin1 " list of character encodings considered when starting to edit an existing file
-set fileformats=unix,dos,mac                " gives the <eol> formats of editing a new buffer or reading a file
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,gbk,gb18030,big5,latin1
+set fileformats=unix,dos,mac
 
-set autoread                                " auto load the file when changed outside vim
-set autowrite                               " auto write file when building or switching
-set backspace=indent,eol,start              " the working of <bs>, <del>, ctrl-w and ctrl-u in insert mode
-set nostartofline                           " cursor is kept in the same column (if possible)
-set nojoinspaces                            " don't insert two spaces after a '.', '?' and '!' with a join command
-set hidden                                  " allow buffers to have changes without being displayed
-set splitbelow                              " horizontally split below
-set splitright                              " vertically split to the right
-set clipboard^=unnamed,unnamedplus          " synchronized with the system clipboard
-set mouse=a                                 " enable the mouse in all five modes
-silent! set termwinkey=<c-_>                " the key that starts a CTRL-_ command in a terminal window
-set t_ut=                                   " clearing uses the current background color
-set ttyscroll=3                             " maximum number of lines to scroll the screen
-set scrolloff=1                             " minimal number of screen lines to keep above and below the cursor
-set sidescroll=5                            " minimal number of columns to scroll horizontally
-set sidescrolloff=1                         " minimal number of screen columns to keep to the left and to the right of the cursor if 'nowrap' is set.
+set autoread
+set autowrite
+set backspace=indent,eol,start
+set nostartofline
+set nojoinspaces
+set hidden
+set splitbelow
+set splitright
+set clipboard=unnamed,unnamedplus
+set mouse=a
+set t_ut=
+set ttyscroll=3
+set scrolloff=1
+set sidescroll=5
+set sidescrolloff=1
 
-set history=10000                           " set how many lines of command history vim has to remember
+set history=1000
 
-set include=                                " don't assume I'm editing C; let the filetype set this
-set completeopt=menu,menuone                " use a popup menu to show the possible completions even there is only one match
-silent! set completeopt+=noinsert           " do not insert any text for a match until the user selects a match from the menu
-silent! set completeopt+=noselect           " do not select a match in the menu, force the user to select one from the menu
-silent! set completeopt+=popup              " show extra information about the currently selected completion in a popup window
-silent! set completepopup=border:off        " used for the properties of the info popup when it is created
-set diffopt+=context:3                      " only 3 lines of context above/below a changed line (instead of 6)
-set diffopt+=vertical                       " start diff mode with vertical splits (unless explicitly specified otherwise)
-set diffopt+=foldcolumn:1                   " use only 1 column for the foldcolumn, instead of 2 (vertical space is precious)
-silent! set diffopt+=hiddenoff              " turn off diff mode automatically for a buffer which becomes hidden
-silent! set diffopt+=indent-heuristic       " use the indent heuristic for the internal diff library
-silent! set diffopt+=algorithm:histogram    " use the `histogram` diff algorithm
-set formatoptions+=m                        " also break at a multibyte character above 255, useful for asian text where every character is a word on its own
-set formatoptions+=B                        " when joining lines, don't insert a space between two multibyte characters
-set formatoptions+=j                        " remove a comment leader when joining lines
-set nrformats-=octal                        " treat numbers with a leading zero as decimal, not octal
-set shortmess=aoOcF                         " hit-enter prompts caused by file messages
-silent! set spelloptions=camel              " when a word is CamelCased, assume "Cased" is a separate word
-set fillchars=vert:┃                        " vertical separators
-set listchars=eol:¬                         " end of line
-set listchars+=tab:\|\                      " tab characters, preserve width
-set listchars+=extends:❯                    " unwrapped text to screen right
-set listchars+=precedes:❮                   " unwrapped text to screen left
-set listchars+=nbsp:∅                       " non-breaking spaces
-set virtualedit=block                       " allow virtual editing in Visual block mode
-set whichwrap=b,s,h,l,<,>,[,]               " allow specified keys that move the cursor left/right to move to the previous/next line when the cursor is on the first/last character in the line
-set matchpairs+=<:>,《:》,「:」,（:）,【:】 " pairs characters that the `%` command jumps from one to the other
+set include=
+set completeopt=menu,menuone
+silent! set completeopt+=noinsert
+silent! set completeopt+=noselect
+silent! set completeopt+=popup
+silent! set completepopup=border:off
+set diffopt+=context:3
+set diffopt+=vertical
+set diffopt+=foldcolumn:1
+silent! set diffopt+=hiddenoff
+silent! set diffopt+=indent-heuristic
+silent! set diffopt+=algorithm:histogram
+set formatoptions-=cro
+set formatoptions+=mB
+set shortmess=aoOcFtT
+silent! set spelloptions=camel
+set fillchars=vert:┃
+set listchars=eol:¬
+set listchars+=tab:\|\
+set listchars+=extends:❯
+set listchars+=precedes:❮
+set listchars+=nbsp:∅
+set virtualedit=block
+set whichwrap=b,s,h,l,<,>,[,]
+set matchpairs+=<:>,《:》,「:」,（:）,【:】
 
-let &directory = g:vimdir . '/tmp/swap'
+let &directory = expand('~/.vim/tmp/swap')
 if !isdirectory(&directory)
     call mkdir(&directory, 'p', 0700)
 endif
-set undofile                                " automatically saves undo history to an undo file
-let &undodir = g:vimdir . '/tmp/undo'
+set undofile
+let &undodir = expand('~/.vim/tmp/undo')
 if !isdirectory(&undodir)
     call mkdir(&undodir, 'p', 0700)
 endif
-set viminfo='100,:1000,<50,s10,h,!          " viminfo settings
-let &viminfofile = g:vimdir . '/viminfo'    " the file name used for viminfo
 
-set wildmenu                                " show autocomplete for command menu
-set wildignorecase                          " ignore case when completing file names and directories
-set wildignore=                             " completely ignoring files when expanding wildcards
-set wildignore+=*.app,*.dll,*.dylib,*.elf,*.exe,*.lib,*.map,*.o,*.out,*.so
-set wildignore+=*.class,*.egg,*.gem,*.jar,*.pdb,*.py[cdo],*.swp,*.war,*~
+set wildmenu
+set wildignorecase
+set wildignore+=*~,*.o,*.obj,*.out,*.so,*.egg,*.py[cdo],*.class,*.jar
+set wildignore+=*.app,*.dll,*.dylib,*.elf,*.lib,*.map,*.gem,*.jar,*.swp,*.war
 set wildignore+=*.7z,*.bz2,*.bzip,*.bzip2,*.cab,*.deb,*.dmg,*.gz,*.gzip
 set wildignore+=*.iso,*.lzma,*.msi,*.rar,*.rpm,*.tar,*.tgz,*.xz,*.zip
 set wildignore+=*.bmp,*.gif,*.ico,*.jpeg,*.jpg,*.png,*.tiff,*.webp,*.pdf
@@ -124,11 +106,14 @@ set wildignore+=*.aac,*.ape,*.avi,*.flac,*.flv,*.mkv,*.mp3,*.mp4,*.webm
 set wildignore+=._*,.DS_Store,.fseventsd,.Spotlight-V100,.Trashes
 set wildignore+=[Dd]esktop.ini,*.lnk,\$RECYCLE.BIN/*,*.stackdump,Thumbs.db
 set wildignore+=.git/*,.github/*,.hg/*,.idea/*,.svn/*,.vscode/*
+set wildignore+=**/.git/**,**/.github/**,**/.hg/**,**/.idea/**,**/.svn/**,**/.vscode/**
+set wildignore+=**/node_modules/**,**/dist/**,**/build/**,**/target/**
+set wildignore+=**/__pycache__/**,**/.cache/**,**/coverage/**
 
 " ============> Plugins <============
-let s:vimplug = g:vimdir . '/autoload/plug.vim'
+let s:vimplug = expand('~/.vim/autoload/plug.vim')
 if empty(glob(s:vimplug))
-    if !g:dep.curl
+    if !executable('curl')
         echomsg 'You have to install curl or install vim-plug manually!'
         finish
     endif
@@ -138,12 +123,11 @@ if empty(glob(s:vimplug))
     autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin(g:vimdir . '/plugged')
+call plug#begin(expand('~/.vim/plugged'))
 
 Plug 'lifepillar/vim-gruvbox8'
 Plug 'itchyny/lightline.vim'
 Plug 'easymotion/vim-easymotion'
-Plug 'terryma/vim-multiple-cursors'
 Plug 'junegunn/vim-easy-align', { 'on': 'EasyAlign' }
 Plug 'chrisbra/colorizer', { 'on': 'ColorToggle' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -158,11 +142,11 @@ Plug 'tpope/vim-fugitive'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista' }
 Plug 'prabirshrestha/vim-lsp'
-Plug 'mattn/vim-lsp-settings'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'mattn/vim-lsp-settings'
 Plug 'dense-analysis/ale'
-Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
+" Plug 'fatih/vim-go',               { 'for': 'go', 'do': ':GoInstallBinaries' }
 Plug 'tpope/vim-markdown',         { 'for': 'markdown' }
 Plug 'dhruvasagar/vim-table-mode', { 'for': 'markdown', 'on': 'TableModeToggle' }
 Plug 'tarrex/nginx.vim',           { 'for': 'nginx' }
@@ -314,23 +298,6 @@ if HasPlug('vim-easymotion')
     omap <em>w <Plug>(easymotion-bd-w)
 endif
 
-" ----> terryma/vim-multiple-cursors
-if HasPlug('vim-multiple-cursors')
-    let g:multi_cursor_use_default_mapping = 0
-
-    nnoremap <mc> <nop>
-    nmap     C    <mc>
-
-    let g:multi_cursor_start_word_key      = '<mc>'
-    let g:multi_cursor_select_all_word_key = '<leader><mc>'
-    let g:multi_cursor_start_key           = 'g<mc>'
-    let g:multi_cursor_select_all_key      = 'g<leader><mc>'
-    let g:multi_cursor_next_key            = '<c-n>'
-    let g:multi_cursor_prev_key            = '<c-p>'
-    let g:multi_cursor_skip_key            = '<c-x>'
-    let g:multi_cursor_quit_key            = '<esc>'
-endif
-
 " ----> junegunn/fzf.vim
 if HasPlug('fzf.vim')
     let g:fzf_command_prefix = 'FZF'
@@ -348,7 +315,7 @@ if HasPlug('fzf.vim')
         \ 'ctrl-e': 'edit'
     \ }
     let $FZF_DEFAULT_OPTS = '--layout=reverse --inline-info'
-    if g:dep.rg
+    if executable('rg')
         let $FZF_DEFAULT_COMMAND = "rg --files --hidden --glob '!{".&wildignore."}'"
     endif
     command! -bang -nargs=* FZFRg
@@ -409,18 +376,20 @@ if HasPlug('vista.vim')
         let g:vista_echo_cursor_strategy = 'floating_win'
     endif
     let g:vista_close_on_jump            = 0
-    let g:vista_stay_on_open             = 1
-    let g:vista_blink                    = [2, 100]
-    let g:vista_default_executive        = 'ctags'
     let g:vista_fzf_preview              = ['right:50%']
     let g:vista_disable_statusline       = 1
     let g:vista#renderer#enable_icon     = 0
 
-    nnoremap <silent> <localleader>t :Vista<cr>
+    nnoremap <silent> <localleader>t :Vista vim_lsp<cr>
 endif
 
 " ----> prabirshrestha/vim-lsp
 if HasPlug('vim-lsp')
+    let g:lsp_use_native_client = 1
+    let g:lsp_diagnostics_float_cursor = 1
+    let g:lsp_diagnostics_signs_enabled = 0
+    let g:lsp_diagnostics_signs_insert_mode_enabled = 0
+    let g:lsp_hover_conceal = 0
     " inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
     " inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
     " inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr
@@ -435,17 +404,6 @@ if HasPlug('vim-lsp')
       \ <SID>check_back_space() ? "\<TAB>" :
       \ asyncomplete#force_refresh()
     inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-    if executable('gopls')
-        au User lsp_setup call lsp#register_server({
-            \ 'name': 'gopls',
-            \ 'cmd': {server_info->['gopls', '-remote=auto']},
-            \ 'allowlist': ['go', 'gomod', 'gohtmltmpl', 'gotexttmpl'],
-            \ })
-        autocmd BufWritePre *.go
-            \ call execute('LspDocumentFormatSync') |
-            \ call execute('LspCodeActionSync source.organizeImports')
-    endif
 endif
 
 " ----> dense-analysis/ale
@@ -586,8 +544,8 @@ if HasPlug('vim-table-mode')
 endif
 
 " ============> key mappings <============
-let g:mapleader      = ','                  " set vim map leader, <leader>
-let g:maplocalleader = '\'                  " set vim local map leader, <localleader>
+let g:mapleader      = ','  " set vim map leader, <leader>
+let g:maplocalleader = '\'  " set vim local map leader, <localleader>
 
 " Disable Ex mode and command history key bindings
 nnoremap Q  <nop>
@@ -618,12 +576,7 @@ nnoremap <silent> [T    :tabfirst<cr>
 nnoremap <silent> ]T    :tablast<cr>
 nnoremap <silent> <c-t> :tabnew<cr>
 inoremap <silent> <c-t> <esc>:tabnew<cr>
-nnoremap <silent> tt    :<c-u>call MoveToTab()<cr>
-function! MoveToTab() abort
-    tab split | tabprevious
-    if winnr('$') > 1 | close | elseif bufnr('$') > 1 | buffer # | endif
-    tabnext
-endfunction
+nnoremap <silent> tt    <c-w>T
 
 " Quickfox switching
 nnoremap <silent> [q :cprevious<cr>
@@ -647,30 +600,11 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
 
-" Window switching in terminal mode
-if has('terminal')
-    tnoremap <c-h> <c-_>h
-    tnoremap <c-j> <c-_>j
-    tnoremap <c-k> <c-_>k
-    tnoremap <c-l> <c-_>l
-    tnoremap <silent> <c-q> <c-_>:q!<cr>
-endif
-
-" Search will center on the line it's found in, conflict with shortmess-=S option
-" nnoremap n nzzzv
-" nnoremap N Nzzzv
-
 " Move lines left or right
-" nnoremap <silent> < <<
-" nnoremap <silent> > >>
-" vnoremap <silent> < <gv
-" vnoremap <silent> > >gv
 vnoremap <silent> <s-tab> <gv
 vnoremap <silent> <tab> >gv
 
 " Move lines up or down
-" nnoremap <silent> <up>   :m-2<cr>==
-" nnoremap <silent> <down> :m+1<cr>==
 vnoremap <silent> <up>   :m '<-2<cr>gv=gv
 vnoremap <silent> <down> :m '>+1<cr>gv=gv
 
@@ -710,12 +644,6 @@ nnoremap <silent> <space>hw :%!xxd -r<cr> :set binary<cr> :set filetype=<cr>
 
 " Map w!! to write file with sudo
 cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
-
-" Rotate tab size
-nnoremap <silent> <space>v :let &ts=(&ts*2 > 16 ? 2 : &ts*2)<cr>:echo "tabstop:" . &ts<cr>
-
-" Toggle current cursor position to top / center / bottom
-noremap <expr> zz (winline() == (winheight(0) + 1) / 2) ?  'zt' : (winline() <= 2)? 'zb' : 'zz'
 
 " Reselect the text that has just been pasted
 nnoremap <silent> <space>s `[V`]
@@ -764,29 +692,16 @@ augroup END
 " ----> Color
 silent! colorscheme gruvbox8_hard
 
-" ----> Filetype detect and custom
-augroup FileTypeDetectAndCustom
+" ----> Filetype
+augroup FileTypeCustom
     autocmd!
-    autocmd BufRead,BufNewFile nginx.*.conf       setf nginx
-    autocmd BufRead,BufNewFile *.bean,*.beancount setf beancount
-    autocmd FileType qf                           setl nonu nornu
-    autocmd FileType gitcommit                    setl spell
     autocmd FileType html,css,less,sass,scss      setl sw=2 ts=2 sts=2
     autocmd FileType json,jsonnet,markdown,yaml   setl sw=2 ts=2 sts=2
-    autocmd FileType javascript,javascriptreact   setl sw=2 ts=2 sts=2
-    autocmd FileType typescript,typescriptreact   setl sw=2 ts=2 sts=2
-    autocmd FileType lua                          setl sw=2 ts=2 sts=2
-    autocmd FileType json                         syntax match Comment +\/\/.\+$+
-augroup END
+    autocmd FileType javascript,typescript,lua    setl sw=2 ts=2 sts=2
 
-" ----> Templates
-let s:templatesdir = g:vimdir . '/templates'
-if isdirectory(s:templatesdir)
-    augroup Templates
-        autocmd!
-        autocmd BufNewFile .editorconfig sil! exe '0r '.s:templatesdir.'/editorconfig'
-    augroup END
-endif
+    autocmd FileType json syntax match Comment +\/\/.\+$+
+    autocmd FileType yaml setl indentexpr=
+augroup END
 
 " ----> Tricks
 augroup VimTricks
@@ -794,58 +709,39 @@ augroup VimTricks
     " trim trailing whitespace on write
     autocmd BufWritePre * if !&bin | exe 'normal mz' | exe ':keepp %s/\v\s+$//ge' | exe 'normal `z' | endif
     " remember cursor position
-    autocmd BufReadPost * if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit' | exe "normal! g`\"" | endif
+    autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") && &ft !~# 'commit\|xxd\|gitrebase\|tutor' && !&diff | exe "normal! g`\"" | endif
     " close the quickfix or locationlist window when exiting
     autocmd QuitPre     * if empty(&buftype) | cclose | lclose | endif
     " auto source $MYVIMRC
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
-    " don't list terminal buffer at buffer list
-    if exists('##TerminalOpen')
-        autocmd TerminalOpen * if &bt ==# 'terminal' | setl nobl | endif
-    endif
     " automatically equalize windows when vim is resized
     autocmd VimResized * wincmd =
 augroup END
 
-" ----> Commands
-command! -nargs=* -complete=mapping AllMaps map <args> | map! <args> | lmap <args>
-command! RemoveBlankLine sil g/^$/d | noh | normal! ``
-command! RTP echo substitute(&runtimepath, ',', '\n', 'g')
-command! SaveAsUTF8 setl fenc=utf-8 | w
-command! Tab2Space sil %s/\t/    /g | noh | normal! ``
-command! CurrentPath echo expand('%:p')
-
-" ----> Disable some built-in plugins
-let g:loaded_2html_plugin     = 1           " tohtml
-let g:loaded_getscript        = 1           " getscript
-let g:loaded_getscriptPlugin  = 1
-let g:loaded_gzip             = 1           " gzip
-let g:loaded_logiPat          = 1           " logipat
-" let g:loaded_netrw            = 1           " netrw
-" let g:loaded_netrwPlugin      = 1
-let g:loaded_rrhelper         = 1           " rrhelper
-let g:loaded_spellfile_plugin = 1           " spellfile
-let g:loaded_tar              = 1           " tar
-let g:loaded_tarPlugin        = 1
-let g:loaded_vimball          = 1           " vimball
-let g:loaded_vimballPlugin    = 1
-let g:loaded_zip              = 1           " zip
-let g:loaded_zipPlugin        = 1
-
-" ----> Matchit
-if !exists('g:loaded_matchit')
-    silent! packadd matchit
-endif
-
 " ----> Disable options for large files
 function! DisableForLargeFiles() abort
-    if getfsize(@%) < 10 * 1024 * 1024 | return | endif
-    setl eventignore+=FileType
+    let l:threshold = 1024 * 1024 * 10  " 10M
+    let l:size = getfsize(expand('<afile>'))
+    if l:size < l:threshold | return | endif
+
+    setl eventignore+=FileType,BufEnter,BufLeave,BufWinEnter,BufWinLeave
     setl bufhidden=unload
-    setl nocursorline
-    setl nofoldenable
+    setl buftype=nowrite
+
+    setl nocursorline nocursorcolumn
+    setl nofoldenable foldmethod=manual
     setl nohlsearch noignorecase noincsearch
+    setl nonumber norelativenumber
+    setl signcolumn=no
+
     setl noswapfile noundofile nowritebackup
+    setl nobackup
+    setl syntax=off
+
+    setl noautoindent nosmartindent
+
+    setl nowrap
+    setl lazyredraw
 endfunction
 
 augroup LargeFile
@@ -853,55 +749,11 @@ augroup LargeFile
     autocmd BufReadPre * call DisableForLargeFiles()
 augroup END
 
-" ----> Zen mode
-function! ZenModeToggle() abort
-    if exists('s:zen_mode')
-        set smd ru sc nu ls=2
-        unlet s:zen_mode
-    else
-        set nosmd noru nosc nonu ls=0
-        let s:zen_mode = 1
-    endif
-endfunction
-nnoremap <silent> <space>z :call ZenModeToggle()<cr>
-
-" ----> View changes after the last save
-function! DiffWithSaved() abort
-    let l:save_pos = getpos('.')
-    let l:filetype = &ft
-    diffthis
-    vnew | r # | normal! 1Gdd
-    diffthis
-    execute 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
-    execute 'normal! ]c'
-    call setpos('.', l:save_pos)
-endfunction
-nnoremap <silent> <space>d :call DiffWithSaved()<cr>
-
-" ----> Toggle Quickfix / LocationList window
-function! QuickfixToggle() abort
-    if len(filter(getwininfo(), 'v:val.quickfix'))
-        silent! cclose
-    else
-        silent! copen 6
-    endif
-endfunction
-nnoremap <silent> <space>, :call QuickfixToggle()<cr>
-
-function! LocationToggle() abort
-    if len(filter(getwininfo(), 'v:val.loclist'))
-        silent! lclose
-    else
-        silent! lopen 6
-    endif
-endfunction
-nnoremap <silent> <space>. :call LocationToggle()<cr>
-
 " ----> Open current buffer directory in finder or explorer
-if g:env.mac
+if has('mac')
     nnoremap <silent> <leader>e :silent execute '![ -f "%:p" ] && open -R "%:p" \|\| open "%:p:h"' \| redraw!<cr>
     nnoremap <silent> <leader>E :silent execute '!open .' \| redraw!<cr>
-elseif g:env.linux
+elseif has('linux')
     nnoremap <silent> <leader>e :silent execute '!xdg-open "%:p:h"' \| redraw!<cr>
     nnoremap <silent> <leader>E :silent execute '!xdg-open .' \| redraw!<cr>
 endif
