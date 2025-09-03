@@ -8,15 +8,10 @@
 [[ -x stty ]] && stty -ixon
 
 # XDG base directories specification
-# user directories
-export XDG_CONFIG_HOME=$HOME/.config
-export XDG_CACHE_HOME=$HOME/.cache
-export XDG_DATA_HOME=$HOME/.local/share
-export XDG_STATE_HOME=$HOME/.local/state
-export XDG_RUNTIME_DIR=/tmp
-# system directories
-export XDG_DATA_DIRS=/usr/local/share:/usr/share
-export XDG_CONFIG_DIRS=/etc/xdg
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 
 # Add /usr/sbin, /usr/local/sbin, ~/.local/bin to PATH
 [[ -d /usr/sbin ]]        && export PATH=$PATH:/usr/sbin
@@ -41,16 +36,15 @@ _ENABLE_FZF=true
 # ============> Script <============
 # downloader
 _downloader() {
-    local url=$1
-    local dest=$2
+    local url="$1" dest="$2"
     local filename=$(basename "$dest")
 
     echo "Downloading $filename to $dest ..."
     if command -v curl >/dev/null 2>&1; then
-        command curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo $dest $url
+        command curl --connect-timeout 5 --compressed --create-dirs --progress-bar -fLo "$dest" "$url"
     elif command -v wget >/dev/null 2>&1; then
         mkdir -p "$(dirname "$dest")"
-        command wget --connect-timeout=5 --compression=auto --quiet --show-progress -O $dest $url
+        command wget --connect-timeout=5 --compression=auto --quiet --show-progress -O "$dest" "$url"
     else
         echo "Neither curl nor wget is installed" >&2 && return 1
     fi
@@ -83,7 +77,7 @@ _load_z() {
     [[ -f $_Z_DATA ]] || command touch $_Z_DATA 2>/dev/null || echo "z.sh: Failed to created $_Z_DATA" >&2
     [[ -f $_Z_SCRIPT ]] && source $_Z_SCRIPT || echo "z.sh: Failed to source" >&2
 }
-[[ $_ENABLE_Z ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_z
+[[ -n $_ENABLE_Z ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_z
 
 # git-prompt.sh initialize
 _load_git_prompt() {
@@ -96,7 +90,7 @@ _load_git_prompt() {
     [[ ! -f $_GIT_SCRIPT ]] && _downloader $_GIT_SCRIPT_URL $_GIT_SCRIPT
     [[ -f $_GIT_SCRIPT ]] && source $_GIT_SCRIPT || echo "git-prompt.sh: Failed to source" >&2
 }
-[[ $_INSTALLED_GIT ]] && [[ $_ENABLE_GIT_PROMPT ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_git_prompt
+[[ -n $_INSTALLED_GIT ]] && [[ -n $_ENABLE_GIT_PROMPT ]] && [[ -n $ZSH_VERSION || -n $BASH_VERSION ]] && _load_git_prompt
 
 # ============> Prompt <============
 # collapse pwd
@@ -148,7 +142,7 @@ _collapsed_pwd() {
 }
 
 # color codes
-declare -A _color_codes=(
+declare -A _colors=(
     [success]=39
     [error]=160
     [user]=140
@@ -161,12 +155,12 @@ declare -A _color_codes=(
 
 # return value indicator
 _retval() {
-    local _symbol="λ"
+    local symbol="λ"
     case $LAST_EXIT_CODE in
-        0) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;${_color_codes[success]}m${_symbol} \033[0m" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{${_color_codes[success]}}%B${_symbol} %b%f" && return;;
-        *) [[ -n $BASH_VERSION ]] && echo -e "\033[1;38;5;${_color_codes[error]}m${_symbol} \033[0m" && return
-           [[ -n $ZSH_VERSION ]] && echo "%F{${_color_codes[error]}}%B${_symbol} %b%f" && return;;
+        0) [[ -n $BASH_VERSION ]] && printf "\e[1;38;5;%sm%s \e[0m" "${_colors[success]}" "${symbol}" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{${_colors[success]}}%B${symbol} %b%f" && return;;
+        *) [[ -n $BASH_VERSION ]] && printf "\e[1;38;5;%sm%s \e[0m" "${_colors[error]}" "${symbol}" && return
+           [[ -n $ZSH_VERSION ]] && echo "%F{${_colors[error]}}%B${symbol} %b%f" && return;;
     esac
 }
 
@@ -177,7 +171,7 @@ GIT_PS1_SHOWUNTRACKEDFILES=1
 GIT_PS1_DESCRIBE_STYLE="contains"
 GIT_PS1_SHOWUPSTREAM="auto"
 _gitbranch() {
-    [[ $_INSTALLED_GIT && $_ENABLE_GIT_PROMPT ]] && echo $(__git_ps1 '[%s]')
+    [[ -n $_INSTALLED_GIT && -n $_ENABLE_GIT_PROMPT ]] && echo $(__git_ps1 '[%s]')
 }
 
 # python virtual environment
@@ -191,13 +185,13 @@ _prompt_setting() {
     local newline=$'\n'
     local prompt_end='❯'
     if [[ -n $BASH_VERSION ]]; then
-        local user_color="\[\033[1;38;5;${_color_codes[user]}m\]"
-        local dir_color="\[\033[1;38;5;${_color_codes[dir]}m\]"
-        local branch_color="\[\033[38;5;${_color_codes[branch]}m\]"
-        local prompt_color="\[\033[1;38;5;${_color_codes[prompt]}m\]"
-        local venv_color="\[\033[1;38;5;${_color_codes[venv]}m\]"
-        local reset_color="\[\033[0m\]"
-        [[ $UID -eq 0 ]] && user_color="\[\033[1;38;5;${_color_codes[root]}m\]"
+        local user_color="\[\e[1;38;5;${_colors[user]}m\]"
+        local dir_color="\[\e[1;38;5;${_colors[dir]}m\]"
+        local branch_color="\[\e[38;5;${_colors[branch]}m\]"
+        local prompt_color="\[\e[1;38;5;${_colors[prompt]}m\]"
+        local venv_color="\[\e[1;38;5;${_colors[venv]}m\]"
+        local reset_color="\[\e[0m\]"
+        [[ $UID -eq 0 ]] && user_color="\[\e[1;38;5;${_colors[root]}m\]"
         PROMPT_COMMAND='LAST_EXIT_CODE=$?'
         PS1="\$(_retval)"
         PS1+="${venv_color}\$(_venv)${reset_color}"
@@ -206,13 +200,13 @@ _prompt_setting() {
         PS1+="${newline}"
         PS1+="${prompt_color}${prompt_end}${reset_color} "
     elif [[ -n $ZSH_VERSION ]]; then
-        local user_color="%F{${_color_codes[user]}}"
-        local dir_color="%F{${_color_codes[dir]}}"
-        local branch_color="%F{${_color_codes[branch]}}"
-        local prompt_color="%F{${_color_codes[prompt]}}"
-        local venv_color="%F{${_color_codes[venv]}}"
+        local user_color="%F{${_colors[user]}}"
+        local dir_color="%F{${_colors[dir]}}"
+        local branch_color="%F{${_colors[branch]}}"
+        local prompt_color="%F{${_colors[prompt]}}"
+        local venv_color="%F{${_colors[venv]}}"
         local reset_color="%f"
-        [[ $UID -eq 0 ]] && user_color="%F{${_color_codes[root]}}"
+        [[ $UID -eq 0 ]] && user_color="%F{${_colors[root]}}"
         precmd() {
             LAST_EXIT_CODE=$?
         }
@@ -234,7 +228,7 @@ _prompt_starship() {
     [[ -n $BASH_VERSION ]] && eval "$(starship init bash)" && return
     [[ -n $ZSH_VERSION ]] && eval "$(starship init zsh)" && return
 }
-[[ $_ENABLE_STARSHIP ]] && _prompt_starship
+[[ -n $_ENABLE_STARSHIP ]] && _prompt_starship
 
 # ============> Shell <============
 # bash config
@@ -242,150 +236,62 @@ if [[ -n $BASH_VERSION ]]; then
     # -----> Option
     # use `shopt`` to check current options
     # use `shopt -p` to check the special option
-    if [[ ${BASH_VERSINFO:-0} -ge 4 ]]; then
-        shopt -s autocd     # A command name that is a directory name is executed as if it were the cd command's argument.
-        shopt -s checkjobs  # Lists the status of any stopped and running jobs before exiting an interactive shell.
-    fi
-    shopt -s checkwinsize   # Checks the window size of the current terminal window after each command, and, if necessary, updates the values of the LINES and COLUMNS shell variables.
-    shopt -s dotglob        # Includes filenames beginning with a '.' in the results of pathname expansion.
-    shopt -s histappend     # Append to the history file, don't overwrite it
-    shopt -s histreedit     # After a failed  history expansion (e.g.: !<too big number>), don't give me an empty prompt.
-    shopt -s histverify     # After a history expansion, don't execute the resulting command immediately. Instead,  write the expanded command into the readline editing buffer for further modification.
+    shopt -s autocd
+    shopt -s checkjobs
+    shopt -s checkwinsize
+    shopt -s dotglob
+    shopt -s histappend
+    shopt -s histreedit
+    shopt -s histverify
     shopt -s no_empty_cmd_completion
-
-    # -----> Completion
-    [[ -f /etc/bash_completion ]] && source /etc/bash_completion
 fi
 
 # zsh config
 if [[ -n $ZSH_VERSION ]]; then
     # -----> Option
     # Changing Directories
-    setopt AUTO_PUSHD               # Push the old directory onto the stack on cd.
-    setopt CDABLE_VARS              # Change directory to a path stored in a variable.
-    setopt PUSHD_IGNORE_DUPS        # Do not store duplicates in the stack.
-    setopt PUSHD_SILENT             # Do not print the directory stack after pushd or popd.
-    setopt PUSHD_TO_HOME            # Push to home directory when no argument is given.
+    setopt AUTO_PUSHD
+    setopt PUSHD_IGNORE_DUPS
+    setopt PUSHD_SILENT
     # Completion
-    setopt ALWAYS_TO_END            # Move cursor to the end of a completed word.
-    setopt COMPLETE_IN_WORD         # Complete from both ends of a word.
-    setopt LIST_PACKED              # Try to make the completion list smaller (occupying less lines) by printing the matches in columns with different widths.
-    unsetopt MENU_COMPLETE          # Do not autoselect the first completion entry.
-    unsetopt LIST_BEEP              # Do not beep on an ambiguous completion.
+    setopt COMPLETE_IN_WORD
+    unsetopt MENU_COMPLETE
     # Expansion and Globbing
-    setopt EXTENDED_GLOB            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of patterns for filename generation, etc.
+    setopt EXTENDED_GLOB
     # History
-    setopt EXTENDED_HISTORY         # Write the history file in the ':start:elapsed;command' format.
-    setopt HIST_EXPIRE_DUPS_FIRST   # Expire a duplicate event first when trimming history.
-    setopt HIST_FIND_NO_DUPS        # Do not display a previously found event.
-    # setopt HIST_IGNORE_ALL_DUPS     # Delete an old recorded event if a new event is a duplicate.
-    setopt HIST_IGNORE_DUPS         # Do not record an event that was just recorded again.
-    setopt HIST_IGNORE_SPACE        # Do not record an event starting with a space.
-    setopt HIST_REDUCE_BLANKS       # Remove superfluous blanks from each command line being added to the history list.
-    setopt HIST_SAVE_NO_DUPS        # Do not write a duplicate event to the history file.
-    setopt HIST_VERIFY              # Do not execute immediately upon history expansion.
-    setopt INC_APPEND_HISTORY       # Write to the history file immediately, not when the shell exits.
-    setopt SHARE_HISTORY            # Share history between all sessions.
-    unsetopt HIST_BEEP              # Do not beep when accessing non-existent history.
+    setopt EXTENDED_HISTORY
+    setopt HIST_EXPIRE_DUPS_FIRST
+    setopt HIST_FIND_NO_DUPS
+    setopt HIST_IGNORE_DUPS
+    setopt HIST_IGNORE_SPACE
+    setopt HIST_REDUCE_BLANKS
+    setopt HIST_SAVE_NO_DUPS
+    setopt HIST_VERIFY
+    setopt INC_APPEND_HISTORY
     setopt HIST_FCNTL_LOCK
     # Input/Output
-    setopt INTERACTIVE_COMMENTS     # Enable comments in interactive shell.
-    setopt PATH_DIRS                # Perform path search even on command names with slashes.
-    setopt RC_QUOTES                # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'.
-    unsetopt FLOW_CONTROL           # Disable start/stop characters in shell editor.
-    # Job Control
-    setopt AUTO_RESUME              # Attempt to resume existing job before creating a new process.
-    setopt LONG_LIST_JOBS           # List jobs in the long format by default.
-    setopt NOTIFY                   # Report status of background jobs immediately.
-    unsetopt BG_NICE                # Don't run all background jobs at a lower priority.
-    unsetopt CHECK_JOBS             # Don't report on jobs when shell exit.
-    unsetopt HUP                    # Don't kill jobs on shell exit.
+    setopt INTERACTIVE_COMMENTS
     # Prompting
-    setopt PROMPT_SUBST             # Parameter expansion, command substitution and arithmetic expansion are performed in prompts.
-    setopt TRANSIENT_RPROMPT        # Remove any right prompt from display when accepting a command line. This may be useful with terminals with other cut/paste methods.
+    setopt PROMPT_SUBST
+    setopt TRANSIENT_RPROMPT
     # Zle
-    setopt COMBINING_CHARS          # Combine zero-length punctuation characters (accents) with the base character.
-    unsetopt BEEP                   # Do not beep on error in line editor.
+    setopt COMBINING_CHARS
 
     # -----> Environments
-    PROMPT_EOL_MARK=''
-    WORDCHARS='*?_-[]~=&;!#$%^(){}'
+    WORDCHARS='*?_[]~=&;!#$%^(){}'
 
-    # create a zkbd compatible hash;
-    # to add other keys to this hash, see: man 5 terminfo
-    typeset -gA key=(
-        Home        ${terminfo[khome]}
-        End         ${terminfo[kend]}
-        Insert      ${terminfo[kich1]}
-        Backspace   ${terminfo[kbs]}
-        Delete      ${terminfo[kdch1]}
-        Up          ${terminfo[kcuu1]}
-        Down        ${terminfo[kcud1]}
-        Left        ${terminfo[kcub1]}
-        Right       ${terminfo[kcuf1]}
-        PageUp      ${terminfo[kpp]}
-        PageDown    ${terminfo[knp]}
-        Shift-Tab   ${terminfo[kcbt]}
-    )
-
-    # setup key accordingly
-    [[ -n "${key[Home]}"      ]] && bindkey -- "${key[Home]}"      beginning-of-line
-    [[ -n "${key[End]}"       ]] && bindkey -- "${key[End]}"       end-of-line
-    [[ -n "${key[Insert]}"    ]] && bindkey -- "${key[Insert]}"    overwrite-mode
-    [[ -n "${key[Backspace]}" ]] && bindkey -- "${key[Backspace]}" backward-delete-char
-    [[ -n "${key[Delete]}"    ]] && bindkey -- "${key[Delete]}"    delete-char
-    [[ -n "${key[Up]}"        ]] && bindkey -- "${key[Up]}"        up-line-or-history
-    [[ -n "${key[Down]}"      ]] && bindkey -- "${key[Down]}"      down-line-or-history
-    [[ -n "${key[Left]}"      ]] && bindkey -- "${key[Left]}"      backward-char
-    [[ -n "${key[Right]}"     ]] && bindkey -- "${key[Right]}"     forward-char
-    [[ -n "${key[PageUp]}"    ]] && bindkey -- "${key[PageUp]}"    beginning-of-buffer-or-history
-    [[ -n "${key[PageDown]}"  ]] && bindkey -- "${key[PageDown]}"  end-of-buffer-or-history
-    [[ -n "${key[Shift-Tab]}" ]] && bindkey -- "${key[Shift-Tab]}" reverse-menu-complete
-
-    # Finally, make sure the terminal is in application mode, when zle is
-    # active. Only then are the values from $terminfo valid.
-    if (( ${+terminfo[smkx]} && ${+terminfo[rmkx]} )); then
-        autoload -Uz add-zle-hook-widget
-        function zle_application_mode_start() {
-            echoti smkx
-        }
-        function zle_application_mode_stop() {
-            echoti rmkx
-        }
-        add-zle-hook-widget -Uz zle-line-init zle_application_mode_start
-        add-zle-hook-widget -Uz zle-line-finish zle_application_mode_stop
-    fi
-
+    # -----> Keybindings
     # history search
     autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
     zle -N up-line-or-beginning-search
     zle -N down-line-or-beginning-search
-
-    [[ -n "${key[Up]}"   ]] && bindkey -- "${key[Up]}"   up-line-or-beginning-search
-    [[ -n "${key[Down]}" ]] && bindkey -- "${key[Down]}" down-line-or-beginning-search
+    bindkey '^[[A' up-line-or-beginning-search   # up
+    bindkey '^[[B' down-line-or-beginning-search # down
 
     # Edit the current command line in $EDITOR
     autoload -Uz edit-command-line
     zle -N edit-command-line
     bindkey '\C-x\C-e' edit-command-line
-
-    # Smart URLs
-    # This logic comes from an old version of zim. Essentially, bracketed-paste was
-    # added as a requirement of url-quote-magic in 5.1, but in 5.1.1 bracketed
-    # paste had a regression. Additionally, 5.2 added bracketed-paste-url-magic
-    # which is generally better than url-quote-magic so we load that when possible.
-    autoload -Uz is-at-least
-    if [[ ${ZSH_VERSION} != 5.1.1 && ${TERM} != "dumb" ]]; then
-        if is-at-least 5.2; then
-            autoload -Uz bracketed-paste-url-magic
-            zle -N bracketed-paste bracketed-paste-url-magic
-        elif is-at-least 5.1; then
-            autoload -Uz bracketed-paste-magic
-            zle -N bracketed-paste bracketed-paste-magic
-        fi
-        autoload -Uz url-quote-magic
-        zle -N self-insert url-quote-magic
-    fi
 
     # -----> Completion
     # Load and initialize the zsh completion system.
@@ -413,8 +319,7 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle ':completion::complete:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
 
     # Case-insensitive (all), partial-word, and then substring completion.
-    # zstyle ':completion:*' matcher-list 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-    zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]}' 'm:{[:upper:]}={[:lower:]}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+    zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
     # Group matches and describe.
     zstyle ':completion:*:*:*:*:*' menu select
@@ -518,12 +423,9 @@ if [[ -n $ZSH_VERSION ]]; then
                                                /sbin           \
                                                /bin
 
-    # special
-    zstyle ':completion:*:(nano|vim|nvim):*' ignored-patterns '*.(wav|mp3|flv|mov|avi|wmv|pdf|doc?|xlsx)'
-
     # -----> Plugin
     # zinit
-    if [[ $_INSTALLED_GIT && $_ENABLE_ZINIT ]]; then
+    if [[ -n $_INSTALLED_GIT && -n $_ENABLE_ZINIT ]]; then
         typeset -A ZINIT=(
             HOME_DIR        $XDG_DATA_HOME/zinit
             ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
@@ -572,7 +474,7 @@ if [[ -n $ZSH_VERSION ]]; then
     fi
 
     # -----> Command-not-found
-    [[ -f /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
+    [[ -r /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
 fi
 
 # ============> Custom <============
@@ -691,7 +593,7 @@ export PATH=$PATH:$HOME/.orbstack/bin
 export WAKATIME_HOME=$XDG_CONFIG_HOME/wakatime
 
 # fzf
-if [[ $_ENABLE_FZF && $_INSTALLED_FZF ]]; then
+if [[ -n $_ENABLE_FZF && -n $_INSTALLED_FZF ]]; then
     export FZF_COMPLETION_TRIGGER='~~'
     export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
     --height 40%
@@ -704,7 +606,7 @@ if [[ $_ENABLE_FZF && $_INSTALLED_FZF ]]; then
     --color=marker:#ff87d7,spinner:#ff87d7,header:#af87ff
     '
 
-    if [[ $_INSTALLED_TMUX ]]; then
+    if [[ -n $_INSTALLED_TMUX ]]; then
         # tm - create new tmux session, or switch to existing one
         tm() {
             [[ -n $TMUX ]] && cmd='switchc' || cmd='attach'
@@ -740,52 +642,7 @@ if [[ $_ENABLE_FZF && $_INSTALLED_FZF ]]; then
         }
     fi
 
-    # ch - browse chrome history
-    ch() {
-        local cols sep chrome_history open
-        cols=$(( COLUMNS / 3 ))
-        sep='{::}'
-
-        case $OSTYPE in
-            linux*)
-                chrome_history="$HOME/.config/google-chrome/Default/History"
-                open=xdg-open;;
-            darwin*)
-                chrome_history="$HOME/Library/Application Support/Google/Chrome/Default/History"
-                open=open;;
-        esac
-        cp -f $chrome_history /tmp/h
-        sqlite3 -separator $sep /tmp/h \
-            "select substr(title, 1, $cols), url
-             from urls order by last_visit_time desc" |
-        awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
-        fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
-    }
-
-    # cb - browse chrome bookmarks
-    cb() {
-        local chrome_bookmarks open
-        case $OSTYPE in
-            linux*)
-                chrome_bookmarks="$HOME/.config/google-chrome/Default/Bookmarks"
-                open=xdg-open;;
-            darwin*)
-                chrome_bookmarks="$HOME/Library/Application Support/Google/Chrome/Default/Bookmarks"
-                open=open;;
-        esac
-
-        jq_script='
-            def ancestors: while(. | length >= 2; del(.[-1,-2]));
-            . as $in | paths(.url?) as $key | $in | getpath($key) | {name,url, path: [$key[0:-2] | ancestors as $a | $in | getpath($a) | .name?] | reverse | join("/") } | .path + "/" + .name + "\t" + .url'
-
-        jq -r "$jq_script" < "$chrome_bookmarks" \
-            | sed -E $'s/(.*)\t(.*)/\\1\t\x1b[36m\\2\x1b[m/g' \
-            | fzf --ansi \
-            | cut -d$'\t' -f2 \
-            | xargs $open
-    }
-
-    if [[ $_INSTALLED_GIT ]]; then
+    if [[ -n $_INSTALLED_GIT ]]; then
         # gdiff - broser git diff files
         gdiff() {
             ! command git rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo "Not a git repository" && return
@@ -849,9 +706,6 @@ alias grep='grep --color=auto'
 alias fgrep='grep -F --color=auto'
 alias egrep='grep -E --color=auto'
 
-alias ..='cd ..'
-alias ...='cd ../..'
-
 alias cp='cp -iv'
 alias mv='mv -iv'
 alias rm='rm -iv'
@@ -863,15 +717,12 @@ alias duf='du -sh *'
 alias job='jobs -l'
 
 alias vi='vim -N -u NONE -i NONE'
-
-alias vimrc='vim ~/.vimrc'
-alias workbench='tmux new -A -c ~/Workspace/Github -s Workbench'
 alias cdr='cd $(git rev-parse --show-toplevel)'
 alias serve='python3 -m http.server 8000'
 alias venv='python3 -m venv'
 alias lstree="find . -print | sed -e 's;[^/]*/;|---;g;s;---|; |;g'"
 alias certexp='_certexp(){openssl s_client -connect $1:443 -servername $1 2> /dev/null | openssl x509 -noout -dates};_certexp'
-
+alias randstr='openssl rand -base64 32'
 alias weather='_weather(){curl -H "Accept-Language: ${LANG%_*}" --compressed v2.wttr.in/${1-Beijing}};_weather'
 alias cheat='_cheat(){curl cheat.sh/$1};_cheat'
 alias dict='_dict(){local word="$1"; local dict="${2:-gcide}"; curl -s "dict://dict.org/d:$word:$dict";};_dict'
