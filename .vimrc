@@ -110,6 +110,8 @@ set wildignore+=**/.git/**,**/.github/**,**/.hg/**,**/.idea/**,**/.svn/**,**/.vs
 set wildignore+=**/node_modules/**,**/dist/**,**/build/**,**/target/**
 set wildignore+=**/__pycache__/**,**/.cache/**,**/coverage/**
 
+set t_RV=
+
 " ============> Plugins <============
 let s:vimplug = expand('~/.vim/autoload/plug.vim')
 if empty(glob(s:vimplug))

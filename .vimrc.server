@@ -89,6 +89,8 @@ set wildmenu
 set wildignorecase
 set wildignore+=*~,*.o,*.obj,*.out,*.so,*.egg,*.py[cdo],*.class,*.jar
 
+set t_RV=
+
 function! Statusline() abort
     let line  = ''
     let line .= ' %{mode()} '                           " buffer mode
