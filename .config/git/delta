@@ -3,30 +3,29 @@
 # Delta - A syntax-highlighting pager for git, diff, and grep output
 # Reference:
 #   https://dandavison.github.io/delta/
+#   https://github.com/dandavison/delta/releases
 [core]
     pager = delta
+[interactive]
+    diffFilter = delta --color-only
 [delta]
-    features     = decorations
+    navigate     = true
     line-numbers = true
     side-by-side = true
-    navigate     = true  # use n and N to move between diff sections
     true-color   = always
+    syntax-theme = gruvbox-dark
+    features     = decorations line-numbers hyperlinks
 [delta "decorations"]
     dark = true
-    # commit-decoration-style = 232 130 box
-    # commit-style            = 232 bold italic 130
-    file-added-label      = [+]
-    file-copied-label     = [C]
-    file-modified-label   = [M]
-    file-removed-label    = [-]
-    file-renamed-label    = [R]
-    file-decoration-style = yellow ul
-    file-style            = yellow
-    hunk-header-decoration-style  = box blue
-    hunk-header-file-style        = bold reverse purple
-    hunk-header-line-number-style = bold blue
-    hunk-header-style             = line-number
+    file-added-label    = [+]
+    file-copied-label   = [C]
+    file-modified-label = [M]
+    file-removed-label  = [-]
+    file-renamed-label  = [R]
     # the following is from --diff-so-fancy emulation
+    commit-style                  = raw
+    file-style                    = brightyellow
+    hunk-header-style             = bold syntax
     minus-style                   = bold red
     minus-non-emph-style          = bold red
     minus-emph-style              = bold red 52
@@ -36,3 +35,18 @@
     plus-non-emph-style           = bold green
     plus-emph-style               = bold green 22
     plus-empty-line-marker-style  = normal "#002800"
+    grep-file-style               = purple
+    grep-line-number-style        = green
+    whitespace-error-style        = reverse purple
+    blame-palette                 = "#000000" "#222222" "#444444"
+[delta "line-numbers"]
+    line-numbers-minus-style  = 88
+    line-numbers-zero-style   = "#444444"
+    line-numbers-plus-style   = 28
+    line-numbers-left-style   = blue
+    line-numbers-right-style  = blue
+    # line-numbers-left-format  = "│{nm:^4}│"
+    # line-numbers-right-format = "│{np:^4}│"
+[delta "hyperlinks"]
+    hyperlinks = true
+    hyperlinks-file-link-format = "vscode://file/{path}:{line}"

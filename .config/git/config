@@ -1,6 +1,10 @@
 # vim: ft=gitconfig cms=#\ %s
 
 # Tarrex's git config file.
+#
+# Git release notes:
+#   https://github.blog/open-source/git/
+#   https://github.com/git/git/tree/master/Documentation/RelNotes
 
 # Basic options
 [core]
@@ -12,19 +16,22 @@
     cm = commit -m
     ca = commit --amend
     ls = ls-files
-    ps = -p status
+    st = status --short
+    ps = status --short --branch
     sm = submodule update --recursive
+    sw = switch
+    rs = restore
 
     cloc = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
     rank = shortlog -sne --no-merges
     stat = !git --no-pager diff --stat
-    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold blue)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
+    glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold red)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)<%an>%C(reset)%C(bold yellow)%d%C(reset)'
     slog = log --stat --graph --date-order --oneline
     last = log --oneline --decorate --all -n 10
 
-    unstage  = reset HEAD --
+    unstage  = restore --staged
     uncommit = reset --soft HEAD^
-    unpush   = push -f origin HEAD^:$(git rev-parse --abbrev-ref HEAD)
+    unpush   = push --force-with-lease origin HEAD^:$(git rev-parse --abbrev-ref HEAD)
     prune    = fetch --prune
 
     search        = "!f() { git log -p -G$1 --all; }; f"
@@ -32,7 +39,8 @@
     searchmessage = "!f() { git log --grep=$1; }; f"
     filehistory   = "!f() { git log --follow -p -- $1; }; f"
     serve         = "!f() { git daemon --reuseaddr --verbose --base-path=. --export-all --listen=${1:-127.0.0.1} --port=${2:-9418} ./.git; }; f"
-    stash-all     = stash save --include-untracked
+    ignore        = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+    stash-all     = stash push --include-untracked
     delete-merged = !git branch --merged | grep -Ev '(\\*|master|main|dev|develop)' | xargs -n 1 git branch -d
     check-config  = config --list --show-origin
     aliases       = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /'
@@ -42,17 +50,19 @@
 
 [credential]
     helper = osxkeychain
-    helper = cache --timeout 30000
+    helper = cache --timeout=30000
 
 [status]
-    short              = true
     showUntrackedFiles = all
+    submoduleSummary   = true
+
 [diff]
-    renames    = true
-    submodule  = log
-    algorithm  = histogram
-    colorMoved = default
-    tool       = vimdiff    # code
+    renames         = true
+    submodule       = log
+    algorithm       = histogram
+    indentHeuristic = true
+    colorMoved      = default
+    tool            = vimdiff    # code
 # [difftool "code"]
 #     cmd = code --wait --diff $LOCAL $REMOTE
 [merge]
@@ -64,8 +74,9 @@
     template = message
     verbose  = true
 [push]
-    default    = current
-    followTags = true
+    default            = current
+    followTags         = true
+    useForceIfIncludes = true
 
 # HTTP proxy
 # [http "https://github.com"]
@@ -114,6 +125,14 @@
     httpd = webrick
     local = true
     port  = 1234
+
+# Security
+[transfer]
+    fsckObjects = true
+[fetch]
+    fsckObjects = true
+[receive]
+    fsckObjects = true
 
 # Git LFS
 # [filter "lfs"]
