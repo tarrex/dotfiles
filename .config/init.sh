@@ -29,7 +29,6 @@ _check_dependencies
 # Option, leave blank if disable
 _ENABLE_Z=true
 _ENABLE_GIT_PROMPT=true
-_ENABLE_STARSHIP=
 _ENABLE_ZINIT=true
 _ENABLE_FZF=true
 
@@ -220,16 +219,6 @@ _prompt_setting() {
 }
 _prompt_setting
 
-# starship
-_prompt_starship() {
-    command -v starship >/dev/null 2>&1 || return
-    export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
-    export STARSHIP_CACHE="$XDG_CACHE_HOME"/starship
-    [[ -n $BASH_VERSION ]] && eval "$(starship init bash)" && return
-    [[ -n $ZSH_VERSION ]] && eval "$(starship init zsh)" && return
-}
-[[ -n $_ENABLE_STARSHIP ]] && _prompt_starship
-
 # ============> Shell <============
 # bash config
 if [[ -n $BASH_VERSION ]]; then
@@ -294,184 +283,138 @@ if [[ -n $ZSH_VERSION ]]; then
     bindkey '\C-x\C-e' edit-command-line
 
     # -----> Completion
-    # Load and initialize the zsh completion system.
-    # If use zinit, don't load compinit to avoid compinit duplicate initialization.
-    [[ -d $XDG_CACHE_HOME/zsh ]] || command mkdir -p $XDG_CACHE_HOME/zsh
-    if [[ ! -f $XDG_DATA_HOME/zinit/bin/zinit.zsh ]]; then
-        autoload -Uz compinit
-        _comp_path=$XDG_CACHE_HOME/zsh/zcompdump
-        if [[ -f $_comp_path ]]; then
-            compinit -C -d "$_comp_path" # -C: skip function check
-        else
-            compinit -i -d "$_comp_path" # -i: skip security check
-            # keep $_comp_path younger than cache time even if it isn't regenerated.
-            touch "$_comp_path"
-        fi
-        unset _comp_path
-    fi
+    _zcompdump=$XDG_CACHE_HOME/zsh/zcompdump
+    command mkdir -p "$XDG_CACHE_HOME/zsh"
 
-    # Defaults
-    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+    # Completion display
+    # An empty value enables Zsh's default completion colors. LS_COLORS is
+    # initialized later in this file, so using it here is currently unreliable.
+    zstyle ':completion:*:default' list-colors ''
     zstyle ':completion:*:default' list-prompt '%S%M matches%s'
-
-    # Use a cache in order to make completion for commands such as dpkg and apt usable.
-    zstyle ':completion::complete:*' use-cache on
-    zstyle ':completion::complete:*' cache-path $XDG_CACHE_HOME/zsh/zcompcache
-
-    # Case-insensitive (all), partial-word, and then substring completion.
-    zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-
-    # Group matches and describe.
-    zstyle ':completion:*:*:*:*:*' menu select
-    zstyle ':completion:*:matches' group 'yes'
-    zstyle ':completion:*:options' description 'yes'
-    zstyle ':completion:*:options' auto-description '%d'
-    zstyle ':completion:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
-    zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
-    zstyle ':completion:*:messages' format ' %F{purple} -- %d --%f'
-    zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
-    zstyle ':completion:*' format ' %F{yellow}-- %d --%f'
+    zstyle ':completion:*:default' menu select
     zstyle ':completion:*' group-name ''
     zstyle ':completion:*' verbose yes
     zstyle ':completion:*' list-separator '  #'
+    zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
+    zstyle ':completion:*:messages' format ' %F{magenta}-- %d --%f'
+    zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+    zstyle ':completion:*:options' auto-description '%d'
 
-    # Fuzzy match mistyped completions.
-    zstyle ':completion:*' completer _complete _match _approximate
-    zstyle ':completion:*:match:*' original only
-    zstyle ':completion:*:approximate:*' max-errors 1 numeric
+    # Try exact, case-insensitive, then partial-word matching. Each entry causes
+    # another completion attempt, so keep the list short.
+    zstyle ':completion:*' matcher-list \
+        '' \
+        'm:{a-zA-Z}={A-Za-z}' \
+        'm:{a-zA-Z}={A-Za-z} r:|[._-]=* r:|=*'
 
-    # Increase the number of errors based on the length of the typed word. But make
-    # sure to cap (at 7) the max-errors to avoid hanging.
-    zstyle -e ':completion:*:approximate:*' max-errors 'reply=($((($#PREFIX+$#SUFFIX)/3>7?7:($#PREFIX+$#SUFFIX)/3))numeric)'
+    # Completion cache
+    zstyle ':completion:*' use-cache yes
+    zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
 
-    # Don't complete unavailable commands.
+    # Hide internal functions unless they are the only available matches.
     zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+    zstyle ':completion:*' single-ignored show
 
-    # Array completion element sorting.
+    # Array subscripts
     zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
 
     # Directories
     zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
-    zstyle ':completion:*:*:cd:*:directory-stack' menu yes select
-    zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
+    zstyle ':completion:*:-tilde-:*' group-order named-directories path-directories users expand
     zstyle ':completion:*' squeeze-slashes true
+    zstyle ':completion:*' special-dirs ..
 
-    # History
+    # History-word completion
     zstyle ':completion:*:history-words' stop yes
     zstyle ':completion:*:history-words' remove-all-dups yes
     zstyle ':completion:*:history-words' list false
     zstyle ':completion:*:history-words' menu yes
 
-    # Environment variables
-    zstyle ':completion::*:(-command-|export):*' fake-parameters ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-}
+    # Don't offer arguments already present on the command line.
+    zstyle ':completion:*:*:(rm|kill|diff):*:*' ignore-line other
 
-    # Hostname
-    zstyle -e ':completion:*:hosts' hosts 'reply=(
-        ${=${=${=${${(f)"$(cat {/etc/ssh/ssh_,~/.ssh/}known_hosts(|2)(N) 2> /dev/null)"}%%[#| ]*}//\]:[0-9]*/ }//,/ }//\[/ }
-        ${=${(f)"$(cat /etc/hosts(|)(N) <<(ypcat hosts 2> /dev/null))"}%%(\#${_etc_host_ignores:+|${(j:|:)~_etc_host_ignores}})*}
-        ${=${${${${(@M)${(f)"$(cat ~/.ssh/config ~/.ssh/config.d/* 2> /dev/null)"}:#Host *}#Host }:#*\**}:#*\?*}}
-    )'
-
-    # Don't complete uninteresting users...
-    zstyle ':completion:*:*:*:users' ignored-patterns \
-        adm amanda apache avahi beaglidx bin cacti canna clamav daemon \
-        dbus distcache dovecot fax ftp games gdm gkrellmd gopher \
-        hacluster haldaemon halt hsqldb ident junkbust ldap lp mail \
-        mailman mailnull mldonkey mysql nagios \
-        named netdump news nfsnobody nobody nscd ntp nut nx openvpn \
-        operator pcap postfix postgres privoxy pulse pvm quagga radvd \
-        rpc rpcuser rpm shutdown squid sshd sync uucp vcsa xfs '_*'
-
-    # ... unless we really want to.
-    zstyle '*' single-ignored show
-
-    # Ignore multiple entries.
-    zstyle ':completion:*:(rm|kill|diff):*' ignore-line other
-    zstyle ':completion:*:rm:*' file-patterns '*:all-files'
-
-    # Kill
-    zstyle ':completion:*:*:*:*:processes' command 'ps -u $LOGNAME -o pid,user,command -w'
+    # Processes
+    # -U works with the ps implementations used by macOS and Linux.
+    zstyle ':completion:*:*:*:*:processes' command 'ps -U $USER -o pid,user,command'
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
-    zstyle ':completion:*:*:kill:*' menu yes select
     zstyle ':completion:*:*:kill:*' force-list always
     zstyle ':completion:*:*:kill:*' insert-ids single
 
-    # Man
+    # Manual pages
     zstyle ':completion:*:manuals' separate-sections true
     zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
-    # SSH/SCP/RSYNC
-    zstyle ':completion:*:(ssh|scp|rsync):*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
-    zstyle ':completion:*:(scp|rsync):*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
-    zstyle ':completion:*:ssh:*' group-order users hosts-domain hosts-host users hosts-ipaddr
-    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
-    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
-    zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
-
-    zstyle ':completion:*' rehash true
-    zstyle ':completion:*' special-dirs ..
-
-    # start menu completion only if it could find no unambiguous initial string
-    zstyle ':completion:*:correct:*' insert-unambiguous true
-    zstyle ':completion:*:correct:*' original true
-
-    # search path for sudo completion
-    zstyle ':completion:*:sudo:*' command-path /usr/local/sbin \
-                                               /usr/local/bin  \
-                                               /usr/sbin       \
-                                               /usr/bin        \
-                                               /sbin           \
-                                               /bin
-
     # -----> Plugin
-    # zinit
-    if [[ -n $_INSTALLED_GIT && -n $_ENABLE_ZINIT ]]; then
+    _zinit_loaded=
+
+    if [[ -n $_ENABLE_ZINIT ]]; then
         typeset -A ZINIT=(
-            HOME_DIR        $XDG_DATA_HOME/zinit
-            ZCOMPDUMP_PATH  $XDG_CACHE_HOME/zsh/zcompdump
-            COMPINIT_OPTS   -C
+            HOME_DIR       "$XDG_DATA_HOME/zinit"
+            BIN_DIR        "$XDG_DATA_HOME/zinit/bin"
+            ZCOMPDUMP_PATH "$_zcompdump"
+            COMPINIT_OPTS  -C
         )
 
-        # zinit install
-        [[ -d $ZINIT[HOME_DIR] ]] || command mkdir -p $ZINIT[HOME_DIR]
-        if [[ ! -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-            command git clone --depth 1 https://github.com/zdharma-continuum/zinit.git $ZINIT[HOME_DIR]/bin
+        # Git is required for installation, but not for loading an existing
+        # Zinit installation.
+        if [[ ! -r $ZINIT[BIN_DIR]/zinit.zsh && -n $_INSTALLED_GIT ]]; then
+            command mkdir -p "$ZINIT[HOME_DIR]"
+            command git clone --depth 1 \
+                https://github.com/zdharma-continuum/zinit.git \
+                "$ZINIT[BIN_DIR]"
         fi
 
-        # initial
-        if [[ -f $ZINIT[HOME_DIR]/bin/zinit.zsh ]]; then
-            source $ZINIT[HOME_DIR]/bin/zinit.zsh
-
-            # zinit compinit
-            autoload -Uz _zinit
-            (( ${+_comps} )) && _comps[zinit]=_zinit
-
-            # zinit plugin
-            zinit ice wait lucid atinit'zpcompinit; zpcdreplay' depth'1' id-as'zsh-syntax-highlighting'
-            zinit light zsh-users/zsh-syntax-highlighting
-
-            zinit ice wait lucid atload'_zsh_autosuggest_start' depth'1' id-as'zsh-autosuggestions'
-            zinit light zsh-users/zsh-autosuggestions
-
-            zinit ice wait lucid blockf depth'1' id-as'zsh-completions'
-            zinit light zsh-users/zsh-completions
-
-            zinit ice lucid depth'1' id-as'history-search-multi-word'
-            zinit light zdharma-continuum/history-search-multi-word
-
-            zinit ice wait silent nocompile has'docker' as'completion' id-as'docker-completion' \
-                atclone'docker completion zsh > _docker' atpull'%atclone'
-            zinit load zdharma-continuum/null
-
-            zinit ice wait silent nocompile has'kubectl' as'completion' id-as'kubectl-completion' \
-                atclone'kubectl completion zsh > _kubectl' atpull'%atclone'
-            zinit load zdharma-continuum/null
-
-            zinit ice wait silent nocompile has'helm' as'completion' id-as'helm-completion' \
-                atclone'helm completion zsh > _helm' atpull'%atclone'
-            zinit load zdharma-continuum/null
+        if [[ -r $ZINIT[BIN_DIR]/zinit.zsh ]] &&
+            source "$ZINIT[BIN_DIR]/zinit.zsh"; then
+            _zinit_loaded=true
         fi
     fi
+
+    if [[ -n $_zinit_loaded ]]; then
+        # Command-generated completions must be registered before
+        # zsh-completions triggers compinit.
+        zinit ice wait lucid nocompile run-atpull \
+            has'docker' as'completion' id-as'docker-completion' \
+            atclone'docker completion zsh > _docker' atpull'%atclone'
+        zinit light zdharma-continuum/null
+
+        zinit ice wait lucid nocompile run-atpull \
+            has'kubectl' as'completion' id-as'kubectl-completion' \
+            atclone'kubectl completion zsh > _kubectl' atpull'%atclone'
+        zinit light zdharma-continuum/null
+
+        zinit ice wait lucid nocompile run-atpull \
+            has'helm' as'completion' id-as'helm-completion' \
+            atclone'helm completion zsh > _helm' atpull'%atclone'
+        zinit light zdharma-continuum/null
+
+        # Last completion provider: initialize Zsh completion once everything
+        # above has been registered.
+        zinit ice wait lucid blockf \
+            atload'zicompinit; zicdreplay' \
+            depth'1' id-as'zsh-completions'
+        zinit light zsh-users/zsh-completions
+
+        # ZLE plugins
+        zinit ice wait lucid depth'1' id-as'history-search-multi-word'
+        zinit light zdharma-continuum/history-search-multi-word
+
+        zinit ice wait lucid \
+            atload'_zsh_autosuggest_start' \
+            depth'1' id-as'zsh-autosuggestions'
+        zinit light zsh-users/zsh-autosuggestions
+
+        # Required by this plugin's own installation documentation: load after
+        # other plugins that create or wrap ZLE widgets.
+        zinit ice wait lucid depth'1' id-as'zsh-syntax-highlighting'
+        zinit light zsh-users/zsh-syntax-highlighting
+    else
+        # Zinit was disabled, unavailable, or failed to load. Let compinit
+        # manage its own dump and perform the normal security check.
+        autoload -Uz compinit
+        compinit -d "$_zcompdump"
+    fi
+    unset _zcompdump _zinit_loaded
 
     # -----> Command-not-found
     [[ -r /etc/zsh_command_not_found ]] && source /etc/zsh_command_not_found
@@ -494,8 +437,16 @@ fi
 
 # preferred application
 export PAGER='less'
-export EDITOR='vim'
-export VISUAL='vim'
+if command -v nvim &> /dev/null; then
+    export EDITOR='nvim'
+    export VISUAL='nvim'
+elif command -v vim &> /dev/null; then
+    export EDITOR=vim
+    export VISUAL=vim
+else
+    export EDITOR=vi
+    export VISUAL=vi
+fi
 [[ $OSTYPE == darwin* ]] && export BROWSER='open'
 
 # language
@@ -546,7 +497,7 @@ if [[ $OSTYPE == darwin* ]]; then
 fi
 
 # golang
-export GOBASEPATH=$HOME/projects/go
+export GOBASEPATH=$HOME/Workspace/GoProjects
 case $OSTYPE in
     darwin*) export GOROOT=$HOMEBREW_PREFIX/opt/go/libexec;;
      linux*) export GOROOT=/usr/local/go;;
@@ -557,7 +508,7 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 export GOMODCACHE=$GOPATH/pkg/mod           # default, go clean -modcache
 export GOCACHE=$XDG_CACHE_HOME/go-build     # go clean -cache
 export GOLANGCI_LINT_CACHE=$XDG_CACHE_HOME/golangci-lint
-# export GOPROXY=https://goproxy.cn,direct
+export GOPROXY=https://goproxy.cn,direct
 # export GOSUMDB=sum.golang.google.cn
 
 alias gohere='export GOPATH=`pwd`'
@@ -700,6 +651,10 @@ if command -v eza >/dev/null 2>&1; then
 else
     alias ll='ls -l'
     alias la='ll -a'
+fi
+
+if command -v kitten >/dev/null 2>&1; then
+    alias ssh='kitten ssh'
 fi
 
 alias grep='grep --color=auto'
