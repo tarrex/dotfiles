@@ -57,11 +57,8 @@ export LESS='-g -i -M -R -S -w -z-4'
 export LESSHISTFILE=-
 
 # ls colors
-if [[ $OSTYPE == darwin* || $OSTYPE == *bsd* ]]; then
-    export LSCOLORS=${LSCOLORS:-'Gxfxcxdxbxegedabagacad'}
-else
-    export LS_COLORS=${LS_COLORS:-'bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'}
-fi
+export LS_COLORS='bd=38;5;68:ca=38;5;17:cd=38;5;113;1:di=38;5;30:do=38;5;127:ex=38;5;208;1:pi=38;5;126:fi=0:ln=target:mh=38;5;222;1:no=0:or=48;5;196;38;5;232;1:ow=38;5;220;1:sg=48;5;3;38;5;0:su=38;5;220;1;3;100;1:so=38;5;197:st=38;5;86;48;5;234:tw=48;5;235;38;5;139;3'
+[[ $OSTYPE == darwin* || $OSTYPE == *bsd* ]] && export LSCOLORS='Gxfxcxdxbxegedabagacad'
 
 # Go
 export GOPATH=$HOME/Workspace/GoProjects
@@ -636,15 +633,15 @@ if [[ -n $ZSH_VERSION ]]; then
 
     # Completion display
     # An empty value enables Zsh's default completion colors.
-    zstyle ':completion:*:default' list-colors ''
+    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
     zstyle ':completion:*:default' list-prompt '%S%M matches%s'
     zstyle ':completion:*:default' menu select
     zstyle ':completion:*' group-name ''
     zstyle ':completion:*' verbose yes
     zstyle ':completion:*' list-separator '  #'
-    zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
-    zstyle ':completion:*:messages' format ' %F{magenta}-- %d --%f'
-    zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+    zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+    zstyle ':completion:*:messages' format '%F{magenta}-- %d --%f'
+    zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
     zstyle ':completion:*:options' auto-description '%d'
 
     # Try exact, case-insensitive, then partial-word matching. Each entry causes
