@@ -12,17 +12,19 @@
     editor    = vim         # code --wait
     pager     = less -FRXM  # bat --paging=always
 
+    untrackedCache = true
+
 [alias]
     cm = commit -m
     ca = commit --amend
     ls = ls-files
     st = status --short
     ps = status --short --branch
-    sm = submodule update --recursive
+    sm = submodule update --init --recursive
     sw = switch
     rs = restore
 
-    cloc = !git ls-files | xargs cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
+    cloc = !git ls-files -z | xargs -0 cloc -v=1 --skip-archive='(zip|tar(.(gz|Z|bz2|xz|7z))?)'
     rank = shortlog -sne --no-merges
     stat = !git --no-pager diff --stat
     glog = log --graph --oneline --decorate --all --date-order --format=format:'%C(bold red)%h%C(reset) - %C(white)%s%C(reset) %C(bold green)(%ar)%C(reset) %C(dim white)<%an>%C(reset)%C(bold yellow)%d%C(reset)'
@@ -31,18 +33,16 @@
 
     unstage  = restore --staged
     uncommit = reset --soft HEAD^
-    unpush   = push --force-with-lease origin HEAD^:$(git rev-parse --abbrev-ref HEAD)
-    prune    = fetch --prune
 
-    search        = "!f() { git log -p -G$1 --all; }; f"
-    searchcommit  = "!f() { git log -G$1 --all; }; f"
-    searchmessage = "!f() { git log --grep=$1; }; f"
-    filehistory   = "!f() { git log --follow -p -- $1; }; f"
-    serve         = "!f() { git daemon --reuseaddr --verbose --base-path=. --export-all --listen=${1:-127.0.0.1} --port=${2:-9418} ./.git; }; f"
-    ignore        = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+    search        = "!f() { git log -p -G\"$1\" --all; }; f"
+    searchcommit  = "!f() { git log -G\"$1\" --all; }; f"
+    searchmessage = "!f() { git log --grep=\"$1\"; }; f"
+    filehistory   = "!f() { git log --follow -p -- \"$1\"; }; f"
+    serve         = "!f() { git daemon --reuseaddr --verbose --base-path=. --export-all --listen=\"${1:-127.0.0.1}\" --port=\"${2:-9418}\" ./.git; }; f"
+    ignore        = "!f() { curl --fail --silent --show-error --location \"https://www.toptal.com/developers/gitignore/api/$1\" ;}; f"
     stash-all     = stash push --include-untracked
-    delete-merged = !git branch --merged | grep -Ev '(\\*|master|main|dev|develop)' | xargs -n 1 git branch -d
-    check-config  = config --list --show-origin
+    delete-merged = "!f() { current=$(git branch --show-current); git for-each-ref --format='%(refname:short)' --merged=HEAD refs/heads/ | while IFS= read -r branch; do case \"$branch\" in \"$current\"|main|master|dev|develop) continue ;; esac; git branch -d -- \"$branch\"; done; }; f"
+    check-config  = config --list --show-origin --show-scope
     aliases       = !git config --get-regexp 'alias.*' | colrm 1 6 | sed 's/[ ]/ = /'
 
 [init]
@@ -63,20 +63,28 @@
     indentHeuristic = true
     colorMoved      = default
     tool            = vimdiff    # code
+
 # [difftool "code"]
 #     cmd = code --wait --diff $LOCAL $REMOTE
+
 [merge]
     log           = true
     ff            = true
-    conflictstyle = diff3
+    conflictstyle = zdiff3
     tool          = vimdiff
 [commit]
-    template = message
+    template = ~/.config/git/message
     verbose  = true
+[pull]
+    ff = only
 [push]
     default            = current
+    autoSetupRemote    = true
     followTags         = true
     useForceIfIncludes = true
+[fetch]
+    prune       = true
+    fsckObjects = true
 
 # HTTP proxy
 # [http "https://github.com"]
@@ -84,8 +92,8 @@
 #     # proxy     = socks5h://127.0.0.1:7890
 
 # Force git to use SSH
-[url "git@github.com:"]
-    insteadOf = https://github.com/
+# [url "git@github.com:"]
+#     insteadOf = https://github.com/
 # [url "git://"]
 #     insteadOf = https://
 
@@ -126,14 +134,6 @@
     local = true
     port  = 1234
 
-# Security
-[transfer]
-    fsckObjects = true
-[fetch]
-    fsckObjects = true
-[receive]
-    fsckObjects = true
-
 # Git LFS
 # [filter "lfs"]
 #     clean    = git-lfs clean -- %f
@@ -145,6 +145,7 @@
 # [include]
 #     path = delta
 
+# Personal
 # [include]
 #     path = config.d/example.gitconfig
 # [includeIf "hasconfig:remote.*.url:https://github.com/example/*"]

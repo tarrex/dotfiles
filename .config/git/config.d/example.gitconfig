@@ -14,7 +14,7 @@
 [gpg]
     format = ssh
 [gpg "ssh"]
-    allowedSignersFile = allowed_signers
+    allowedSignersFile = ~/.config/git/allowed_signers
 [commit]
     gpgSign = true
 [tag]

@@ -1,6 +1,3 @@
-# lfs
-*.pdf       diff=lfs filter=lfs merge=lfs -text
-
 # better diff
 *.c         diff=cpp
 *.c++       diff=cpp
