@@ -635,40 +635,42 @@ if [[ -n $ZSH_VERSION ]]; then
     # -----> Completion strategy
     zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'm:{a-zA-Z}={A-Za-z} r:|[._-]=* r:|=*'
     zstyle ':completion:*' completer _complete _ignored _approximate
-    zstyle ':completion:*:approximate:*' max-errors 1 numeric
+    zstyle ':completion:*:approximate:*:*:*' max-errors 1 numeric
     zstyle ':completion:*' single-ignored show
+    zstyle ':completion:*' remote-access false
 
     # -----> Listing, grouping, and descriptions
     zstyle ':completion:*:*:*:*:*' menu select
-    zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
-    zstyle ':completion:*:default' list-prompt '%S%M matches%s'
-    zstyle ':completion:*:default' select-prompt '%S%M matches — current position: %p%s'
+    zstyle ':completion:*:*:*:*:default' list-colors ${(s.:.)LS_COLORS}
+    zstyle ':completion:*:*:*:*:default' list-prompt '%S%M matches%s'
+    zstyle ':completion:*:*:*:*:default' select-prompt '%S%M matches — current position: %p%s'
     zstyle ':completion:*' group-name ''
-    zstyle ':completion:*:matches' group 'yes'
+    zstyle ':completion:*:*:*:*:matches' group 'yes'
     zstyle ':completion:*' verbose yes
 
     zstyle ':completion:*' list-separator '  #'
-    zstyle ':completion:*:options' description 'yes'
-    zstyle ':completion:*:options' auto-description '%d'
+    zstyle ':completion:*:*:*:*:options' description 'yes'
+    zstyle ':completion:*:*:*:*:options' auto-description '%d'
     zstyle ':completion:*' format ' %F{yellow}-- %d --%f'
-    zstyle ':completion:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
-    zstyle ':completion:*:descriptions' format ' %F{yellow}-- %d --%f'
-    zstyle ':completion:*:messages' format ' %F{magenta} -- %d --%f'
-    zstyle ':completion:*:warnings' format ' %F{red}-- no matches found --%f'
+    zstyle ':completion:*:*:*:*:corrections' format ' %F{green}-- %d (errors: %e) --%f'
+    zstyle ':completion:*:*:*:*:descriptions' format ' %F{yellow}-- %d --%f'
+    zstyle ':completion:*:*:*:*:messages' format ' %F{magenta} -- %d --%f'
+    zstyle ':completion:*:*:*:*:warnings' format ' %F{red}-- no matches found --%f'
 
     # -----> Completion cache
-    zstyle ':completion::complete:*' use-cache yes
-    zstyle ':completion::complete:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
+    zstyle ':completion::complete:*:*:*' use-cache yes
+    zstyle ':completion::complete:*:*:*' cache-path "$XDG_CACHE_HOME/zsh/zcompcache"
 
     # -----> Functions, parameters, and array subscripts
     # Hide internal functions unless they are the only available matches.
-    zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
-    zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
-    zstyle -e ':completion::*:(-command-|export):*' fake-parameters 'reply=( ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-} )'
+    zstyle ':completion:*:*:*:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+    zstyle ':completion:*:*:-subscript-:*:*' tag-order indexes parameters
+    zstyle -e ':completion::*:(-command-|export):*:*' fake-parameters 'reply=( ${${${_comps[(I)-value-*]#*,}%%,*}:#-*-} )'
 
     # -----> Directories and history
-    zstyle ':completion:*:*:cd:*' tag-order local-directories path-directories
-    zstyle ':completion:*:-tilde-:*' group-order named-directories path-directories users expand
+    zstyle ':completion:*:*:cd:*:*' tag-order local-directories path-directories
+    zstyle ':completion:*:*:-tilde-:*:*' group-order named-directories path-directories users expand
+    zstyle ':completion:*' accept-exact-dirs true
     zstyle ':completion:*' squeeze-slashes true
     zstyle ':completion:*' special-dirs ..
 
@@ -679,7 +681,7 @@ if [[ -n $ZSH_VERSION ]]; then
     zstyle ':completion:*:history-words' menu yes
 
     # -----> Users and remote hosts
-    zstyle ':completion:*:*:*:users' ignored-patterns daemon nobody '_*' 'systemd-*'
+    zstyle ':completion:*:*:*:*:users' ignored-patterns daemon nobody '_*' 'systemd-*'
     zstyle ':completion:*:*:(ssh|scp|sftp|rsync):*:users' ignored-patterns \
         daemon nobody '_*' 'systemd-*' bin sys sync games man lp mail news uucp \
         proxy www-data backup list irc gnats messagebus dbus avahi polkitd rtkit
@@ -697,28 +699,28 @@ if [[ -n $ZSH_VERSION ]]; then
     )'
 
     # Separate aliases, domain names, and IP addresses in remote-host menus.
-    zstyle ':completion:*:(ssh|scp|sftp|rsync):*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
-    zstyle ':completion:*:(scp|sftp|rsync):*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
-    zstyle ':completion:*:ssh:*' group-order users hosts-domain hosts-host hosts-ipaddr
-    zstyle ':completion:*:(ssh|scp|sftp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
-    zstyle ':completion:*:(ssh|scp|sftp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
-    zstyle ':completion:*:(ssh|scp|sftp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
+    zstyle ':completion:*:*:(ssh|scp|sftp|rsync):*:*' tag-order 'hosts:-host:host hosts:-domain:domain hosts:-ipaddr:ip\ address *'
+    zstyle ':completion:*:*:(scp|sftp|rsync):*:*' group-order users files all-files hosts-domain hosts-host hosts-ipaddr
+    zstyle ':completion:*:*:ssh:*:*' group-order users hosts-domain hosts-host hosts-ipaddr
+    zstyle ':completion:*:*:(ssh|scp|sftp|rsync):*:hosts-host' ignored-patterns '*(.|:)*' loopback ip6-loopback localhost ip6-localhost broadcasthost
+    zstyle ':completion:*:*:(ssh|scp|sftp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^[-[:alnum:]]##(.[-[:alnum:]]##)##' '*@*'
+    zstyle ':completion:*:*:(ssh|scp|sftp|rsync):*:hosts-ipaddr' ignored-patterns '^(<->.<->.<->.<->|(|::)([[:xdigit:].]##:(#c,2))##(|%*))' '127.0.0.<->' '255.255.255.255' '::1' 'fe80::*'
 
     # -----> Command-specific behavior
     # Avoid offering operands that are already present on the command line.
     zstyle ':completion:*:*:(rm|kill|diff):*:*' ignore-line other
-    zstyle ':completion:*:rm:*' file-patterns '*:all-files'
+    zstyle ':completion:*:*:rm:*:*' file-patterns '*:all-files'
 
     # Process completion for kill; -U works on both macOS and Linux.
     zstyle ':completion:*:*:*:*:processes' command 'ps -U $USER -o pid,user,command'
     zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;36=0=01'
-    zstyle ':completion:*:*:kill:*' menu yes select
-    zstyle ':completion:*:*:kill:*' force-list always
-    zstyle ':completion:*:*:kill:*' insert-ids single
+    zstyle ':completion:*:*:kill:*:*' menu yes select
+    zstyle ':completion:*:*:kill:*:*' force-list always
+    zstyle ':completion:*:*:kill:*:*' insert-ids single
 
     # Keep identically named manual pages separated by section.
-    zstyle ':completion:*:manuals' separate-sections true
-    zstyle ':completion:*:manuals.(^1*)' insert-sections true
+    zstyle ':completion:*:*:*:*:manuals' separate-sections true
+    zstyle ':completion:*:*:*:*:manuals.(^1*)' insert-sections true
 
     # Zinit bootstrap
     _zinit_loaded=
